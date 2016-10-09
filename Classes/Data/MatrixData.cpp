@@ -1,9 +1,9 @@
 
 #include "MatrixData.h"
 
- const int MATRIX_LINE = 7; //矩阵行数
+ const int MATRIX_LINE =5; //矩阵行数
  const int MATRIX_ROW = 6;  //矩阵列数
- const int MATRIX_MLINE = 8; //矩阵行数
+ const int MATRIX_MLINE = 6; //矩阵行数
  const int BLOCK_NUM = MATRIX_MLINE * MATRIX_ROW;		//矩阵格子数
 
  const float BLOCK_WIDTH = DATUM*0.055f; //格子宽度（像素）

@@ -36,6 +36,14 @@ public:
 	bool isLine;
 	bool getIsLine(){ return isLine; };
 	int  special_Line;
+
+	bool checkIsNeedRefresh();  //检测是否需要进行刷新位置
+	void refreshAllElement();	//刷新所有基础元素的位置
+	int green;
+	int blue;
+	int red;
+	int yellor;
+	int purple;
 private:
 
 	TMXTiledMap* _tileMap;
@@ -50,7 +58,7 @@ private:
 	int row; //列
 	
 	vector<Coord> spriteNull;
-
+	
 private:
 	ElementUnit* **elements; //格子元素
 	Point **blocksCenter;	//格子中心

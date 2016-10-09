@@ -202,7 +202,6 @@ bool GameScene::elementsFall()
 	return matrix->elementsFall();
 }
 
-
 //允许开始连接，使矩阵层响应触控
 void GameScene::allowLink()
 {

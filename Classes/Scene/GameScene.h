@@ -67,6 +67,7 @@ public:
 
 	bool elementsFall();//矩阵元素下落，返回是否下落结束无空位
 
+
 	void allowLink(); //允许开始连接，使矩阵层响应触控
 	void forbiddenLink();//禁止开始连接，使矩阵层不响应触控
 	bool isLinkFinish();//是否有有效的连接结束

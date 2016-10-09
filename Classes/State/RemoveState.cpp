@@ -71,5 +71,9 @@ void RemoveState::onUpdate(float dt)
 
 bool RemoveState::exitState()
 {
+	if (scene->getIsLine())
+	{
+		scene->forbiddenLink(); //²»ÔÊĞí´¥Ãş
+	}
 	return true;
 }

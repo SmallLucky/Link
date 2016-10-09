@@ -9,9 +9,9 @@
 using namespace cocos2d;
 using namespace std;
 
-#define RATIO   0.8
+#define RATIO   1.0
 
-MapLayer::MapLayer() :isLine(false)
+MapLayer::MapLayer() :isLine(false), green(0), red(0), yellor(0), blue(0), purple(0)
 {
 	//分配格子元素空间
 	elements = new ElementUnit* *[MATRIX_ROW];
@@ -61,6 +61,7 @@ MapLayer::~MapLayer()
 
 	//回收消除各元素的数量空间
 	delete[] removeCount;
+
 }
 
 bool MapLayer::init()
@@ -82,6 +83,53 @@ bool MapLayer::init()
 	return true;
 }
 
+//检测是否需要进行刷新位置
+bool  MapLayer::checkIsNeedRefresh()
+{
+	ERGODIC_MBLOCK(row, line)
+	{
+		//遍历一个元素周围的所有元素 // 1,1
+		if (getElement({row,line}) == 5)
+		{
+			continue;
+		}
+		for (int i = max(row - 1, 0); i <= min(row + 1, MATRIX_ROW - 1); i++) // 0,2
+		{
+			for (int j = max(line - 1, 0); j <= min(line + 1, MATRIX_MLINE - 1); j++) //0,2
+			{
+				if (getElement({i,j}) == 5)
+				{
+					continue;
+				}
+				if (checkLink({row,line},{i,j}))
+				{
+					for (int x = max(i -1 ,0); x <= min(i + 1 ,MATRIX_ROW - 1); x++)
+					{
+						for (int y = max(j - 1 , 0 ); y < min(j + 1,MATRIX_MLINE - 1); y++)
+						{
+							if (getElement({x,y}) == 5)
+							{
+								continue;
+							}
+							if (checkLink({i,j}, {x,y}))
+							{
+								return false;
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	return true;
+}
+
+//刷新所有基础元素的位置
+void  MapLayer::refreshAllElement()
+{
+
+}
+
 //符合条件则消除被连接的元素，否则连接失败
 void MapLayer::removeLink()
 {
@@ -94,18 +142,18 @@ void MapLayer::removeLink()
 		//	SimpleAudioEngine::getInstance()->playEffect(REMOVE_EFFECT); //播放音效
 		//if (UserDefault::getInstance()->getBoolForKey(VIBRATE_UD, VIBRATE_DEFAULT_FLAG))
 		//	Vibrator::vibrate(REMOVE_VIBRATOR_TIME); //震动
-		if (getIsLine())
+		if (getIsLine()) 
 		{
-			removeSignedElement(); //消除被连接的元素
+			//removeSignedElement(); //消除被连接的元素
 		}
-		else
-		{
-			if (linkIndex.size() >= 4)
-			{
-				lastPoint = linkIndex.back();
-				createSecial(lastPoint, getElementType());
-			}
-		}
+		//else
+		//{
+		//	if (linkIndex.size() >= 4)
+		//	{
+		//		lastPoint = linkIndex.back();
+		//		createSecial(lastPoint, getElementType());
+		//	}
+		//}
 		isLine = false;
 		signClear();
 		//成功消除一次，步数减少一次
@@ -152,64 +200,104 @@ void  MapLayer::removeLineOrRow()
 int  MapLayer::removeSignedElement()
 {
 	removeAllCount = 0;
+	int removeEle;
 	ERGODIC_MBLOCK(row,line)
 	{
 		if (signFlag[row][line])
 		{
-			if (getElement({ row, line }) >= 10)//只走一次
-			{
-				isLine = true;
-				log("removeSignedElement:%d", getElement({ row, line }));
-				if (getElement({ row, line }) < 20)
-				{
-					for (int i = 0; i < 6; i++)
-					{
-						if (signElement({ i, line }))
-						{
-							continue;
-						}
-						signElement({ i, line });
-						if (getElement({ i, line }) == 5)
-						{
-							unsignElement({ i, line });
-						}
-					}
-				}if (getElement({ row, line }) >= 20)
-				{
-					if (getElement({ row, line }) < 30)
-					{
-						for (int i = 0; i < 8; i++)
-						{
-							if (signElement({ row, i }))
-							{
-								continue;
-							}
-							signElement({ row, i });
-							if (getElement({ row, i }) == 5)
-							{
-								unsignElement({ row, i });
-							}
-						}
-					}
-					if (getElement({ row, line }) >= 30)
-					{
-						ERGODIC_MBLOCK(row, line)
-						{
-							//switch (getElement({}))
-							//{
-							//default:
-							//	break;
-							//}
-						}
-					}
-				}
-
-			}
-			removeCount[removeElement(row, line)]++; //消除标记的元素
+			//if (getElement({ row, line }) >= 10)//只走一次
+			//{
+			//	isLine = true;
+			//	log("removeSignedElement:%d", getElement({ row, line }));
+			//	if (getElement({ row, line }) < 20)
+			//	{
+			//		for (int i = 0; i < 6; i++)
+			//		{
+			//			if (signElement({ i, line }))
+			//			{
+			//				continue;
+			//			}
+			//			signElement({ i, line });
+			//			if (getElement({ i, line }) == 5)
+			//			{
+			//				unsignElement({ i, line });
+			//			}
+			//		}
+			//	} 
+			//	if (getElement({ row, line }) >= 20)
+			//	{
+			//		if (getElement({ row, line }) < 30)
+			//		{
+			//			for (int i = 0; i < 8; i++)
+			//			{
+			//				if (signElement({ row, i }))
+			//				{
+			//					continue;
+			//				}    
+			//				signElement({ row, i });
+			//				if (getElement({ row, i }) == 5)
+			//				{
+			//					unsignElement({ row, i });
+			//				}
+			//			}
+			//		}
+			//		if (getElement({ row, line }) >= 30)
+			//		{
+			//			int ele = getElement({ row, line });
+			//			signElement({ row, line });
+			//			ERGODIC_MBLOCK(row, line)
+			//			{
+			//				if (getElement({ row, line }) == (ele - 30))
+			//				{
+			//					if (!signElement({ row, line }))
+			//					{
+			//						signElement({ row, line });
+			//					}
+			//				}
+			//				if (getElement({ row, line }) == (ele - 20))
+			//				{
+			//					if (!signElement({ row, line }))
+			//					{
+			//						signElement({ row, line });
+			//					}
+			//				}
+			//				if (getElement({ row, line }) == (ele - 10))
+			//				{
+			//					if (!signElement({ row, line }))
+			//					{
+			//						signElement({ row, line });
+			//					}
+			//				}
+			//			}
+			//		}
+			//	}
+			//}
+			removeEle = removeElement(row, line);
+			removeCount[removeEle]++; //消除标记的元素
 			removeAllCount++;
 		}
 	}
 	//signClear();
+	if (getElementType() == 2)
+	{
+		green += removeAllCount;
+	}
+	if (getElementType() == 0)
+	{
+		blue += removeAllCount;
+	}
+	if (getElementType() == 1)
+	{
+		purple += removeAllCount;
+	}
+	if (getElementType() == 3)
+	{
+		red += removeAllCount;
+	}
+	if (getElementType() == 4)
+	{
+		yellor += removeAllCount;
+	}
 	return removeAllCount;
 }
 
@@ -335,7 +423,7 @@ void  MapLayer::initBlocks()
 {
 	string str = StringUtils::format("tiledmap/map_%d.tmx", GAMEDATA->getCurLevel());
 	_tileMap = TMXTiledMap::create(str);//("TileMaps/hexa-test.tmx");
-	//_tileMap = TMXTiledMap::create("tiledmap/map_10.tmx");//("TileMaps/hexa-test.tmx");
+	//_tileMap = TMXTiledMap::create("tiledmap/map_15.tmx");//("TileMaps/hexa-test.tmx");
 	_tileMap->setAnchorPoint(Vec2(0.5, 0.5));
 	_tileMap->setPosition(mapPoint);
 	_tileMap->setScale(RATIO);
@@ -555,7 +643,7 @@ void  MapLayer::createSecial(Coord c,int ele)
 {
 	auto s = ElementUnit::create();
 	int num;
-	if (linkIndex.size() > 8)
+	if (linkIndex.size() >= 8)
 	{
 		 num = ele + 30;
 	}
@@ -571,9 +659,6 @@ void  MapLayer::createSecial(Coord c,int ele)
 		num = ele + 20;
 		break;
 	case 7:
-		num = ele + 20;
-		break;
-	case 8:
 		num = ele + 20;
 		break;
 	default:
@@ -664,7 +749,33 @@ int MapLayer::getElement(Coord c)
 void  MapLayer::appear(int row)
 {
 	int top =  0;//-1
-	int ele = randElement();
+	int ele = randElement(); // 0 1 2 3 4 
+	if (green >= 15)
+	{
+		//srand((int)time(0));
+		ele = 12 + ((rand() % 3 )* 10); //12 22 32 12+0,12+10,12+20
+		green = 0;
+	}
+	if (blue >= 15)
+	{
+		ele = 10 + ((rand() % 3) * 10); //12 22 32 12+0,12+10,12+20
+		blue = 0;
+	}
+	if (red >= 15)
+	{
+		ele = 13 + ((rand() % 3) * 10); //12 22 32 12+0,12+10,12+20
+		red = 0;
+	}
+	if (yellor >= 15)
+	{
+		ele = 14 + ((rand() % 3) * 10); //12 22 32 12+0,12+10,12+20
+		yellor = 0;
+	}
+	if (purple >= 15)
+	{
+		ele = 11 + ((rand() % 3) * 10); //12 22 32 12+0,12+10,12+20
+		purple = 0;
+	}
 	createElement(ele, row, top);
 	if (elements[row][top])
 	{

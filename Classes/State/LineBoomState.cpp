@@ -11,10 +11,9 @@ bool LineBoomState::checkStateChange() //状态改变返回true，状态未改变返回false，
 
 bool LineBoomState::entryState()
 {
-	scene->MyShowScoreUp(); //显示分数增加
+	//scene->MyShowScoreUp(); //显示分数增加
 	//scene->allowLink(); //允许触摸
 
-	scene->forbiddenLink(); //不允许触摸
 	matrixFinishFlag = false;
 	matrixTime = FALL_TIME;
 

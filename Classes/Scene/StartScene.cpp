@@ -48,10 +48,10 @@ void StartScene::createMenu()
 	startGame->setPosition(CommonFunction::getVisibleAchor(Anchor::MidButtom,Vec2(0,300)));
 	addChild(startGame);
 
-	auto setButton = Button::create("button/set_button.png");
-	setButton->addClickEventListener(CC_CALLBACK_0(StartScene::SetButton, this));
-	setButton->setPosition(CommonFunction::getVisibleAchor(Anchor::MidButtom,Vec2(0,150)));
-	addChild(setButton);
+	//auto setButton = Button::create("button/set_button.png");
+	//setButton->addClickEventListener(CC_CALLBACK_0(StartScene::SetButton, this));
+	//setButton->setPosition(CommonFunction::getVisibleAchor(Anchor::MidButtom,Vec2(0,150)));
+	//addChild(setButton);
 
 
 }

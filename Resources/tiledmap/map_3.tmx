@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.0" orientation="orthogonal" renderorder="right-down" width="6" height="8" tilewidth="100" tileheight="100" nextobjectid="1">
+<map version="1.0" orientation="orthogonal" renderorder="right-down" width="6" height="6" tilewidth="100" tileheight="100" nextobjectid="1">
  <tileset firstgid="1" name="bg_kuang" tilewidth="100" tileheight="100" tilecount="1" columns="1">
   <image source="bg_kuang.png" width="100" height="100"/>
  </tileset>
@@ -16,14 +16,14 @@
    </properties>
   </tile>
  </tileset>
- <layer name="map" width="6" height="8">
+ <layer name="map" width="6" height="6">
   <data encoding="base64" compression="gzip">
-   H4sIAAAAAAAAC2NkYGBgHMIYAMxpR8DAAAAA
+   H4sIAAAAAAAAC2NkYGBgHEQYAK1I0PKQAAAA
   </data>
  </layer>
- <layer name="type" width="6" height="8">
+ <layer name="type" width="6" height="6">
   <data encoding="base64" compression="gzip">
-   H4sIAAAAAAAAC2NiYGBgwoGZiWBTC+Myk5C9AAZWzHHAAAAA
+   H4sIAAAAAAAAC2NiYGBgwoGZB0AOAA5bJ3uQAAAA
   </data>
  </layer>
 </map>

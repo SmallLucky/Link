@@ -63,7 +63,7 @@ bool ShopItem::init(int diamNum, int giveNum, int moneyNum)
 		money->setAnchorPoint(Vec2(0,0.5));
 		buy_btn->addChild(money);
 
-		auto money_number = LabelAtlas::create("23","fonts/shop_num_1.png",30,30,'0');
+		auto money_number = LabelAtlas::create("23","fonts/shop_num_2.png",30,30,'0');
 		money_number->setPosition(CommonFunction::getVisibleAchor(Anchor::RightMid,money,Vec2(0,0)));
 		money_number->setAnchorPoint(Vec2(0, 0.5));
 		money->addChild(money_number);

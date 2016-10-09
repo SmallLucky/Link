@@ -26,7 +26,7 @@ void	InformationLayer::addUI()
 {
 	Size s = Director::getInstance()->getVisibleSize();
 	info_bg = Sprite::create("infor/infor_bg.png");
-	info_bg->setPosition(CommonFunction::getVisibleAchor(Anchor::MidTop,Vec2(0,-120)));
+	info_bg->setPosition(CommonFunction::getVisibleAchor(Anchor::MidTop,Vec2(0,-150)));
 	addChild(info_bg);
 
 	count_bg = Sprite::create("infor/count_bg.png");
@@ -46,7 +46,7 @@ void	InformationLayer::addUI()
 	info_bg->addChild(dog);
 
 	auto sugar = Sprite::create("infor/sugar.png");
-	sugar->setPosition(CommonFunction::getVisibleAchor(Anchor::LeftMid,info_bg,Vec2(100,-50)));
+	sugar->setPosition(CommonFunction::getVisibleAchor(Anchor::LeftMid,info_bg,Vec2(100,-60)));
 	info_bg->addChild(sugar);
 }
 
@@ -65,7 +65,8 @@ void InformationLayer::createLabel(Label* &label, char* text, Color4B color, Poi
 void  InformationLayer::initTargetScore()
 {
 	targatLabel = LabelAtlas::create(Value(GAMEDATA->getTargetScore(GAMEDATA->getCurLevel())).asString(), "fonts/infor_num_1.png", 20, 30, '0');
-	targatLabel->setPosition(CommonFunction::getVisibleAchor(Anchor::Center,targetScore_bg,Vec2(-40,-30)));
+	targatLabel->setPosition(CommonFunction::getVisibleAchor(Anchor::Center,targetScore_bg,Vec2(0,-15)));
+	targatLabel->setAnchorPoint(Vec2(0.5, 0.5));
 	targetScore_bg->addChild(targatLabel);
 }
 /*
@@ -111,8 +112,9 @@ void InformationLayer::showTime(float t)
 void InformationLayer::initScoreLabel()
 {
 	scoreLabel = LabelAtlas::create(Value(GAMEDATA->getCurSocre()).asString(), "fonts/infor_num_1.png", 20, 30, '0');
-	scoreLabel->setPosition(CommonFunction::getVisibleAchor(Anchor::Center, score_bg, Vec2(-10,-30)));
+	scoreLabel->setPosition(CommonFunction::getVisibleAchor(Anchor::Center, score_bg, Vec2(0,-15)));
 	//scoreLabel->setScale(1.2);
+	scoreLabel->setAnchorPoint(Vec2(0.5,0.5));
 	score_bg->addChild(scoreLabel);
 }
 
@@ -139,8 +141,9 @@ void InformationLayer::scoreUp(int delta, int time)
 void InformationLayer::initCountLabel()
 {
 	countLabel = LabelAtlas::create(Value(GAMEDATA->getCount(GAMEDATA->getCurLevel())).asString(), "fonts/infor_num_1.png", 20, 30, '0');
-	countLabel->setPosition(CommonFunction::getVisibleAchor(Anchor::Center, count_bg, Vec2(-25, -20)));
+	countLabel->setPosition(CommonFunction::getVisibleAchor(Anchor::Center, count_bg, Vec2(0, -10)));
 	countLabel->setScale(1.2);
+	countLabel->setAnchorPoint(Vec2(0.5,0.5));
 	count_bg->addChild(countLabel);
 
 	//char text[32];
