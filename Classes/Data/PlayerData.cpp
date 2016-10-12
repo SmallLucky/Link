@@ -7,7 +7,7 @@ const char* HIGH_SCORE_UD = "high_score"; //最高分在UserDefault中的标签
 //通过一次连接消除的个数确定得分
 int getScoreByLinkCount(int count, int ele)
 {
-	log("elemntType:%d",ele);
+	//log(" getScoreByLinkCount:elemntType:%d",ele);
 	int score;
 	switch (ele)
 	{
@@ -30,6 +30,6 @@ int getScoreByLinkCount(int count, int ele)
 		score = count * 100 * 2.5;
 		break;
 	}
-	log("elemntType:%d,count:%d,score:%d", ele, count, score);
+	//log("elemntType:%d,count:%d,score:%d", ele, count, score);
 	return score ; //count * count * 10
 }

@@ -11,7 +11,7 @@ bool RemoveState::checkStateChange() //状态改变返回true，状态未改变返回false，
 	}
 	if (IsLineBoom)
 	{
-		CHANGE_TO_STATE(LineBoomState);
+		//CHANGE_TO_STATE(LineBoomState);
 	}
 	if (matrixFinishFlag)
 		CHANGE_TO_STATE(LinkState); //若元素已下落完成，则进入等待连线状态
@@ -25,6 +25,7 @@ bool RemoveState::checkStateChange() //状态改变返回true，状态未改变返回false，
 
 bool RemoveState::entryState()
 {
+	
 	scene->showScoreUp(); //显示分数增加
 	scene->showAllCount(); //显示步数的更改
 	matrixFinishFlag = false;
@@ -33,11 +34,13 @@ bool RemoveState::entryState()
 	gameOverFlag = false;
 	gameStartFlag = false;
 	IsLineBoom = false;
+	//log("RemoveState::entryState()");
 	return true;
 }
 
 void RemoveState::onUpdate(float dt)
 {
+	//log("RemoveState::onUpdate(float dt)");
 	//time += dt;
 	//if (scene->timeLapseShow(dt) <= 0)
 	//{
@@ -60,20 +63,17 @@ void RemoveState::onUpdate(float dt)
 	matrixTime += dt;
 	if (matrixTime > FALL_TIME)
 	{
+		//log("(matrixTime > FALL_TIME)");
 		matrixTime = 0;
 		matrixFinishFlag = !scene->elementsFall(); //不断填充空位，直至矩阵填充满
-	}
-	if (scene->getIsLine())
-	{
-		IsLineBoom = true;
 	}
 }
 
 bool RemoveState::exitState()
 {
-	if (scene->getIsLine())
-	{
-		scene->forbiddenLink(); //不允许触摸
-	}
+	//if (scene->getIsLine())
+	//{
+	//	scene->forbiddenLink(); //不允许触摸
+	//}
 	return true;
 }

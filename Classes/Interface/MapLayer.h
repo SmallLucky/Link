@@ -32,10 +32,12 @@ public:
 	int elementType;
 
 	Coord lastPoint;
-	void  createSecial(Coord c,int ele);
 	bool isLine;
 	bool getIsLine(){ return isLine; };
-	int  special_Line;
+
+	//vector<int> special_Line;
+	//vector<int> special_row;
+	//vector<Coord> special_round;
 
 	bool checkIsNeedRefresh();  //检测是否需要进行刷新位置
 	void refreshAllElement();	//刷新所有基础元素的位置
@@ -64,6 +66,7 @@ private:
 	Point **blocksCenter;	//格子中心
 
 	bool **signFlag;		//是否被标记
+	bool **signFlagSpecial;		//是否被特殊元素标记的
 
 	float containsDis;		//触点包含于格子内的最大距离
 
@@ -79,9 +82,9 @@ private:
 	bool linkFinishFlag;	//是否有有效的连接结束
 public:
 	void removeLink();	//符合条件则消除被连接的元素，否则连接失败
-	//**
-	void removeLineOrRow(); //消除横向或者竖向特殊元素。
+
 	
+	void specialSignElement(int ele ,Coord c); //给特殊元素需要消除的元素加上标记
 
 	int getRemoveCount();	//获取上次连接中消除个数，并清零为下次准备
 
@@ -130,6 +133,9 @@ private:
 	int unsignElement(Coord c); //取消标记元素
 	void signClear();	//清除所有标记
 
+	int signSpecialElement(Coord c); //标记特殊元素涉及的元素
+	int unsignSpecialElement(Coord c); // 取消特殊元素涉及元素的标记
+	void signSpecial(); //取消撤销关于这特殊元素涉及的所有标识
 	void removeCountCleaar();  //清空消除个数
 	void signOnlyBlock(int row, int line);		//只标记一个元素（其他标记被取消）
 

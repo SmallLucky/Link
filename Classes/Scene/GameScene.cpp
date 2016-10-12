@@ -41,12 +41,15 @@ void GameScene::addUI()
 	rightYun->setAnchorPoint(Vec2(1, 0));
 	addChild(rightYun,1);
 
-	auto stopButton = Button::create("button/stop_button.png");
+	auto stopButton = Button::create("button/stop_button.png", "button/stop_button.png");
 	stopButton->setPosition(CommonFunction::getVisibleAchor(Anchor::Center,leftYun,Vec2(-30,-30)));
 	leftYun->addChild(stopButton);
 	stopButton->addClickEventListener([=](Ref*){
-		StopLayer* stopLayer = StopLayer::create();
-		addChild(stopLayer, 2);
+		if (matrix->isResponse())
+		{
+			StopLayer* stopLayer = StopLayer::create();
+			addChild(stopLayer, 2);
+		}
 	});
 
 	for (int i = 0; i < 3; i++)
@@ -56,8 +59,19 @@ void GameScene::addUI()
 		/*props_bg->setTag(i);*/
 		rightYun->addChild(props_bg);
 		props_bg->addClickEventListener([=](Ref*){
-			ShopLayer* shop = ShopLayer::create();
-			addChild(shop,2);
+			if (matrix->isResponse())
+			{
+				if (i == 1)
+				{
+					//刷新颜色道具数量上做减法
+					refreshElement();
+				}
+				else
+				{
+					ShopLayer* shop = ShopLayer::create();
+					addChild(shop, 2);
+				}
+			}
 		});
 
 		string str = StringUtils::format("popbox/props_%d.png",i+1);

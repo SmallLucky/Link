@@ -34,9 +34,10 @@ protected:
 	void quitGame(Ref* pSender); //ÍË³öÓÎÏ·
 	void onKeyReleased(EventKeyboard::KeyCode keycode, Event* event);
 public:
-	bool getIsLine(){ return matrix->getIsLine(); };
+	bool getIsLine(){ return matrix->getIsLine(); }
 
-
+	bool isRefreshElement(){ return matrix->checkIsNeedRefresh(); }
+	void refreshElement() { matrix->refreshAllElement();  }
 public:
 	CREATE_FUNC(GameScene);
 	bool init();

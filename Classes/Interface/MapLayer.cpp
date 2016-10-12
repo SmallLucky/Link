@@ -27,18 +27,37 @@ MapLayer::MapLayer() :isLine(false), green(0), red(0), yellor(0), blue(0), purpl
 		signFlag[i] = new bool[MATRIX_MLINE];
 	}
 
+	signFlagSpecial = new bool *[MATRIX_ROW];
+	for (int i = 0; i < MATRIX_ROW; i++)
+	{
+		signFlagSpecial[i] = new bool[MATRIX_MLINE];
+	}
+
 	//分配格子中心空间
 	blocksCenter = new Point*[MATRIX_ROW];
 	for (int i = 0; i < MATRIX_ROW; i++)
 	{
 		blocksCenter[i] = new Point[MATRIX_MLINE];
 	}
-	//分配各元素数量空间
-	elementCount = new int[ELEMENT_COUNT + 1]; //注意万能元素空间
+	////分配各元素数量空间
+	elementCount = new int[25 + 1]; //注意万能元素空间
 
-	//分配消除个元素的数量空间
-	removeCount = new int[ELEMENT_COUNT + 1]; //注意万能元素空间
+	////分配消除个元素的数量空间
+	removeCount = new int[25 + 1]; //注意万能元素空间
+	/*
+	for (int i = 0; i < 6; i++) //0-5
+	{
+		elementCount = new int[i]; //注意万能元素空间elementCount[0]elementCount[1]elementCount[10]elementCount[12]
+		elementCount = new int[i+10]; //注意万能元素空间
+		elementCount = new int[i+20]; //注意万能元素空间
+		elementCount = new int[i+30]; //注意万能元素空间 
 
+		removeCount = new int[i]; //注意万能元素空间
+		removeCount = new int[i+10]; //注意万能元素空间
+		removeCount = new int[i+20]; //注意万能元素空间
+		removeCount = new int[i+30]; //注意万能元素空间
+	}
+	*/
 	//linkBrush.clear();
 }
 MapLayer::~MapLayer()
@@ -51,6 +70,10 @@ MapLayer::~MapLayer()
 	for (int i = 0; i < MATRIX_ROW; i++)
 		delete[] signFlag[i];
 	delete[] signFlag;
+
+	for (int i = 0; i < MATRIX_ROW; i++)
+		delete[] signFlagSpecial[i];
+	delete[] signFlagSpecial;
 	//回收格子中心空间
 	for (int i = 0; i < MATRIX_ROW; i++)
 		delete[] blocksCenter[i];
@@ -89,6 +112,7 @@ bool  MapLayer::checkIsNeedRefresh()
 	ERGODIC_MBLOCK(row, line)
 	{
 		//遍历一个元素周围的所有元素 // 1,1
+		int eleCount = 0;
 		if (getElement({row,line}) == 5)
 		{
 			continue;
@@ -103,23 +127,16 @@ bool  MapLayer::checkIsNeedRefresh()
 				}
 				if (checkLink({row,line},{i,j}))
 				{
-					for (int x = max(i -1 ,0); x <= min(i + 1 ,MATRIX_ROW - 1); x++)
-					{
-						for (int y = max(j - 1 , 0 ); y < min(j + 1,MATRIX_MLINE - 1); y++)
-						{
-							if (getElement({x,y}) == 5)
-							{
-								continue;
-							}
-							if (checkLink({i,j}, {x,y}))
-							{
-								return false;
-							}
-						}
-					}
+					eleCount++;
 				}
 			}
 		}
+		if (eleCount >= 3 )
+		{
+			eleCount = 0;
+			return false;
+		}
+		eleCount = 0;
 	}
 	return true;
 }
@@ -127,7 +144,24 @@ bool  MapLayer::checkIsNeedRefresh()
 //刷新所有基础元素的位置
 void  MapLayer::refreshAllElement()
 {
-
+	ERGODIC_MBLOCK(row, line)
+	{
+		if (elements[row][line] != nullptr)
+		{
+			if (getElement({row,line}) != 5)
+			{
+				if (getElement({ row, line }) < 10)
+				{
+					elements[row][line]->removeFromParent(); ///按理是不能移除，只能换位置
+					auto s = ElementUnit::create();
+					s->createElement(randElement(), blocksCenter[row][line]);
+					elements[row][line] = s;
+					addChild(elements[row][line]);
+				}
+			}
+		}
+		
+	}
 }
 
 //符合条件则消除被连接的元素，否则连接失败
@@ -141,20 +175,12 @@ void MapLayer::removeLink()
 		//if (UserDefault::getInstance()->getBoolForKey(EFFECT_UD, EFFECT_DEFAULT_FLAG))
 		//	SimpleAudioEngine::getInstance()->playEffect(REMOVE_EFFECT); //播放音效
 		//if (UserDefault::getInstance()->getBoolForKey(VIBRATE_UD, VIBRATE_DEFAULT_FLAG))
-		//	Vibrator::vibrate(REMOVE_VIBRATOR_TIME); //震动
-		if (getIsLine()) 
+		//	Vibrator::vibrate(REMOVE_VIBRATOR_TIME); //震动 
+		if (getIsLine())
 		{
-			//removeSignedElement(); //消除被连接的元素
+			signSpecial();
+			isLine = false;
 		}
-		//else
-		//{
-		//	if (linkIndex.size() >= 4)
-		//	{
-		//		lastPoint = linkIndex.back();
-		//		createSecial(lastPoint, getElementType());
-		//	}
-		//}
-		isLine = false;
 		signClear();
 		//成功消除一次，步数减少一次
 		//removeMyCount();
@@ -170,133 +196,55 @@ void MapLayer::removeLink()
 	}
 
 	linkIndex.clear(); //清空连线序列
-}
-
-//消除横向或者竖向特殊元素。
-void  MapLayer::removeLineOrRow()
-{
-	if (getIsLine())
-	{
-		for (int i = 0; i < 6; i++)
-		{
-			if (signElement({ i, special_Line }))
-			{
-				continue;
-			}
-			signElement({i,special_Line});
-			if (getElement({ i, line }) == 5)
-			{
-				unsignElement({ i, line });
-				//typeLayer->setTileGID(1, Vec2(i, line));
-			}
-		}
-	}//标记需要消除的元素
-
-	removeSignedElement();
-
+	log("removeLink()");
 }
 
 //消除被标记的元素，返回消除个数
-int  MapLayer::removeSignedElement()
+int		MapLayer::removeSignedElement()
 {
 	removeAllCount = 0;
-	int removeEle;
 	ERGODIC_MBLOCK(row,line)
 	{
 		if (signFlag[row][line])
 		{
-			//if (getElement({ row, line }) >= 10)//只走一次
-			//{
-			//	isLine = true;
-			//	log("removeSignedElement:%d", getElement({ row, line }));
-			//	if (getElement({ row, line }) < 20)
-			//	{
-			//		for (int i = 0; i < 6; i++)
-			//		{
-			//			if (signElement({ i, line }))
-			//			{
-			//				continue;
-			//			}
-			//			signElement({ i, line });
-			//			if (getElement({ i, line }) == 5)
-			//			{
-			//				unsignElement({ i, line });
-			//			}
-			//		}
-			//	} 
-			//	if (getElement({ row, line }) >= 20)
-			//	{
-			//		if (getElement({ row, line }) < 30)
-			//		{
-			//			for (int i = 0; i < 8; i++)
-			//			{
-			//				if (signElement({ row, i }))
-			//				{
-			//					continue;
-			//				}    
-			//				signElement({ row, i });
-			//				if (getElement({ row, i }) == 5)
-			//				{
-			//					unsignElement({ row, i });
-			//				}
-			//			}
-			//		}
-			//		if (getElement({ row, line }) >= 30)
-			//		{
-			//			int ele = getElement({ row, line });
-			//			signElement({ row, line });
-			//			ERGODIC_MBLOCK(row, line)
-			//			{
-			//				if (getElement({ row, line }) == (ele - 30))
-			//				{
-			//					if (!signElement({ row, line }))
-			//					{
-			//						signElement({ row, line });
-			//					}
-			//				}
-			//				if (getElement({ row, line }) == (ele - 20))
-			//				{
-			//					if (!signElement({ row, line }))
-			//					{
-			//						signElement({ row, line });
-			//					}
-			//				}
-			//				if (getElement({ row, line }) == (ele - 10))
-			//				{
-			//					if (!signElement({ row, line }))
-			//					{
-			//						signElement({ row, line });
-			//					}
-			//				}
-			//			}
-			//		}
-			//	}
-			//}
-			removeEle = removeElement(row, line);
-			removeCount[removeEle]++; //消除标记的元素
+			if (elements[row][line])
+			{
+				if (elements[row][line]->getElement() >= 10)
+				{
+					isLine = true;
+					specialSignElement(elements[row][line]->getElement(), { row, line });
+				}
+			}
+			removeCount[removeElement(row, line)]++; //消除标记的元素
 			removeAllCount++;
 		}
 	}
 	//signClear();
+	log("getElementType()=%d", getElementType());
 	if (getElementType() == 2)
 	{
-		green += removeAllCount;
+		green += removeCount[2];
+		log("green:%d",green);
 	}
 	if (getElementType() == 0)
 	{
-		blue += removeAllCount;
+		blue += removeCount[0];
+		log("blue:%d",blue);
 	}
 	if (getElementType() == 1)
 	{
-		purple += removeAllCount;
+		purple += removeCount[1];
+		log("purple:%d",purple);
 	}
 	if (getElementType() == 3)
 	{
-		red += removeAllCount;
+		red += removeCount[3];
+		log("red:%d",red);
 	}
 	if (getElementType() == 4)
 	{
-		yellor += removeAllCount;
+		yellor += removeCount[4];
+		log("yellor:%d",yellor);
 	}
 	return removeAllCount;
 }
@@ -317,7 +265,7 @@ int MapLayer::removeElement(int row,int line)
 	}
 
 	int ele = temp->getElement(); //获得元素类型
-	elementType = ele;//获得元素类型
+	//elementType = ele;//获得元素类型
 	elementCount[ele]--; //对应元素类型计数自增
 	temp->disappear(FALL_TIME);//元素缩小至消失
 	temp = nullptr;
@@ -332,7 +280,7 @@ int MapLayer::getElementType()
 
 int MapLayer::removeMyCount()
 {
-	log("m_count:%d", m_count);
+	///log("m_count:%d", m_count);
 	return ++m_count;
 }
 
@@ -347,6 +295,7 @@ int MapLayer::getRemoveCount()
 //元素下落，填补被消除的元素。返回是否填补了空位，每列填补最下一个空位
 bool MapLayer::elementsFall()
 {
+	log("elementsFall()");
 	bool flag = false; //是否填补了空位
 	for (int i = 0; i < MATRIX_ROW; ++i)//对每一列单独处理 0
 	{
@@ -372,7 +321,7 @@ bool MapLayer::checkIsNull(int _row, int _line)
 	int _type = getType.asValueMap()["type"].asInt();
 	if (_type == 2)
 	{
-		log("_type == 2");
+		//log("_type == 2");
 		return true;
 	}
 	return false;
@@ -435,7 +384,6 @@ void  MapLayer::initBlocks()
 	
 	line = _tileMap->getMapSize().height; // 10
 	row = _tileMap->getMapSize().width; // 8
-	log("***line:%i ,row:%i",line,row);
 
 	////mei shi xian
 	containsDis =(typeLayer->getMapTileSize().width*RATIO)/2 - 5;//(_tileMap->getTileSize().width + _tileMap->getTileSize().height) / 4 * TOUCH_RADIUS; // 48*48
@@ -443,7 +391,6 @@ void  MapLayer::initBlocks()
 
 	ERGODIC_MBLOCK(row,line)
 	{
-		log("*********************row : %d, line : %d", row, line);
 		blocksCenter[row][line] = getMCenterByCoord(row, line); //确定格子中心位置
 			/*	int  num = (uint32_t)typeLayer->getTileGIDAt(Vec2(i, j));*/
 				//getType = _tileMap->getPropertiesForGID(num);
@@ -462,13 +409,17 @@ void  MapLayer::initBlocks()
 			elements[row][line] = nullptr;
 		}
 	}
-
 	//初始化数量
-	for (int i = 0; i < 6; ++i)
+	for (int i = 0; i < 6; ++i) //0-5
 	{
-		log("elementCount[i]:%i",i);
 		elementCount[i] = 0;
+		elementCount[i+10] = 0;
+		elementCount[i+20] = 0;
+		elementCount[i+30] = 0;
 		removeCount[i] = 0;
+		removeCount[i+10] = 0;
+		removeCount[i+20] = 0;
+		removeCount[i+30] = 0;
 	}
 	removeAllCount = 0;
 }
@@ -506,6 +457,7 @@ void  MapLayer::signClear()
 	ERGODIC_MBLOCK(row,line)
 	{
 		unsignElement(row, line);
+		unsignSpecialElement({ row, line });
 	}
 }
 
@@ -544,6 +496,20 @@ int MapLayer::signElement(Coord c)
 	return signElement(c.row, c.line);//调用重载函数
 }
 
+//标记特殊元素涉及的元素
+int		MapLayer::signSpecialElement(Coord c)
+{
+	signFlagSpecial[c.row][c.line] = true;
+	return 0;
+}
+
+// 取消特殊元素涉及元素的标记
+int		MapLayer::unsignSpecialElement(Coord c)
+{
+	signFlagSpecial[c.row][c.line] = false;
+	return 0;
+}
+
 bool MapLayer::onTouchBegan(Touch *touch, Event *unused_event) //开始触摸
 {
 	if (isResponse())//如果允许触摸
@@ -558,7 +524,7 @@ bool MapLayer::onTouchBegan(Touch *touch, Event *unused_event) //开始触摸
 		{
 			if (blocksCenter[row][line].getDistance(touchPoint) < containsDis)//如果触摸点在格子有效半径内
 			{
-				log("element:%i", getElement({ row, line }));
+				//log("element:%i", getElement({ row, line }));
 				if (getElement({ row, line }) == 5)
 				{
 					log("wild");
@@ -590,13 +556,13 @@ void MapLayer::onTouchMoved(Touch *touch, Event *unused_event) //触摸点移动
 			int _row = latestPos.row;
 			if (blocksCenter[_row][_line].getDistance(touchPoint) < containsDis)
 			{
-				log("return");
+				//log("return");
 				return; //若触摸点仍在同一个格子里，则不操作
 			}
 
 			if (linkIndex.size() > 1) //若已经形成连线（有两个或以上元素连接）
 			{
-				log("linkIndex.size() > 1");
+				//log("linkIndex.size() > 1");
 				Coord linkPos = *(linkIndex.end() - 2); //连线的倒数第二个元素
 				if (blocksCenter[linkPos.row][linkPos.line].getDistance(touchPoint) < containsDis)
 				{
@@ -612,11 +578,21 @@ void MapLayer::onTouchMoved(Touch *touch, Event *unused_event) //触摸点移动
 				{
 					if (blocksCenter[i][j].getDistance(touchPoint) < containsDis) //如果触摸点在格子有效半径内
 					{
-						if (!signFlag[i][j]) //如果该元素未被连接过
+						if (! signFlag[i][j]) //如果该元素未被连接过
 						{
 							if (checkLink(latestPos, { i, j })) //如果两个元素符合连接的条件（颜色或数字相同，或其中一个是万能元素）
 							{
-								linkElement(latestPos, { i, j }); //连接两个元素
+								linkElement(latestPos, { i, j }); //连接两个元素 加上了标记
+								if (elements[i][j]->getElement() > 10)
+								{
+									elementType = elements[i][j]->getElement()%10;//获得元素类型
+									log("onTouchMoved(Touch *touch, Event *unused_event) :elementType %d",elementType);
+								}
+								else
+								{
+									elementType = elements[i][j]->getElement();//获得元素类型
+									log("elementType：%d", elementType);
+								}
 							}
 						}
 					}
@@ -632,43 +608,106 @@ void MapLayer::onTouchEnded(Touch *touch, Event *unused_event) //触摸结束
 	if (isResponse())//如果允许触摸
 	{
 		Point touchPoint = Director::getInstance()->convertToGL(touch->getLocationInView());
-
 		removeLink();//进行一次消除，判断符合条件后消除连线的元素
-		
 	}
+
 	touchedFlag = false;  //触摸结束
+	log("onTouchEnded");
 }
 
-void  MapLayer::createSecial(Coord c,int ele)
+//给特殊元素需要消除的元素加上标记
+void	 MapLayer::specialSignElement(int ele, Coord c)
 {
-	auto s = ElementUnit::create();
-	int num;
-	if (linkIndex.size() >= 8)
+	log("MapLayer::specialSignElement(int ele, Coord c)");
+	if (ele >= 10 && ele < 20) // hengxiang
 	{
-		 num = ele + 30;
+		log("ele :%d",ele);
+		for (int i = 0; i < 6; i++)
+		{
+			if (elements[i][c.line])
+			{
+				int eletype = elements[i][c.line]->getElement();
+				if (!signFlag[i][c.line] && !signFlagSpecial[i][c.line])
+				{
+					if (eletype == 5)
+					{
+						//signFlagSpecial[i][c.line] = false;
+						continue;
+					}
+					if (eletype < 10 && eletype != 5)
+					{
+						signFlagSpecial[i][c.line] = true; // 加上标记
+					}
+					else
+					{
+						log("specialSignElement(elements[i][c.line]->getElement(), {i,c.line})");
+						signFlagSpecial[i][c.line] = true; // 是特殊元素，给自己加上标记，下次检测的时候就不在检测了，否则会进入死循环一直递归下去
+						specialSignElement(elements[i][c.line]->getElement(), {i,c.line});//调用自己，递归的用法。
+					}
+
+				}
+			}
+
+		}
 	}
-	switch (linkIndex.size())
+	if (ele >= 20 && ele < 30) //shuaxiang
 	{
-	case 4:
-		num = ele + 10;
-		break;
-	case 5:
-		num = ele + 10;
-		break;
-	case 6:
-		num = ele + 20;
-		break;
-	case 7:
-		num = ele + 20;
-		break;
-	default:
-		break;
+		log("ele :%d", ele);
+		for (int i = 0; i < 6; i++)
+		{
+			if (elements[c.row][i])
+			{
+				int eletype = elements[c.row][i]->getElement();
+				if (!signFlag[c.row][i] && !signFlagSpecial[c.row][i])
+				{
+					if (eletype == 5)
+					{
+						//signFlagSpecial[c.row][i] = false;
+						continue;
+					}
+					if (eletype < 10 && eletype != 5)
+					{
+						signFlagSpecial[c.row][i] = true;
+					}
+					else
+					{
+						signFlagSpecial[c.row][i] = true;
+						specialSignElement(elements[c.row][i]->getElement(), { c.row, i });
+					}
+				}
+			}
+		}
+	}if (ele >= 30 && ele < 40 )
+	{
+		log("ele :%d", ele);
+		for (int i = max(c.row - 1, 0); i <= min(c.row + 1, MATRIX_ROW - 1); i++) // 0,2
+		{
+			for (int j = max(c.line - 1, 0); j <= min(c.line + 1, MATRIX_MLINE - 1); j++) //0,2
+			{
+				if (elements[i][j])
+				{
+					int eletype = elements[i][j]->getElement();
+					if (!signFlag[i][j] && !signFlagSpecial[i][j])
+					{
+						if (eletype == 5)
+						{
+							//signFlagSpecial[i][j] = false;
+							continue;
+						}
+						if (eletype < 10 && eletype != 5)
+						{
+							signFlagSpecial[i][j] = true;
+						}
+						else
+						{
+							signFlagSpecial[i][j] = true;
+							specialSignElement(elements[i][j]->getElement(), {i,j});
+						}
+					}
+				}
+			}
+		}
 	}
-	log("num:%d",num);
-	s->createElement(num, getMCenterByCoord(c.row, c.line));
-	elements[c.row][c.line] = s;
-	elementCount[num]++;
-	addChild(elements[c.row][c.line]);
 }
 
 //撤销最后一次连接
@@ -678,6 +717,21 @@ void MapLayer::undoLink()
 	linkIndex.pop_back(); //清除连线序列的最后一个元素
 	removeLatestLine(); //删除最后一条连接线
 	unsignElement(latest); //取消最后一个元素的标记
+}
+
+//取消撤销关于这特殊元素涉及的所有标识
+void	MapLayer::signSpecial()
+{
+	ERGODIC_MBLOCK(row, line)
+	{
+		if (signFlagSpecial[row][line])
+		{
+			if (elements[row][line])
+			{
+				removeCount[removeElement(row, line)]++; //消除标记的元素
+			}
+		}
+	}
 }
 
 //绘制矩形辅助线
@@ -724,16 +778,18 @@ bool MapLayer::checkLink(Coord from, Coord to)
 	{
 		return true;
 	}
-	int f = getElement(from);
-	int t = getElement(to);
-	log("getElement(to): f:%d,t:%d", f, t);
+	int f = getElement(from); //10 // 0
+	int t = getElement(to); //0  // 10
+	//log("getElement(to): f:%d,t:%d", f, t);
 	//其中一个是万能元素
 	if (getElement(to) == (getElement(from) + 10) || getElement(to) == (getElement(from) + 20) || getElement(to) == (getElement(from) + 30))
 	{
 		return true;
 	}
 	if (getElement(to) == (getElement(from) - 10) || getElement(to) == (getElement(from) - 20) || getElement(to) == (getElement(from) - 30))
+	{
 		return true;
+	}
 
 	return false; //不能连接
 
@@ -748,30 +804,31 @@ int MapLayer::getElement(Coord c)
 //指定列的顶端出现新元素
 void  MapLayer::appear(int row)
 {
+	log("appear(int row)");
 	int top =  0;//-1
 	int ele = randElement(); // 0 1 2 3 4 
-	if (green >= 15)
+	if (green >= 5)
 	{
 		//srand((int)time(0));
 		ele = 12 + ((rand() % 3 )* 10); //12 22 32 12+0,12+10,12+20
 		green = 0;
 	}
-	if (blue >= 15)
+	if (blue >= 5)
 	{
 		ele = 10 + ((rand() % 3) * 10); //12 22 32 12+0,12+10,12+20
 		blue = 0;
 	}
-	if (red >= 15)
+	if (red >= 5)
 	{
 		ele = 13 + ((rand() % 3) * 10); //12 22 32 12+0,12+10,12+20
 		red = 0;
 	}
-	if (yellor >= 15)
+	if (yellor >= 5)
 	{
 		ele = 14 + ((rand() % 3) * 10); //12 22 32 12+0,12+10,12+20
 		yellor = 0;
 	}
-	if (purple >= 15)
+	if (purple >= 5)
 	{
 		ele = 11 + ((rand() % 3) * 10); //12 22 32 12+0,12+10,12+20
 		purple = 0;
@@ -845,7 +902,7 @@ void MapLayer::linkStart(int row, int line)
 //连接两个元素
 void MapLayer::linkElement(Coord from, Coord to)
 {
-	log("linkElement");
+	///log("linkElement");
 	signElement(to);  //标记元素
 	drawLine(from, to); //绘制连线
 	linkIndex.push_back(to); //添加到连线序列
@@ -867,7 +924,7 @@ void MapLayer::clearElement()
 }
 
 //在指定位置创建给定类型的元素
-int  MapLayer::createElement(int element, int row, int line)
+int  MapLayer::createElement(int element, int row, int line) //22
 {
 		ElementUnit* &temp = elements[row][line]; //定义临时变量，简化代码
 		temp = ElementUnit::create();
@@ -905,6 +962,9 @@ void MapLayer::removeCountCleaar()
 	for (int i = 0; i < ELEMENT_COUNT; ++i)
 	{
 		removeCount[i] = 0;
+		removeCount[i + 10] = 0;
+		removeCount[i + 20] = 0;
+		removeCount[i + 30] = 0;
 	}
 }
 

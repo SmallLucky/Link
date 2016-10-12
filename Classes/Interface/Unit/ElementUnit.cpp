@@ -12,7 +12,7 @@ bool ElementUnit:: init()
 }
 
 //在指定位置创建指定类型的元素
-void ElementUnit::createElement(int ele, Point pos)
+void ElementUnit::createElement(int ele, Point pos)//22
 {
 	element = ele; //5
 	_hp = 0;
@@ -20,18 +20,20 @@ void ElementUnit::createElement(int ele, Point pos)
 
 	//elementSprite = Sprite::create(ELEMENT_NORMAL_IMG[ele]);	//根据元素类型选择
 	elementSprite = Sprite::create(getImageString( ele));	//根据元素类型选择
+	//log("createElement(int ele, Point pos) : %s", getImageString(ele));
 	if (elementSprite)
 	{
-		log("elementSprite::%d , point: %f -- %f",ele , pos.x,pos.y);
+		//log("elementSprite::%d , point: %f -- %f",ele , pos.x,pos.y);
 		elementSprite->setPosition(Point::ZERO);
 		setSize(elementSprite, ELEMENT_NORMAL_SIZE);	//设置图片的尺寸
 		addChild(elementSprite);
 	}
 }
 
-string ElementUnit::getImageString(int ele)
+string ElementUnit::getImageString(int ele)//22
 {
-	string str = StringUtils::format("element/element_%d.png", ele);
+	log("ElementUnit::getImageString(int ele)%d", ele);
+	string str = StringUtils::format("element/element_%i.png", ele);
 	return str;
 }
 

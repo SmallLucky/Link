@@ -46,6 +46,7 @@ void StateMachine::changeState(State* state)
 //每帧自动调用状态相应方法
 void StateMachine::update(float delta)
 {
+	//log("StateMachine::update(float delta)");
 	if (state)
 	{
 		if (!state->checkStateChange())

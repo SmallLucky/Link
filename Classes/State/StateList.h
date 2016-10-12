@@ -15,6 +15,7 @@ END_DEFINE_STATE
 
 DEFINE_STATE(LinkState) //等待连线状态
 bool gameOverFlag;
+bool refreshElement;
 END_DEFINE_STATE
 
 DEFINE_STATE(RemoveState) //消除状态
