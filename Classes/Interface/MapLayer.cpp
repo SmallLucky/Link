@@ -44,20 +44,7 @@ MapLayer::MapLayer() :isLine(false), green(0), red(0), yellor(0), blue(0), purpl
 
 	////分配消除个元素的数量空间
 	removeCount = new int[25 + 1]; //注意万能元素空间
-	/*
-	for (int i = 0; i < 6; i++) //0-5
-	{
-		elementCount = new int[i]; //注意万能元素空间elementCount[0]elementCount[1]elementCount[10]elementCount[12]
-		elementCount = new int[i+10]; //注意万能元素空间
-		elementCount = new int[i+20]; //注意万能元素空间
-		elementCount = new int[i+30]; //注意万能元素空间 
 
-		removeCount = new int[i]; //注意万能元素空间
-		removeCount = new int[i+10]; //注意万能元素空间
-		removeCount = new int[i+20]; //注意万能元素空间
-		removeCount = new int[i+30]; //注意万能元素空间
-	}
-	*/
 	//linkBrush.clear();
 }
 MapLayer::~MapLayer()
@@ -399,10 +386,13 @@ void  MapLayer::initBlocks()
 		{
 			//这块瓦片是不显示 
 			auto s = ElementUnit::create();
-			s->createElement(5, getMCenterByCoord(row, line));
-			elements[row][line] = s;
-			elementCount[5]++;
-			addChild(elements[row][line], 1);
+			if (s)
+			{
+				s->createElement(5, getMCenterByCoord(row, line));
+				elements[row][line] = s;
+				elementCount[5]++;
+				addChild(elements[row][line], 1);
+			}
 		}
 		else
 		{
@@ -583,15 +573,18 @@ void MapLayer::onTouchMoved(Touch *touch, Event *unused_event) //触摸点移动
 							if (checkLink(latestPos, { i, j })) //如果两个元素符合连接的条件（颜色或数字相同，或其中一个是万能元素）
 							{
 								linkElement(latestPos, { i, j }); //连接两个元素 加上了标记
-								if (elements[i][j]->getElement() > 10)
+								if (elements[i][j])
 								{
-									elementType = elements[i][j]->getElement()%10;//获得元素类型
-									log("onTouchMoved(Touch *touch, Event *unused_event) :elementType %d",elementType);
-								}
-								else
-								{
-									elementType = elements[i][j]->getElement();//获得元素类型
-									log("elementType：%d", elementType);
+									if (elements[i][j]->getElement() > 10)
+									{
+										elementType = elements[i][j]->getElement() % 10;//获得元素类型
+										log("onTouchMoved(Touch *touch, Event *unused_event) :elementType %d", elementType);
+									}
+									else
+									{
+										elementType = elements[i][j]->getElement();//获得元素类型
+										log("elementType：%d", elementType);
+									}
 								}
 							}
 						}
@@ -798,7 +791,10 @@ bool MapLayer::checkLink(Coord from, Coord to)
 //获取指定位置元素类型
 int MapLayer::getElement(Coord c)
 {
-	return elements[c.row][c.line]->getElement();
+	if (elements[c.row][c.line])
+	{
+		return elements[c.row][c.line]->getElement();
+	}
 }
 
 //指定列的顶端出现新元素
