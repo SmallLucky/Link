@@ -46,6 +46,9 @@ void StopLayer::addUI()
 
 void	StopLayer::newGameCallBack()
 {
+#if(CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
+	LOGD("StopLayer::newGameCallBack()");
+#endif
 	log("new");
 	GameScene* gameScene = GameScene::create();
 	Director::getInstance()->replaceScene(gameScene);  //Ìø×ª

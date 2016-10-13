@@ -12,8 +12,14 @@
 int  GameScene::_power = 0;
 bool GameScene::init()
 {
+#if(CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
+	LOGD("GameScene::init()");
+#endif
 	if (!Scene::init())
 	{
+#if(CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
+		LOGD("GameScene::init() false");
+#endif
 		return false;
 	}
 	addUI();
@@ -24,7 +30,9 @@ bool GameScene::init()
 	auto listenerkeyPad = EventListenerKeyboard::create();
 	listenerkeyPad->onKeyReleased = CC_CALLBACK_2(GameScene::onKeyReleased, this);
 	_eventDispatcher->addEventListenerWithSceneGraphPriority(listenerkeyPad, this);
-
+#if(CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
+	LOGD("GameScene::init() true");
+#endif
 	return true;
 }
 void GameScene::addUI()
@@ -89,7 +97,9 @@ void GameScene::initGame()
 {
 	//time = ROUND_TIME;
 	//showTime(time); //显示剩余时间
-
+#if(CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
+	LOGD("GameScene::initGame()");
+#endif
 	_count = GAMEDATA->getCount(GAMEDATA->getCurLevel());
 	showCount(_count);
 
@@ -104,6 +114,9 @@ void GameScene::initGame()
 //初始化背景层
 void GameScene::initBackground()
 {
+#if(CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
+	LOGD("GameScene::initBackground()");
+#endif
 	background = BackgroundLayer::create();
 	addChild(background);
 }
@@ -111,6 +124,9 @@ void GameScene::initBackground()
 //初始化矩阵层
 void GameScene::initMatrix()
 {
+#if(CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
+	LOGD("GameScene::initMatrix()");
+#endif
 	//matrix = MatrixTLayer::create();
 	//addChild(matrix);
 	matrix = MapLayer::create();
@@ -120,6 +136,9 @@ void GameScene::initMatrix()
 //初始化信息层
 void GameScene::initInformation()
 {
+#if(CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
+	LOGD(" GameScene::initInformation()");
+#endif
 	information = InformationLayer::create();
 	addChild(information);
 }
@@ -127,6 +146,9 @@ void GameScene::initInformation()
 //初始化玩家
 void GameScene::initPlayers()
 {
+#if(CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
+	LOGD(" GameScene::initPlayers()");
+#endif
 	players = Players::create();
 	addChild(players);
 }
@@ -134,6 +156,9 @@ void GameScene::initPlayers()
 //初始化主控玩家
 void GameScene::initMaster()
 {
+#if(CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
+	LOGD("GameScene::initMaster()");
+#endif
 	players->createAlly(MASTER_ID);
 	players->setMaster(MASTER_ID); //设置主控玩家
 }
@@ -213,6 +238,9 @@ int GameScene::showScoreUp(int delta)
 //矩阵元素下落，返回是否下落结束无空位
 bool GameScene::elementsFall()
 {
+#if(CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
+	LOGD("GameScene::elementsFall()");
+#endif
 	return matrix->elementsFall();
 }
 
@@ -231,6 +259,9 @@ void GameScene::forbiddenLink()
 //是否有有效的连接结束
 bool GameScene::isLinkFinish()
 {
+#if(CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
+	LOGD(" GameScene::isLinkFinish()");
+#endif
 	return matrix->isLinkFinish();
 }
 
@@ -267,6 +298,9 @@ void  GameScene::gameNextLevel()
 //开始新游戏
 void GameScene::restart(Ref* pSender)
 {
+#if(CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
+	LOGD("GameScene::restart(Ref* pSender)");
+#endif
 	Scene* s = GameScene::create();
 	Director::getInstance()->replaceScene(s); //用新的Game场景替换原场景，开始新游戏
 }
@@ -294,6 +328,9 @@ void GameScene::quitGame(Ref* pSender)
 //返回状态机指针
 StateMachine* GameScene::getStateMachine()
 {
+#if(CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
+		LOGD("GameScene::getStateMachine()");
+#endif
 	return stateMachine;
 }
 void GameScene::update(float dt)

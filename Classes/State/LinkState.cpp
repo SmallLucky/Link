@@ -10,6 +10,9 @@ bool LinkState::checkStateChange() //状态改变返回true，状态未改变返回false，
 	}
 	else if (scene->isLinkFinish())
 	{
+#if(CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
+		LOGD("CHANGE_TO_STATE(RemoveState); ");
+#endif
 		CHANGE_TO_STATE(RemoveState); //若完成一次连线，则进入消除状态
 	}
 	else if (refreshElement)
@@ -23,6 +26,9 @@ bool LinkState::checkStateChange() //状态改变返回true，状态未改变返回false，
 
 bool LinkState::entryState()
 {
+#if(CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
+	LOGD("LinkState::entryState() ");
+#endif
 	scene->allowLink(); //允许触摸
 	scene->prepareLink(); //为连线准备
 

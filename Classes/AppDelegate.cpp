@@ -17,6 +17,11 @@ AppDelegate::AppDelegate() {
 
 AppDelegate::~AppDelegate() 
 {
+	//HttpClient::destroyInstance();
+	//Configuration::getInstance()->destroyInstance();
+	//ScriptEngineManager::getInstance()->destroyInstance();
+	//PoolManager::getInstance()->destroyInstance();
+
 }
 
 //if you want a different context,just modify the value of glContextAttrs

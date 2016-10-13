@@ -97,7 +97,7 @@ public:
 	int removeMyCount();
 
 public:
-	void drawGuideLine(Point leftBottom, Point rightTop);		//绘制矩形辅助线
+	//void drawGuideLine(Point leftBottom, Point rightTop);		//绘制矩形辅助线
 	void drawLine(Coord from, Coord to);			//绘制连接两个元素的线
 	bool removeLatestLine();					//删除最后一条连接线，返回是否删除成功
 	void removeAllLine();						//删除所有线

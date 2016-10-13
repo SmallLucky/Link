@@ -7,7 +7,7 @@ using namespace cocos2d;
 
 class TTButton : public Layer
 {
-	Button* button;
+	
 public:
 
 };

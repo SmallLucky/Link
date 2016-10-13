@@ -25,7 +25,9 @@ bool RemoveState::checkStateChange() //状态改变返回true，状态未改变返回false，
 
 bool RemoveState::entryState()
 {
-	
+#if(CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
+	LOGD("RemoveState::entryState()");
+#endif
 	scene->showScoreUp(); //显示分数增加
 	scene->showAllCount(); //显示步数的更改
 	matrixFinishFlag = false;
@@ -33,7 +35,7 @@ bool RemoveState::entryState()
 
 	gameOverFlag = false;
 	gameStartFlag = false;
-	IsLineBoom = false;
+	IsLineBoom = false;     
 	//log("RemoveState::entryState()");
 	return true;
 }

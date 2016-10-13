@@ -22,9 +22,12 @@ bool LevelLayer::init()
 	visibleSize = Director::getInstance()->getVisibleSize();
 
 	Sprite* bg1 = Sprite::create("bg/bg_1.png");
-	bg1->setAnchorPoint(Vec2(0.5,0));
-	bg1->setPosition(CommonFunction::getVisibleAchor(Anchor::MidButtom,Vec2(0,0)));
-	addChild(bg1);
+	if (bg1)
+	{
+		bg1->setAnchorPoint(Vec2(0.5, 0));
+		bg1->setPosition(CommonFunction::getVisibleAchor(Anchor::MidButtom, Vec2(0, 0)));
+		addChild(bg1);
+	}
 
 	addScrollView();
 	addLevelButton();
@@ -35,26 +38,33 @@ void	LevelLayer::addScrollView()
 {
 
 	scrollview = ScrollView::create();
-	scrollview->setAnchorPoint(Vec2(0.5, 0));
-	scrollview->setContentSize(Director::getInstance()->getVisibleSize());
-	scrollview->setInnerContainerSize(Size(visibleSize.width, visibleSize.height * 3));
-	scrollview->setDirection(ScrollView::Direction::VERTICAL);
-	scrollview->setBackGroundColor(Color3B::GRAY);
-	scrollview->setBackGroundColorOpacity(0);
-	scrollview->setBackGroundColorType(ui::Layout::BackGroundColorType::SOLID);
-	scrollview->setPosition(Vec2(visibleSize.width / 2, 0));
-	scrollview->setInertiaScrollEnabled(true);
-	scrollview->setBounceEnabled(true);
-	scrollview->setScrollBarPositionFromCorner(Vec2(10, 0));
-	scrollview->jumpToBottom();
-	addChild(scrollview);
-	for (int i = 0; i < 3; i++)
+	if (scrollview)
 	{
-		auto bg = Sprite::create("bg/bg_1.png");
-		bg->setAnchorPoint(Vec2(0.5, 0));
-		bg->setPosition(CommonFunction::getVisibleAchor(Anchor::MidButtom, scrollview, Vec2(0, i*bg->getContentSize().height)));
-		scrollview->addChild(bg);
+		scrollview->setAnchorPoint(Vec2(0.5, 0));
+		scrollview->setContentSize(Director::getInstance()->getVisibleSize());
+		scrollview->setInnerContainerSize(Size(visibleSize.width, visibleSize.height * 3));
+		scrollview->setDirection(ScrollView::Direction::VERTICAL);
+		scrollview->setBackGroundColor(Color3B::GRAY);
+		scrollview->setBackGroundColorOpacity(0);
+		scrollview->setBackGroundColorType(ui::Layout::BackGroundColorType::SOLID);
+		scrollview->setPosition(Vec2(visibleSize.width / 2, 0));
+		scrollview->setInertiaScrollEnabled(true);
+		scrollview->setBounceEnabled(true);
+		scrollview->setScrollBarPositionFromCorner(Vec2(10, 0));
+		scrollview->jumpToBottom();
+		addChild(scrollview);
+		for (int i = 0; i < 3; i++)
+		{
+			auto bg = Sprite::create("bg/bg_1.png");
+			if (bg)
+			{
+				bg->setAnchorPoint(Vec2(0.5, 0));
+				bg->setPosition(CommonFunction::getVisibleAchor(Anchor::MidButtom, scrollview, Vec2(0, i*bg->getContentSize().height)));
+				scrollview->addChild(bg);
+			}
+		}
 	}
+
 }
 void	LevelLayer::addUI()
 {
@@ -62,52 +72,60 @@ void	LevelLayer::addUI()
 	for (int i = 0; i < 3; i++)
 	{
 		auto small_kuang = Sprite::create("popbox/labelkuang_w.png");
-		small_kuang->setPosition(CommonFunction::getVisibleAchor(Anchor::MidTop, Vec2((i*200 -200), -50)));
-		addChild(small_kuang);
-		if (i == 0)
+		if (small_kuang)
 		{
-			auto power = Sprite::create("popbox/power.png");
-			power->setPosition(CommonFunction::getVisibleAchor(Anchor::LeftMid, small_kuang, Vec2(20, 0)));
-			small_kuang->addChild(power);
+			small_kuang->setPosition(CommonFunction::getVisibleAchor(Anchor::MidTop, Vec2((i * 200 - 200), -50)));
+			addChild(small_kuang);
+			if (i == 0)
+			{
+				auto power = Sprite::create("popbox/power.png");
+				if (power)
+				{
+					power->setPosition(CommonFunction::getVisibleAchor(Anchor::LeftMid, small_kuang, Vec2(20, 0)));
+					small_kuang->addChild(power);
+				}
+				auto powerNum = LabelAtlas::create(Value(GAMEDATA->getPowerNum()).asString(), "fonts/level_fonts.png", 30, 30, '0');
+				if (powerNum)
+				{
+					powerNum->setAnchorPoint(Vec2(0.5, 0.5));
+					powerNum->setPosition(CommonFunction::getVisibleAchor(Anchor::Center, small_kuang, Vec2(10, 0)));
+					small_kuang->addChild(powerNum);
+				}
+			}
+			if (i == 1)
+			{
+				auto money = Sprite::create("popbox/big_gold.png");
+				money->setPosition(CommonFunction::getVisibleAchor(Anchor::LeftMid, small_kuang, Vec2(20, 0)));
+				small_kuang->addChild(money);
+				auto addbutton = Button::create("popbox/add_button.png");
+				addbutton->setPosition(CommonFunction::getVisibleAchor(Anchor::RightMid, small_kuang, Vec2(-10, 0)));
+				small_kuang->addChild(addbutton);
+				addbutton->addClickEventListener(CC_CALLBACK_0(LevelLayer::addCallBack, this));
 
-			auto powerNum = LabelAtlas::create(Value(GAMEDATA->getPowerNum()).asString(),"fonts/level_fonts.png",30,30,'0');
-			powerNum->setAnchorPoint(Vec2(0.5, 0.5));
-			powerNum->setPosition(CommonFunction::getVisibleAchor(Anchor::Center,small_kuang,Vec2(10,0)));
-			small_kuang->addChild(powerNum);
+				auto moneyNum = LabelAtlas::create(Value(GAMEDATA->getMoneyNum()).asString(), "fonts/level_fonts.png", 30, 30, '0');
+				moneyNum->setAnchorPoint(Vec2(0.5, 0.5));
+				moneyNum->setPosition(CommonFunction::getVisibleAchor(Anchor::Center, small_kuang, Vec2(10, 0)));
+				small_kuang->addChild(moneyNum);
+			}
+			if (i == 2)
+			{
+				auto love = Sprite::create("popbox/big_hart.png");
+				love->setPosition(CommonFunction::getVisibleAchor(Anchor::LeftMid, small_kuang, Vec2(20, 0)));
+				small_kuang->addChild(love);
+				auto addbutton = Button::create("popbox/add_button.png");
+				addbutton->setPosition(CommonFunction::getVisibleAchor(Anchor::RightMid, small_kuang, Vec2(-10, 0)));
+				small_kuang->addChild(addbutton);
+				addbutton->addClickEventListener(CC_CALLBACK_0(LevelLayer::addCallBack, this));
 
-		}
-		if (i == 1)
-		{
-			auto money = Sprite::create("popbox/big_gold.png");
-			money->setPosition(CommonFunction::getVisibleAchor(Anchor::LeftMid, small_kuang, Vec2(20, 0)));
-			small_kuang->addChild(money);
-			auto addbutton = Button::create("popbox/add_button.png");
-			addbutton->setPosition(CommonFunction::getVisibleAchor(Anchor::RightMid, small_kuang, Vec2(-10, 0)));
-			small_kuang->addChild(addbutton);
-			addbutton->addClickEventListener(CC_CALLBACK_0(LevelLayer::addCallBack,this));
+				auto loveNum = LabelAtlas::create(Value(GAMEDATA->getLoveNum()).asString(), "fonts/level_fonts.png", 30, 30, '0');
+				loveNum->setAnchorPoint(Vec2(0.5, 0.5));
+				loveNum->setPosition(CommonFunction::getVisibleAchor(Anchor::Center, small_kuang, Vec2(10, 0)));
+				small_kuang->addChild(loveNum);
 
-			auto moneyNum = LabelAtlas::create(Value(GAMEDATA->getMoneyNum()).asString(), "fonts/level_fonts.png", 30, 30, '0');
-			moneyNum->setAnchorPoint(Vec2(0.5, 0.5));
-			moneyNum->setPosition(CommonFunction::getVisibleAchor(Anchor::Center, small_kuang, Vec2(10, 0)));
-			small_kuang->addChild(moneyNum);
-		}
-		if (i == 2)
-		{
-			auto love = Sprite::create("popbox/big_hart.png");
-			love->setPosition(CommonFunction::getVisibleAchor(Anchor::LeftMid, small_kuang, Vec2(20, 0)));
-			small_kuang->addChild(love);
-			auto addbutton = Button::create("popbox/add_button.png");
-			addbutton->setPosition(CommonFunction::getVisibleAchor(Anchor::RightMid, small_kuang, Vec2(-10, 0)));
-			small_kuang->addChild(addbutton);
-			addbutton->addClickEventListener(CC_CALLBACK_0(LevelLayer::addCallBack, this));
-
-			auto loveNum = LabelAtlas::create(Value(GAMEDATA->getLoveNum()).asString(), "fonts/level_fonts.png", 30, 30, '0');
-			loveNum->setAnchorPoint(Vec2(0.5, 0.5));
-			loveNum->setPosition(CommonFunction::getVisibleAchor(Anchor::Center, small_kuang, Vec2(10, 0)));
-			small_kuang->addChild(loveNum);
-			
+			}
 		}
 	}
+
 
 	auto shopButton = Button::create("popbox/shop_button.png");
 	shopButton->setPosition(CommonFunction::getVisibleAchor(Anchor::RightButtom,Vec2(-100,100)));

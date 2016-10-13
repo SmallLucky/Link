@@ -36,17 +36,24 @@ bool StartScene::init()
 void StartScene:: createBackGround(string filename)
 {
 	BG = Sprite::create(filename);
-	BG->setPosition(CommonFunction::getVisibleAchor(Anchor::Center,Vec2(0,0)));
-	addChild(BG);
+	if (BG)
+	{
+		BG->setPosition(CommonFunction::getVisibleAchor(Anchor::Center, Vec2(0, 0)));
+		addChild(BG);
+	}
 }
 
 //创建菜单
 void StartScene::createMenu()
 {
 	auto startGame = Button::create("button/gamez_button.png");
-	startGame->addClickEventListener(CC_CALLBACK_0(StartScene::StartGame, this));
-	startGame->setPosition(CommonFunction::getVisibleAchor(Anchor::MidButtom,Vec2(0,300)));
-	addChild(startGame);
+	if (startGame)
+	{
+		startGame->addClickEventListener(CC_CALLBACK_0(StartScene::StartGame, this));
+		startGame->setPosition(CommonFunction::getVisibleAchor(Anchor::MidButtom, Vec2(0, 300)));
+		addChild(startGame);
+	}
+
 
 	//auto setButton = Button::create("button/set_button.png");
 	//setButton->addClickEventListener(CC_CALLBACK_0(StartScene::SetButton, this));
@@ -59,10 +66,13 @@ void StartScene::createMenu()
 //开始游戏 
 void StartScene::StartGame()
 {
-	log("test");
+	//log("test");
 	logTime();
 	LevelScene* levelScene = LevelScene::create();
-	Director::getInstance()->replaceScene(levelScene);
+	if (levelScene)
+	{
+		Director::getInstance()->replaceScene(levelScene);
+	}
 	//TotalLayer * total = TotalLayer::create();
 	//addChild(total);
 	//LoserLayer* lose = LoserLayer::create();
@@ -86,23 +96,29 @@ void StartScene::logTime()
 void StartScene::SetButton()
 {
 	SetLayer* setLayer = SetLayer::create();
-	addChild(setLayer);
+	if (setLayer)
+	{
+		addChild(setLayer);
+	}
 }
 
 //退出游戏
 void StartScene::QuitGame()
 {
-#if (CC_TARGET_PLATFORM == CC_PLATFORM_WP8) || (CC_TARGET_PLATFORM == CC_PLATFORM_WINRT)
-	MessageBox("You pressed the close button. Windows Store Apps do not implement a close button.", "Alert");
-	return;
-#endif
+//#if (CC_TARGET_PLATFORM == CC_PLATFORM_WP8) || (CC_TARGET_PLATFORM == CC_PLATFORM_WINRT)
+//	MessageBox("You pressed the close button. Windows Store Apps do not implement a close button.", "Alert");
+//	return;
+//#endif
 	auto quitLayer = QuitLayer::create();
-	addChild(quitLayer);
+	if (quitLayer)
+	{
+		addChild(quitLayer);
+	}
 	//Director::getInstance()->end();
 
-#if (CC_TARGET_PLATFORM == CC_PLATFORM_IOS)
-	exit(0);
-#endif
+//#if (CC_TARGET_PLATFORM == CC_PLATFORM_IOS)
+//	exit(0);
+//#endif
 }
 
 void StartScene::onKeyReleased(EventKeyboard::KeyCode keycode, Event* event)
@@ -114,7 +130,10 @@ void StartScene::onKeyReleased(EventKeyboard::KeyCode keycode, Event* event)
 			if (keycode == EventKeyboard::KeyCode::KEY_BACK)  //返回
 			{
 				auto quitLayer = QuitLayer::create();
-				addChild(quitLayer);
+				if (quitLayer)
+				{
+					addChild(quitLayer);
+				}
 			}
 		}
 	}

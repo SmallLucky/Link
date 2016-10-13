@@ -26,7 +26,10 @@ bool LevelScene::init()
 void  LevelScene::addLevelLayer()
 {
 	LevelLayer* levelLayer = LevelLayer::create();
-	addChild(levelLayer);
+	if (levelLayer)
+	{
+		addChild(levelLayer);
+	}
 	//MapLayer* mapLayer = MapLayer::create();
 	//addChild(mapLayer);
 }
@@ -40,7 +43,10 @@ void LevelScene::onKeyReleased(EventKeyboard::KeyCode keycode, Event* event)
 			if (keycode == EventKeyboard::KeyCode::KEY_BACK)  //·µ»Ø
 			{
 				auto scene = StartScene::create();
-				Director::getInstance()->replaceScene(scene);
+				if (scene)
+				{
+					Director::getInstance()->replaceScene(scene);
+				}
 			}
 		}
 	}
