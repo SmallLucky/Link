@@ -24,6 +24,5 @@ public:
 	bool init();
 
 private:
-	Size visibleSize;
 	Sprite * BG;
 };

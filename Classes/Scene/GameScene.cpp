@@ -74,7 +74,19 @@ void GameScene::addUI()
 					//刷新颜色道具数量上做减法
 					refreshElement();
 				}
-				else
+				if (i == 2)
+				{
+					//刷新颜色道具数量上做减法
+					if (matrix->getIsBoom())
+					{
+						matrix->setIsBoom(false);
+					}
+					else
+					{
+						matrix->setIsBoom(true);
+					}
+				}
+				if (i == 0)
 				{
 					ShopLayer* shop = ShopLayer::create();
 					addChild(shop, 2);

@@ -11,7 +11,8 @@ using namespace std;
 
 #define RATIO   1.0
 
-MapLayer::MapLayer() :isLine(false), green(0), red(0), yellor(0), blue(0), purple(0), elementType(5), line(0), row(0), lastPoint({0,0})
+MapLayer::MapLayer() :isLine(false), green(0), red(0), yellor(0), blue(0), purple(0), elementType(5), line(0), row(0), lastPoint({0,0}),
+isBoom(false), isCount(false)
 {
 	//分配格子元素空间
 	elements = new ElementUnit* *[MATRIX_ROW];
@@ -284,8 +285,16 @@ int MapLayer::getElementType()
 
 int MapLayer::removeMyCount()
 {
-	///log("m_count:%d", m_count);
-	return ++m_count;
+	if (isCount)
+	{
+		isCount = false;
+		return m_count;
+		
+	}
+	else
+	{
+		return ++m_count;
+	}
 }
 
 //获取上次连接中消除个数，并清零为下次准备
@@ -304,17 +313,31 @@ bool MapLayer::elementsFall()
 #endif
 	log("elementsFall()");
 	bool flag = false; //是否填补了空位
-	for (int i = 0; i < MATRIX_ROW; ++i)//对每一列单独处理 0
+	//for (int i = 0; i < MATRIX_ROW; ++i)//对每一列单独处理 0
+	//{
+	//	for (int j = MATRIX_LINE; j >= 0; --j)//7
+	//	{
+	//		if (elements[i][j] == nullptr && checkIsDrop(i,j))
+	//		{
+	//			log("MapLayer::elementsFall() : i:%d,j:%d", i, j);
+	//			//log("MapLayer::elementsFall:%i,%i",i,j);
+	//			rowFall(i, j);//从最下方开始，一旦出现空位，所有上方元素下落，填补空位
+	//			flag = true;//填补了空位
+	//			break;//每一列只填补最下一个空位
+	//		}
+	//	}
+	//}
+	for (int j = MATRIX_LINE; j >= 0; --j)//5
 	{
-		for (int j = MATRIX_LINE; j >= 0; --j)//7
+		for (int i = 0; i < MATRIX_ROW; ++i)//对每hang单独处理 0
 		{
-			if (elements[i][j] == nullptr )//07&& checkIsDrop(i,j)
+			if (elements[i][j] == nullptr && checkIsDrop(i, j))
 			{
 				log("MapLayer::elementsFall() : i:%d,j:%d", i, j);
-				//log("MapLayer::elementsFall:%i,%i",i,j);
-				rowFall(i, j);//从最下方开始，一旦出现空位，所有上方元素下落，填补空位
-				flag = true;//填补了空位
-				break;//每一列只填补最下一个空位
+				//rowFall(i, j);
+				rowMyFall(i,j);
+				flag = true;
+				break;
 			}
 		}
 	}
@@ -324,28 +347,30 @@ bool MapLayer::elementsFall()
 //检测是否可以下落
 bool	MapLayer::checkIsDrop(int r, int l)
 {
+	log("MapLayer::checkIsDrop(int r, int l)");
 	if (elements[r][l] == nullptr)//05
 	{
 		for (int i = (l-1); i >= 0; i--)//04
 		{
 			if (elements[r][i] == nullptr)
 			{
+				log("elements[r][i] == nullptr) continue;");
 				continue;
 			}else
 			{
-				if (elements[r][i]->getElement() == 5)
+				if (elements[r][i])
 				{
-					if (elements[max(r-1,0)][i]->getElement() == 5 || elements[min(r +1 ,5)][i]->getElement() == 5)
+					if (checkIsNull(r,i))
 					{
-						return false;
+						if (checkIsNull(max(r - 1, 0), i) && checkIsNull(min(r + 1, 5), i))
+						{
+							return false;
+						}
 					}
-				}
-				else
-				{
-					return true;
 				}
 			}
 		}
+		log("true*//*");
 		return true;
 	}
 	return false;
@@ -385,8 +410,60 @@ void MapLayer::prepareLink()
 	linkFinishFlag = false;
 }
 
+void	MapLayer::rowMyFall(int _row, int bottom) // 15
+{
+	int	j = bottom - 1;
+	if (j>=0)
+	{
+		if (checkIsNull(_row, j))
+		{
+			log("MapLayer::rowMyFall(int _row, int bottom):%i", j);
+			//j--;
+			if (!checkIsNull(max(_row - 1, 0), j))
+			{
+				log("if (!checkIsNull(max(_row -1 , 0), j))");
+				elements[_row][bottom] = elements[max(_row - 1, 0)][j];
+				if (elements[_row][bottom])
+				{
+					Point pop = getMCenterByCoord(_row, bottom);
+					elements[max(_row - 1, 0)][j]->moveToPosition(pop, FALL_TIME);//上方元素掉落一个
+					elements[max(_row - 1, 0)][j] = nullptr;
+				}
+			}
+			else if (!checkIsNull(min(_row + 1, 5), j))
+			{
+				log("if (!checkIsNull(min(_row + 1, 5), j))");
+				elements[_row][bottom] = elements[min(_row + 1, 5)][j];
+				if (elements[_row][bottom])
+				{
+					Point pop = getMCenterByCoord(_row, bottom);
+					elements[min(_row + 1, 5)][j]->moveToPosition(pop, FALL_TIME);//上方元素掉落一个
+					elements[min(_row + 1, 5)][j] = nullptr;
+				}
+			}
+		}
+		else
+		{
+			log("else");
+			elements[_row][bottom] = elements[_row][j]; //null
+			if (elements[_row][bottom])
+			{
+				Point pop = getMCenterByCoord(_row, bottom);
+				elements[_row][j]->moveToPosition(pop, FALL_TIME);//上方元素掉落一个
+				elements[_row][j] = nullptr;
+				//appear(_row);
+			}
+		}
+	}
+	if (j < 0)
+	{
+		appear(_row);
+	}
+
+}
+
 //指定列的全部空位上方元素下落，顶端出现新元素i.j
-void MapLayer::rowFall(int _row, int bottom)//0,7
+void MapLayer::rowFall(int _row, int bottom)//0,5
 {
 #if(CC_TARGET_PLATFORM==CC_PLATFORM_ANDROID)
 	LOGD("MapLayer::rowFall(int _row, int bottom)");
@@ -397,24 +474,56 @@ void MapLayer::rowFall(int _row, int bottom)//0,7
 		int j = i - 1;//6
 		if (checkIsNull(_row,i))
 		{
-			--i;
-			continue;
+			//--i;
+			//continue;
+			break;
 		}
-		while (checkIsNull(_row, j))//06
+		//while (checkIsNull(_row, j))//06
+		if (checkIsNull(_row, j))
 		{
-			//log("while (checkSpriteNull({ _row, j })):%i",j);
-			j--;
+			log("while (checkSpriteNull({ _row, j })):%i",j);
+			//j--;
+			if (!checkIsNull(max(_row -1 , 0), j))
+			{
+				log("if (!checkIsNull(max(_row -1 , 0), j))");
+				elements[_row][i] = elements[max(_row - 1, 0)][j];
+				if (elements[_row][i])
+				{
+					Point pop = getMCenterByCoord(_row, i);
+					elements[max(_row - 1, 0)][j]->moveToPosition(pop, FALL_TIME);//上方元素掉落一个
+					elements[max(_row - 1, 0)][j] = nullptr;
+					//appear(max(_row - 1, 0));
+				}
+			}
+			else if (!checkIsNull(min(_row + 1, 5), j))
+			{
+				log("if (!checkIsNull(min(_row + 1, 5), j))");
+				elements[_row][i] = elements[min(_row + 1, 5)][j];
+				if (elements[_row][i])
+				{
+					Point pop = getMCenterByCoord(_row, i);
+					elements[min(_row + 1, 5)][j]->moveToPosition(pop, FALL_TIME);//上方元素掉落一个
+					elements[min(_row + 1, 5)][j] = nullptr;
+					//appear(min(_row + 1, 5));
+				}
+			}
 		}
-		elements[_row][i] = elements[_row][j]; //null
-
-		if (elements[_row][i])
+		else
 		{
-			Point pop = getMCenterByCoord(_row, i);
-			elements[_row][i]->moveToPosition(pop, FALL_TIME);//上方元素掉落一个
+			log("else");
+			elements[_row][i] = elements[_row][j]; //null
+			if (elements[_row][i])
+			{
+				Point pop = getMCenterByCoord(_row, i);
+				elements[_row][j]->moveToPosition(pop, FALL_TIME);//上方元素掉落一个
+				elements[_row][j] = nullptr;
+				//appear(_row);
+			}
+			
 		}
 		i = j;
 	}
-	appear(_row);
+	/*appear(_row);*/
 } 
 
 //初始化格子，确定格子区域，初始状态矩阵为空
@@ -425,7 +534,7 @@ void  MapLayer::initBlocks()
 #endif
 	string str = StringUtils::format("tiledmap/map_%d.tmx", GAMEDATA->getCurLevel());
 	_tileMap = TMXTiledMap::create(str);//("TileMaps/hexa-test.tmx");
-	//_tileMap = TMXTiledMap::create("tiledmap/map_17.tmx");//("TileMaps/hexa-test.tmx");
+	//_tileMap = TMXTiledMap::create("tiledmap/map_15.tmx");//("TileMaps/hexa-test.tmx");
 	if (_tileMap)
 	{
 		_tileMap->setAnchorPoint(Vec2(0.5, 0.5));
@@ -617,6 +726,11 @@ bool MapLayer::onTouchBegan(Touch *touch, Event *unused_event) //开始触摸
 			if (blocksCenter[row][line].getDistance(touchPoint) < containsDis)//如果触摸点在格子有效半径内
 			{
 				//log("element:%i", getElement({ row, line }));
+				if (getIsBoom())
+				{
+					isBoomElement(row, line);
+					return true;
+				}
 				if (getElement({ row, line }) == 5)
 				{
 					log("wild");
@@ -641,6 +755,22 @@ void MapLayer::onTouchMoved(Touch *touch, Event *unused_event) //触摸点移动
 	if (isResponse()) //如果允许触摸
 	{
 		Point touchPoint = Director::getInstance()->convertToGL(touch->getLocationInView()); //获得触摸点
+		if (getIsBoom())
+		{
+			//ERGODIC_MBLOCK(row, line)
+			//{
+			//	if (blocksCenter[row][line].getDistance(touchPoint) < containsDis)
+			//	{
+			//		isBoomElement(row, line); //标记为特殊的xiaochu
+			//	}
+			//	else
+			//	{
+					//取消
+					signClear();
+		/*		}
+			}*/
+			return;
+		}
 		if (!linkIndex.empty())
 		{
 			Coord latestPos = linkIndex.back(); //连线的最后一个元素
@@ -704,7 +834,25 @@ void MapLayer::onTouchEnded(Touch *touch, Event *unused_event) //触摸结束
 	if (isResponse())//如果允许触摸
 	{
 		Point touchPoint = Director::getInstance()->convertToGL(touch->getLocationInView());
-		removeLink();//进行一次消除，判断符合条件后消除连线的元素
+
+		if (getIsBoom())
+		{
+			ERGODIC_MBLOCK(row, line)
+			{
+				if (blocksCenter[row][line].getDistance(touchPoint) < containsDis)
+				{
+					signSpecial();
+					signClear();
+					isCount = true;
+					linkFinishFlag = true;
+				}
+			}
+		}
+		else
+		{
+			
+			removeLink();//进行一次消除，判断符合条件后消除连线的元素
+		}
 	}
 
 	touchedFlag = false;  //触摸结束
@@ -712,6 +860,33 @@ void MapLayer::onTouchEnded(Touch *touch, Event *unused_event) //触摸结束
 	LOGD("onTouchEnded");
 #endif
 	log("onTouchEnded");
+}
+
+//炸弹炸掉的元素
+void	MapLayer::isBoomElement(int _row, int _line)
+{
+	signClear();
+
+	for (int i = max(_row - 1, 0); i <= min(_row + 1, MATRIX_ROW - 1); i++) // 0,2
+	{
+		for (int j = max(_line - 1, 0); j <= min(_line + 1, MATRIX_MLINE - 1); j++) //0,2
+		{
+			log("i: %d,j:%d",i,j);
+			if (elements[i][j])
+			{
+				if (elements[i][j]->getElement() == 5)
+				{
+					continue;
+				}
+				else
+				{
+					int x = signSpecialElement({ i, j });
+					log("***%d", x);
+				}
+			}
+		}
+	}
+
 }
 
 //给特殊元素需要消除的元素加上标记
@@ -823,15 +998,22 @@ void MapLayer::undoLink()
 //取消撤销关于这特殊元素涉及的所有标识
 void	MapLayer::signSpecial()
 {
+	log("MapLayer::signSpecial()");
 	ERGODIC_MBLOCK(row, line)
 	{
 		if (elements[row][line])
 		{
 			if (signFlagSpecial[row][line])
 			{
+				log("*******");
 				removeCount[removeElement(row, line)]++; //消除标记的元素
 			}
 		}
+	}
+	if (getIsBoom())
+	{
+		log("setIsBoom(false);");
+		setIsBoom(false);
 	}
 }
 
@@ -913,18 +1095,6 @@ void  MapLayer::appear(int row)
 #endif
 	log("appear(int row : %d)",row);
 	int top = 0;
-	//for (int i = 0; i < 6; i++)
-	//{
-	//	unsigned int num = typeLayer->getTileGIDAt(Vec2(row, i));
-	//	Value gT = _tileMap->getPropertiesForGID(num);
-	//	int _type = gT.asValueMap()["type"].asInt();
-	//	if (_type == 1)
-	//	{
-	//		log("_type:%d :i = %d", _type,i);
-	//		top = i;
-	//		break;
-	//	}
-	//}
 	int ele = abs(rand() % 5);// randElement(); // 0 1 2 3 4 
 	if (green >= 5)
 	{
@@ -952,16 +1122,19 @@ void  MapLayer::appear(int row)
 		ele = 11 + ((rand() % 3) * 10); //12 22 32 12+0,12+10,12+20
 		purple = 0;
 	}
-	createElement(ele, row, top);
-	if (elements[row][top])
-	{
-		this->addChild(elements[row][top]);
-	}
-	if (elements[row][top])
-	{
-		elements[row][top]->appear(FALL_TIME);
-	}
-	log("MapLayer::appear(int row)");
+	//if (elements[row][top] == nullptr)
+	//{
+		createElement(ele, row, top);
+		if (elements[row][top])
+		{
+			this->addChild(elements[row][top]);
+		}
+		if (elements[row][top])
+		{
+			elements[row][top]->appear(FALL_TIME);
+		}
+		log("MapLayer::appear(int row)");
+	//}
 }
 
 //通过现有元素类型分布，随机获得一个元素类型

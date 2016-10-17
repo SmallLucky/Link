@@ -20,7 +20,6 @@ bool StartScene::init()
 		{
 			return false;
 		}
-		visibleSize = Director::getInstance()->getVisibleSize();
 		string str = "bg/stargame_bg.png";
 		createBackGround(str); //创建背景
 		createMenu();				//创建菜单

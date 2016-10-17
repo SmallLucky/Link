@@ -130,6 +130,8 @@ void GameData::praseJsonData()
 		rapidjson::Value & money = chapter["money"];
 		rapidjson::Value & currScore = chapter["currScore"];
 		rapidjson::Value & count = chapter["count"];
+		rapidjson::Value & refresh = chapter["refresh"];
+		rapidjson::Value & boom = chapter["boom"];
 
 		for (unsigned int j = 0; j < lock.Size(); j++)
 		{
@@ -162,7 +164,8 @@ void GameData::praseJsonData()
 		love_num = love.GetInt();
 		money_num = money.GetInt();
 		power_num = power.GetInt();
-
+		refresh_num = refresh.GetInt();
+		boom_num = boom.GetInt();
 		cout << "---------------------------" << endl;
 		printf("level = %d\n", level.GetInt());
 		for (int w = 0; w < m_lock.size(); w++)

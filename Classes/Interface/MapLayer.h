@@ -48,6 +48,15 @@ public:
 	int red;
 	int yellor;
 	int purple;
+
+	//是否是炸弹
+	bool isBoom;
+
+	bool getIsBoom() { return isBoom; }
+	void setIsBoom( bool b) { isBoom = b; }
+	//炸弹炸掉的元素
+	void isBoomElement(int _row,int _line);
+	bool isCount;
 private:
 
 	TMXTiledMap* _tileMap;
@@ -60,6 +69,7 @@ private:
 
 	int line; //行
 	int row; //列
+	
 	
 	vector<Coord> spriteNull;
 	
@@ -123,6 +133,10 @@ private:
 	int getElement(Coord c);	//获取指定位置元素类型
 
 	void rowFall(int _row, int bottom);		//指定列的全部空位上方元素下落，顶端出现新元素
+
+	/**/
+	void rowMyFall(int _row, int bottom);
+
 	void appear(int row);		//指定列的顶端出现新元素
 
 public:

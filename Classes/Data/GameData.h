@@ -75,6 +75,8 @@ private:
 	int love_num;
 	int money_num;
 	int power_num;
+	int refresh_num;
+	int boom_num;
 
 
 	string path;
