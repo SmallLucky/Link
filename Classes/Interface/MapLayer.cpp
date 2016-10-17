@@ -11,7 +11,7 @@ using namespace std;
 
 #define RATIO   1.0
 
-MapLayer::MapLayer() :isLine(false), green(0), red(0), yellor(0), blue(0), purple(0)
+MapLayer::MapLayer() :isLine(false), green(0), red(0), yellor(0), blue(0), purple(0), elementType(5), line(0), row(0), lastPoint({0,0})
 {
 	//分配格子元素空间
 	elements = new ElementUnit* *[MATRIX_ROW];
@@ -40,10 +40,10 @@ MapLayer::MapLayer() :isLine(false), green(0), red(0), yellor(0), blue(0), purpl
 		blocksCenter[i] = new Point[MATRIX_MLINE];
 	}
 	////分配各元素数量空间
-	elementCount = new int[25]; //注意万能元素空间
+	elementCount = new int[40]; //注意万能元素空间
 
 	////分配消除个元素的数量空间
-	removeCount = new int[25]; //注意万能元素空间
+	removeCount = new int[40]; //注意万能元素空间
 
 	//linkBrush.clear();
 }
@@ -308,8 +308,9 @@ bool MapLayer::elementsFall()
 	{
 		for (int j = MATRIX_LINE; j >= 0; --j)//7
 		{
-			if (elements[i][j] == nullptr)//07
+			if (elements[i][j] == nullptr )//07&& checkIsDrop(i,j)
 			{
+				log("MapLayer::elementsFall() : i:%d,j:%d", i, j);
 				//log("MapLayer::elementsFall:%i,%i",i,j);
 				rowFall(i, j);//从最下方开始，一旦出现空位，所有上方元素下落，填补空位
 				flag = true;//填补了空位
@@ -320,6 +321,36 @@ bool MapLayer::elementsFall()
 	return flag;
 }
 
+//检测是否可以下落
+bool	MapLayer::checkIsDrop(int r, int l)
+{
+	if (elements[r][l] == nullptr)//05
+	{
+		for (int i = (l-1); i >= 0; i--)//04
+		{
+			if (elements[r][i] == nullptr)
+			{
+				continue;
+			}else
+			{
+				if (elements[r][i]->getElement() == 5)
+				{
+					if (elements[max(r-1,0)][i]->getElement() == 5 || elements[min(r +1 ,5)][i]->getElement() == 5)
+					{
+						return false;
+					}
+				}
+				else
+				{
+					return true;
+				}
+			}
+		}
+		return true;
+	}
+	return false;
+}
+
 bool MapLayer::checkIsNull(int _row, int _line)
 {
 	unsigned int num;
@@ -327,6 +358,11 @@ bool MapLayer::checkIsNull(int _row, int _line)
 	getType = _tileMap->getPropertiesForGID(num);
 	int _type = getType.asValueMap()["type"].asInt();
 	if (_type == 2)
+	{
+		//log("_type == 2");
+		return true;
+	}
+	if (_type == 3)
 	{
 		//log("_type == 2");
 		return true;
@@ -355,6 +391,7 @@ void MapLayer::rowFall(int _row, int bottom)//0,7
 #if(CC_TARGET_PLATFORM==CC_PLATFORM_ANDROID)
 	LOGD("MapLayer::rowFall(int _row, int bottom)");
 #endif
+	log("MapLayer::rowFall(int _row, int bottom):%d,%d", _row, bottom);//0,1
 	for (int i = bottom; i > 0; )//7--i
 	{
 		int j = i - 1;//6
@@ -388,22 +425,31 @@ void  MapLayer::initBlocks()
 #endif
 	string str = StringUtils::format("tiledmap/map_%d.tmx", GAMEDATA->getCurLevel());
 	_tileMap = TMXTiledMap::create(str);//("TileMaps/hexa-test.tmx");
-	//_tileMap = TMXTiledMap::create("tiledmap/map_15.tmx");//("TileMaps/hexa-test.tmx");
-	_tileMap->setAnchorPoint(Vec2(0.5, 0.5));
-	_tileMap->setPosition(mapPoint);
-	_tileMap->setScale(RATIO);
-	addChild(_tileMap, 0);
+	//_tileMap = TMXTiledMap::create("tiledmap/map_17.tmx");//("TileMaps/hexa-test.tmx");
+	if (_tileMap)
+	{
+		_tileMap->setAnchorPoint(Vec2(0.5, 0.5));
+		_tileMap->setPosition(mapPoint);
+		_tileMap->setScale(RATIO);
+		addChild(_tileMap, 0);
 
-	mapLayer = _tileMap->getLayer("map");
-	typeLayer = _tileMap->getLayer("type");
-	typeLayer->setVisible(false);
-	
-	line = _tileMap->getMapSize().height; // 10
-	row = _tileMap->getMapSize().width; // 8
+		mapLayer = _tileMap->getLayer("map");
+		typeLayer = _tileMap->getLayer("type");
+		typeLayer->setVisible(false);
 
-	////mei shi xian
-	containsDis =(typeLayer->getMapTileSize().width*RATIO)/2 - 5;//(_tileMap->getTileSize().width + _tileMap->getTileSize().height) / 4 * TOUCH_RADIUS; // 48*48
-	log("%f", containsDis);
+		line = _tileMap->getMapSize().height; // 10
+		row = _tileMap->getMapSize().width; // 8
+
+		////mei shi xian
+		containsDis = (typeLayer->getMapTileSize().width*RATIO) / 2 - 5;
+		log("%f", containsDis);
+	}
+	//初始化数量
+	for (int i = 0; i < 40; ++i) //0-5
+	{
+		elementCount[i] = 0;
+		removeCount[i] = 0;
+	}
 
 	ERGODIC_MBLOCK(row,line)
 	{
@@ -421,26 +467,43 @@ void  MapLayer::initBlocks()
 				elements[row][line] = s;
 				elementCount[5]++;
 				addChild(elements[row][line], 1);
+				//elements[row][line]->setVisible(false);
 			}
 		}
 		else
 		{
-			elements[row][line] = nullptr;
+			//unsigned int  num = typeLayer->getTileGIDAt(Vec2(row, line));
+			//Value gT = _tileMap->getPropertiesForGID(num);
+			//int _type = gT.asValueMap()["type"].asInt();
+			////elements[row][line] = nullptr;
+			//if (_type == 1)
+			//{
+				auto s = ElementUnit::create();
+				if (s)
+				{
+					int color = abs(rand() % 5);
+					s->createElement(color, getMCenterByCoord(row, line));
+					elements[row][line] = s;
+					elementCount[color]++;
+					addChild(elements[row][line], 1);
+				}		
+			//}
+			//if (_type == 3)
+			//{
+			//	auto s = ElementUnit::create();
+			//	if (s)
+			//	{
+			//		s->createElement(5, getMCenterByCoord(row, line));
+			//		elements[row][line] = s;
+			//		elementCount[5]++;
+			//		addChild(elements[row][line], 1);
+			//		elements[row][line]->setVisible(false);
+			//	}
+			//}
 		}
 	}
-	//初始化数量
-	for (int i = 0; i < 6; ++i) //0-5
-	{
-		elementCount[i] = 0;
-		elementCount[i+10] = 0;
-		elementCount[i+20] = 0;
-		elementCount[i+30] = 0;
-		removeCount[i] = 0;
-		removeCount[i+10] = 0;
-		removeCount[i+20] = 0;
-		removeCount[i+30] = 0;
-	}
 	removeAllCount = 0;
+
 }
 
 // tile坐标转成瓦片格子中心的OpenGL坐标  //获得瓦片锚点的坐标
@@ -848,8 +911,20 @@ void  MapLayer::appear(int row)
 #if(CC_TARGET_PLATFORM==CC_PLATFORM_ANDROID)
 	LOGD("MapLayer::appear(int row)");
 #endif
-	log("appear(int row)");
-	int top =  0;//-1
+	log("appear(int row : %d)",row);
+	int top = 0;
+	//for (int i = 0; i < 6; i++)
+	//{
+	//	unsigned int num = typeLayer->getTileGIDAt(Vec2(row, i));
+	//	Value gT = _tileMap->getPropertiesForGID(num);
+	//	int _type = gT.asValueMap()["type"].asInt();
+	//	if (_type == 1)
+	//	{
+	//		log("_type:%d :i = %d", _type,i);
+	//		top = i;
+	//		break;
+	//	}
+	//}
 	int ele = abs(rand() % 5);// randElement(); // 0 1 2 3 4 
 	if (green >= 5)
 	{
@@ -886,6 +961,7 @@ void  MapLayer::appear(int row)
 	{
 		elements[row][top]->appear(FALL_TIME);
 	}
+	log("MapLayer::appear(int row)");
 }
 
 //通过现有元素类型分布，随机获得一个元素类型
@@ -961,12 +1037,12 @@ void MapLayer::clearElement()
 	{
 		removeElement(row, line); //清除每个格子的元素
 	}
-	for (int i = 0; i < 6; ++i)
+	for (int i = 0; i < 40; ++i)
 	{
 		elementCount[i] = 0;
-		elementCount[i+10] = 0;
-		elementCount[i+20] = 0;
-		elementCount[i+30] = 0;
+		//elementCount[i+10] = 0;
+		//elementCount[i+20] = 0;
+		//elementCount[i+30] = 0;
 	}
 }
 

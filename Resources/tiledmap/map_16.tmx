@@ -18,12 +18,12 @@
  </tileset>
  <layer name="map" width="6" height="6">
   <data encoding="base64" compression="gzip">
-   H4sIAAAAAAAAC2NkYGBgHEQYAK1I0PKQAAAA
+   H4sIAAAAAAAAC2NkYGBgxIMZ6CwOAMge9BqQAAAA
   </data>
  </layer>
  <layer name="type" width="6" height="6">
   <data encoding="base64" compression="gzip">
-   H4sIAAAAAAAAC2NiYGBgojFmxoGxqQUAn3qZz5AAAAA=
+   H4sIAAAAAAAAC2NiYGBgwoOZ6SwOANrP60aQAAAA
   </data>
  </layer>
 </map>

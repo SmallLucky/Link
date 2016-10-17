@@ -241,6 +241,7 @@ bool GameScene::elementsFall()
 #if(CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
 	LOGD("GameScene::elementsFall()");
 #endif
+	log(" GameScene::elementsFall()");
 	return matrix->elementsFall();
 }
 
@@ -271,6 +272,10 @@ void GameScene::prepareLink()
 	matrix->prepareLink();
 }
 
+bool GameScene::isResponse()//是否可以触摸
+{
+	return matrix->isResponse();
+}
 
 //符合条件则消除被连接的元素，否则连接失效
 void GameScene::removeLink()

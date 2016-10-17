@@ -73,7 +73,7 @@ public:
 	void forbiddenLink();//禁止开始连接，使矩阵层不响应触控
 	bool isLinkFinish();//是否有有效的连接结束
 	void prepareLink(); //准备下一次连接
-
+	bool isResponse();//是否可以触摸
 	void removeLink(); //符合条件则消除被连接的元素，否则连接失效
 	void gameOver();//游戏结束，显示分数，提示开始新游戏
 	void gameNextLevel();

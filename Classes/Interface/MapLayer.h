@@ -41,6 +41,8 @@ public:
 
 	bool checkIsNeedRefresh();  //检测是否需要进行刷新位置
 	void refreshAllElement();	//刷新所有基础元素的位置
+
+	bool checkIsDrop(int r,int l);
 	int green;
 	int blue;
 	int red;

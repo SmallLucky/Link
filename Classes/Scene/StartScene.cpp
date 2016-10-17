@@ -11,7 +11,7 @@
 #include "Interface/ObjectiveLayer.h"
 #include "Interface/TotalLayer.h"
 #include "Interface/LoserLayer.h"
-
+#include "Interface/MapLayer.h"
 
 
 bool StartScene::init()
@@ -79,6 +79,8 @@ void StartScene::StartGame()
 	//addChild(lose);
 	//GameScene* scene = GameScene::create();
 	//Director::getInstance()->replaceScene(scene);
+	//MapLayer* layer = MapLayer::create();
+	//addChild(layer);
 }
 
 long StartScene::millisecondNow()

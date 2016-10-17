@@ -19,7 +19,10 @@ bool LinkState::checkStateChange() //状态改变返回true，状态未改变返回false，
 	{
 		log("need refresh!!!");//调刷新方法，或者创建一个刷新状态
 		//CHANGE_TO_STATE(GameOverState);
-		scene->refreshElement();
+		if (scene->isResponse())
+		{
+			scene->refreshElement();
+		}	
 	}
 	return false;
 }
