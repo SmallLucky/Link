@@ -23,18 +23,18 @@ void ElementUnit::createElement(int ele, Point pos)//22
 	//log("createElement(int ele, Point pos) : %s", getImageString(ele));
 	if (elementSprite)
 	{
-		log("elementSprite::%d , point: %f -- %f",ele , pos.x,pos.y);
+		//log("elementSprite::%d , point: %f -- %f",ele , pos.x,pos.y);
 		this->setPosition(pos);		//设置自身位置，将子节点位置设置为原点即可出现在屏幕对应位置上
 		elementSprite->setPosition(Point::ZERO);
 		setSize(elementSprite, ELEMENT_NORMAL_SIZE);	//设置图片的尺寸
 		addChild(elementSprite);
 	}
-	log("ElementUnit::createElement(int ele, Point pos)");
+	//log("ElementUnit::createElement(int ele, Point pos)");
 }
 
 string ElementUnit::getImageString(int ele)//22
 {
-	log("ElementUnit::getImageString(int ele)%d", ele);
+	//log("ElementUnit::getImageString(int ele)%d", ele);
 	string str = StringUtils::format("element/element_%i.png", ele);
 	return str;
 }

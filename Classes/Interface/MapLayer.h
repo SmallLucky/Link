@@ -57,6 +57,11 @@ public:
 	//炸弹炸掉的元素
 	void isBoomElement(int _row,int _line);
 	bool isCount;
+	int  getSpecialScore(){  int s = specialScore; specialScore = 0;  return s; };
+private:
+	int  specialSttlement( int ele); // 
+	int  specialScore;
+	void  changeTiledType(int r,int l); // 修改指定位置上瓦片的属性值
 private:
 
 	TMXTiledMap* _tileMap;
@@ -151,7 +156,7 @@ private:
 
 	int signSpecialElement(Coord c); //标记特殊元素涉及的元素
 	int unsignSpecialElement(Coord c); // 取消特殊元素涉及元素的标记
-	void signSpecial(); //取消撤销关于这特殊元素涉及的所有标识
+	void removeSignSpecial(); //取消撤销关于这特殊元素涉及的所有标识
 	void removeCountCleaar();  //清空消除个数
 	void signOnlyBlock(int row, int line);		//只标记一个元素（其他标记被取消）
 

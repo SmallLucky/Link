@@ -62,7 +62,7 @@ void GameScene::addUI()
 
 	for (int i = 0; i < 3; i++)
 	{
-		auto props_bg = Button::create("button/props_button.png", "button/props_button.png");
+		auto props_bg = Button::create("button/props_button.png");
 		props_bg->setPosition(CommonFunction::getVisibleAchor(Anchor::Center, rightYun,Vec2(i*120 -120 ,-30)));
 		/*props_bg->setTag(i);*/
 		rightYun->addChild(props_bg);
@@ -226,12 +226,14 @@ int GameScene::getMyCount()
 //一次消除后分数提高并显示，返回提高后的分数
 int GameScene::showScoreUp()
 {
-	return showScoreUp(getScoreByLinkCount(matrix->getRemoveCount(),matrix->getElementType())); //通过消除元素个数计算获得的分数并显示
+	int score = getScoreByLinkCount(matrix->getRemoveCount(), matrix->getElementType()) + matrix->getSpecialScore();
+	//log(" GameScene::showScoreUp()score :%d ,%d", score, matrix->getSpecialScore());
+	return showScoreUp(score); //通过消除元素个数计算获得的分数并显示
 }
 
 int GameScene::MyShowScoreUp()
 {
-	return showScoreUp(getScoreByLinkCount(6, 5)); //通过消除元素个数计算获得的分数并显示
+	return 0;//showScoreUp(getScoreByLinkCount(6, 5)); //通过消除元素个数计算获得的分数并显示
 }
 //分数提高并显示，返回提高后的分数
 int GameScene::showScoreUp(int delta)
@@ -309,7 +311,7 @@ void GameScene::gameOver()
 void  GameScene::gameNextLevel()
 {
 	auto nextlevel = TotalLayer::create();
-	addChild(nextlevel);
+	addChild(nextlevel,1);
 }
 
 //开始新游戏

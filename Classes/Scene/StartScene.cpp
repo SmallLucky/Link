@@ -12,6 +12,7 @@
 #include "Interface/TotalLayer.h"
 #include "Interface/LoserLayer.h"
 #include "Interface/MapLayer.h"
+#include "TTButton.h"
 
 
 bool StartScene::init()
@@ -79,6 +80,8 @@ void StartScene::StartGame()
 	//GameScene* scene = GameScene::create();
 	//Director::getInstance()->replaceScene(scene);
 	//MapLayer* layer = MapLayer::create();
+	//addChild(layer);
+	//TTButton* layer = TTButton::create();
 	//addChild(layer);
 }
 

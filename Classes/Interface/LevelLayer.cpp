@@ -48,10 +48,33 @@ void	LevelLayer::addScrollView()
 		scrollview->setBackGroundColorOpacity(0);
 		scrollview->setBackGroundColorType(ui::Layout::BackGroundColorType::SOLID);
 		scrollview->setPosition(Vec2(visibleSize.width / 2, 0));
-		scrollview->setInertiaScrollEnabled(true);
-		scrollview->setBounceEnabled(true);
+		scrollview->setInertiaScrollEnabled(true); //设置惯性滚动启动
+		scrollview->setBounceEnabled(false); // 设置回弹效果为flase
 		scrollview->setScrollBarPositionFromCorner(Vec2(10, 0));
+		scrollview->setScrollBarOpacity(0); //设置滚动条透明度
 		scrollview->jumpToBottom();
+		int l = visibleSize.height;
+		log("*****%.2f", (float)((l * 3 - 160)*100 / (l * 3)));
+		int index = 0;
+		for (int i = 0; i < GAMEDATA->m_lock.size(); i++)
+		{
+			if (GAMEDATA->m_lock[i] == 1)
+			{
+				index = i - 1;
+				break;
+			}
+		}
+		float p = (float)((l * 3 - GAMEDATA->getOffsetY(index)) * 100 / (l * 3));
+		//scrollview->jumpToPercentVertical(p);
+		if (p < 70)
+		{
+			scrollview->scrollToPercentVertical(p, 5.0, true); //显示百分比
+		}
+		else
+		{
+			scrollview->jumpToPercentVertical(p);
+		}
+
 		addChild(scrollview);
 		for (int i = 0; i < 3; i++)
 		{
