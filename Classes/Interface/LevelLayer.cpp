@@ -74,7 +74,8 @@ void	LevelLayer::addScrollView()
 		{
 			scrollview->jumpToPercentVertical(p);
 		}
-
+		/*scrollview->set*/
+			//LinearGravity
 		addChild(scrollview);
 		for (int i = 0; i < 3; i++)
 		{

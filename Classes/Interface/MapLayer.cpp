@@ -4,7 +4,7 @@
 //#include <vector>
 #include "Unit/ElementUnit.h"
 #include "Data/ElementData.h"
- 
+
 
 using namespace cocos2d;
 using namespace std;
@@ -46,7 +46,7 @@ isBoom(false), isCount(false), specialScore(0)
 	////分配消除个元素的数量空间
 	removeCount = new int[40]; //注意万能元素空间
 
-	//linkBrush.clear();
+	linkBrush.clear();
 }
 MapLayer::~MapLayer()
 {
@@ -741,6 +741,12 @@ bool MapLayer::onTouchBegan(Touch *touch, Event *unused_event) //开始触摸
 				{
 					linkStart(row, line);//该格子作为连线起点
 					touchedFlag = true;//成为有效触摸
+					//加个特效看看
+					showEffect(blocksCenter[row][line]);
+					//ParticleSystem* m_emitter1 = ParticleSystemQuad::create("effect/particle_1.plist");
+					//m_emitter1->setPosition(CommonFunction::getVisibleAchor(Anchor::Center,elements[row][line],Vec2(0,0)));
+					//elements[row][line]->addChild(m_emitter1);
+
 					return true; //对该次触摸的后续操作做出反映
 				}
 			}
@@ -807,6 +813,8 @@ void MapLayer::onTouchMoved(Touch *touch, Event *unused_event) //触摸点移动
 								if (checkLink(latestPos, { i, j })) //如果两个元素符合连接的条件（颜色或数字相同，或其中一个是万能元素）
 								{
 									linkElement(latestPos, { i, j }); //连接两个元素 加上了标记
+									//特效
+									showEffect(blocksCenter[i][j]);
 									if (elements[i][j]->getElement() > 10)
 									{
 										elementType = elements[i][j]->getElement() % 10;//获得元素类型
@@ -841,8 +849,9 @@ void MapLayer::onTouchEnded(Touch *touch, Event *unused_event) //触摸结束
 			{
 				if (blocksCenter[row][line].getDistance(touchPoint) < containsDis)
 				{
+					showBoomEffect(blocksCenter[row][line]);
 					removeSignSpecial();
-					signClear();
+					//signClear();
 					isCount = true;
 					linkFinishFlag = true;
 				}
@@ -852,7 +861,11 @@ void MapLayer::onTouchEnded(Touch *touch, Event *unused_event) //触摸结束
 		{
 			
 			removeLink();//进行一次消除，判断符合条件后消除连线的元素
+			while (removeEffect());
+
 		}
+
+
 	}
 
 	touchedFlag = false;  //触摸结束
@@ -861,6 +874,68 @@ void MapLayer::onTouchEnded(Touch *touch, Event *unused_event) //触摸结束
 #endif
 	log("onTouchEnded");
 }
+
+
+void MapLayer::showEffect(Point p)
+{
+	ParticleSystem * efft = ParticleSystemQuad::create("effect/particle_1.plist");
+	//ParticleSystem* m_emitter1 = ParticleSystemQuad::create("effect/particle_1.plist");
+	efft->setPosition(p);
+	m_effects.pushBack(efft);
+	addChild(efft, 1);
+}
+
+bool MapLayer::removeEffect()
+{
+	if (m_effects.empty())
+	{
+		return false;
+	}
+	ParticleSystem* e = m_effects.back();
+	m_effects.popBack();
+	removeChild(e);
+	return true;
+}
+
+void MapLayer::showLineEffect(Point p)
+{
+	ParticleSystem * efft = ParticleSystemQuad::create("effect/particle_2.plist");
+	efft->setPosition(p);
+	efft->setAutoRemoveOnFinish(true);
+	efft->setDuration(0.1f);
+	addChild(efft, 1);
+
+	//CallFunc* call = CallFunc::create([=]{
+	//	if (efft)
+	//	{
+	//		removeChild(efft);
+	//	}
+
+	//});
+
+	//Blink* blink = Blink::create(1.0f, 10);
+	//DelayTime* time = DelayTime::create(1.0f);
+	//Sequence* action = Sequence::create(time, call, nullptr);
+	//efft->runAction(action);
+}
+void MapLayer::showRowEffect(Point p)
+{
+	ParticleSystem * efft = ParticleSystemQuad::create("effect/particle_2.plist");
+	efft->setPosition(p);
+	efft->setAutoRemoveOnFinish(true);
+	efft->setDuration(0.1f);
+	addChild(efft, 1);
+}
+void MapLayer::showBoomEffect(Point p)
+{
+	ParticleSystem * efft = ParticleSystemQuad::create("effect/particle_2.plist");
+	efft->setPosition(p);
+	efft->setAutoRemoveOnFinish(true);
+	efft->setDuration(0.1f);
+	addChild(efft, 1);
+
+}
+
 
 //炸弹炸掉的元素
 void	MapLayer::isBoomElement(int _row, int _line)
@@ -992,6 +1067,7 @@ void MapLayer::undoLink()
 	Coord latest = linkIndex.back();
 	linkIndex.pop_back(); //清除连线序列的最后一个元素
 	removeLatestLine(); //删除最后一条连接线
+	removeEffect(); // 删除最后一个元素的特效
 	unsignElement(latest); //取消最后一个元素的标记
 }
 
@@ -1016,6 +1092,7 @@ void	MapLayer::removeSignSpecial()
 	if (getIsBoom())
 	{
 		//log("setIsBoom(false);");
+		signClear();
 		setIsBoom(false);
 	}
 }

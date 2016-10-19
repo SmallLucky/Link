@@ -6,6 +6,7 @@
 
 #include "Expand/TouchableLayer.h"
 #include "Unit/ElementUnit.h"
+#include "Unit/MyEffect.h"
 
 class MapLayer : public TouchableLayer
 {
@@ -62,6 +63,13 @@ private:
 	int  specialSttlement( int ele); // 
 	int  specialScore;
 	void  changeTiledType(int r,int l); // 修改指定位置上瓦片的属性值
+
+	Vector<ParticleSystem*> m_effects;
+	void showEffect(Point p);
+	bool removeEffect();
+	void showLineEffect(Point p);
+	void showRowEffect(Point p);
+	void showBoomEffect(Point p);
 private:
 
 	TMXTiledMap* _tileMap;
@@ -69,6 +77,8 @@ private:
 	TMXLayer* mapLayer;
 	TMXLayer* typeLayer;
 	Value getType;
+
+	//MyEffect* myeffect;
 
 	Point mapPoint;
 
