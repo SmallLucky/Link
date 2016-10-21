@@ -888,6 +888,8 @@ void MapLayer::onTouchEnded(Touch *touch, Event *unused_event) //触摸结束
 //#if(CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
 //	LOGD("onTouchEnded");
 //#endif
+
+	Vibrator::cancelVibrate();
 	log("onTouchEnded");
 }
 
@@ -1389,7 +1391,7 @@ void MapLayer::linkStart(int row, int line)
 	//音效，震动
 	if (UserDefault::getInstance()->getBoolForKey("IS_EFFECT"))
 	SimpleAudioEngine::getInstance()->playEffect(START_LINK_EFFECT); //播放音效
-	//if (UserDefault::getInstance()->getBoolForKey("IS_VIBRATE"))
+	if (UserDefault::getInstance()->getBoolForKey("IS_VIBRATE"))
 	log(":::::::::");
 	Vibrator::vibrate(3); //震动
 }
