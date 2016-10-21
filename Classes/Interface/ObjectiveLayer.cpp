@@ -87,6 +87,10 @@ void ObjectiveLayer::startGame()
 	ScaleTo* scaleTo = ScaleTo::create(1,1);
 	Spawn* spawn = Spawn::create(moveTo, scaleTo,nullptr);
 	auto action = Sequence::create(spawn, CallFunc::create([&]{
+		if (UserDefault::getInstance()->getBoolForKey("IS_EFFECT"))
+		{
+			CocosDenshion::SimpleAudioEngine::getInstance()->playEffect(CLICK_BUTTON);
+		}
 		GameScene* gameScene = GameScene::create();
 		Director::getInstance()->replaceScene(gameScene);  //Ìø×ª
 	}), nullptr);
@@ -95,5 +99,9 @@ void ObjectiveLayer::startGame()
 }
 void ObjectiveLayer::backButton()
 {
+	if (UserDefault::getInstance()->getBoolForKey("IS_EFFECT"))
+	{
+		CocosDenshion::SimpleAudioEngine::getInstance()->playEffect(CLICK_BUTTON);
+	}
 	this->removeFromParent();
 }

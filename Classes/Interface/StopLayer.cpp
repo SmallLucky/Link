@@ -34,6 +34,10 @@ void StopLayer::addUI()
 	gonoButton->setPosition(CommonFunction::getVisibleAchor(Anchor::MidButtom, bg, Vec2(-80, 120)));
 	bg->addChild(gonoButton);
 	gonoButton->addClickEventListener([=](Ref*){
+		if (UserDefault::getInstance()->getBoolForKey("IS_EFFECT"))
+		{
+			CocosDenshion::SimpleAudioEngine::getInstance()->playEffect(CLICK_BUTTON);
+		}
 		this->removeFromParent();
 	});
 
@@ -50,6 +54,10 @@ void	StopLayer::newGameCallBack()
 	LOGD("StopLayer::newGameCallBack()");
 #endif
 	log("new");
+	if (UserDefault::getInstance()->getBoolForKey("IS_EFFECT"))
+	{
+		CocosDenshion::SimpleAudioEngine::getInstance()->playEffect(CLICK_BUTTON);
+	}
 	GameScene* gameScene = GameScene::create();
 	Director::getInstance()->replaceScene(gameScene);  //Ìø×ª
 }

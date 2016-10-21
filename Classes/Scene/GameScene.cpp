@@ -252,9 +252,9 @@ int GameScene::showScoreUp(int delta)
 //矩阵元素下落，返回是否下落结束无空位
 bool GameScene::elementsFall()
 {
-#if(CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
-	LOGD("GameScene::elementsFall()");
-#endif
+//#if(CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
+//	LOGD("GameScene::elementsFall()");
+//#endif
 	log(" GameScene::elementsFall()");
 	return matrix->elementsFall();
 }
@@ -274,9 +274,9 @@ void GameScene::forbiddenLink()
 //是否有有效的连接结束
 bool GameScene::isLinkFinish()
 {
-#if(CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
-	LOGD(" GameScene::isLinkFinish()");
-#endif
+//#if(CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
+//	LOGD(" GameScene::isLinkFinish()");
+//#endif
 	return matrix->isLinkFinish();
 }
 
@@ -317,9 +317,9 @@ void  GameScene::gameNextLevel()
 //开始新游戏
 void GameScene::restart(Ref* pSender)
 {
-#if(CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
-	LOGD("GameScene::restart(Ref* pSender)");
-#endif
+//#if(CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
+//	LOGD("GameScene::restart(Ref* pSender)");
+//#endif
 	Scene* s = GameScene::create();
 	Director::getInstance()->replaceScene(s); //用新的Game场景替换原场景，开始新游戏
 }
@@ -347,9 +347,9 @@ void GameScene::quitGame(Ref* pSender)
 //返回状态机指针
 StateMachine* GameScene::getStateMachine()
 {
-#if(CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
-		LOGD("GameScene::getStateMachine()");
-#endif
+//#if(CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
+//		LOGD("GameScene::getStateMachine()");
+//#endif
 	return stateMachine;
 }
 void GameScene::update(float dt)

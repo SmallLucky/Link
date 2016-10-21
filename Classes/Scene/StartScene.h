@@ -2,7 +2,7 @@
 #include "Global.h"
 
 #include "cocos2d.h"
-
+#include "SimpleAudioEngine.h"
 USING_NS_CC;
 
 class StartScene : public Scene
@@ -22,7 +22,9 @@ protected:
 public:
 	CREATE_FUNC(StartScene);
 	bool init();
+	void PlayStopBGM();
 
 private:
 	Sprite * BG;
+
 };

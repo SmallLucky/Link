@@ -4,6 +4,7 @@
 #include "TouchSwallowLayer.h"
 #include "Unit/ShopItem.h"
 #include "CommonFunction.h"
+#include "Data/Data.h"
 bool ShopLayer:: init()
 {
 	if (!Layer::init())
@@ -105,5 +106,9 @@ void ShopLayer::addUI()
 
 void ShopLayer::backButCallBack()
 {
+	if (UserDefault::getInstance()->getBoolForKey("IS_EFFECT"))
+	{
+		CocosDenshion::SimpleAudioEngine::getInstance()->playEffect(CLICK_BUTTON);
+	}
 	this->removeFromParent();
 }

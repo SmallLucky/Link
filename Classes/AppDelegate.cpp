@@ -1,5 +1,6 @@
 #include "AppDelegate.h"
 #include "Scene/StartScene.h"
+#include "Data/AudioData.h"
 
 USING_NS_CC;
 
@@ -87,18 +88,23 @@ bool AppDelegate::applicationDidFinishLaunching() {
 	srand(time(NULL)); //设置随机数种子
 
 	////预加载音乐音效
-	//auto audio = SimpleAudioEngine::getInstance();
-	//audio->preloadBackgroundMusic(BGM);
-	//audio->preloadEffect(START_LINK_EFFECT);
-	//audio->preloadEffect(LINK_EFFECT);
-	//audio->preloadEffect(UNDO_EFFECT);
-	//audio->preloadEffect(REMOVE_EFFECT);
-	//audio->preloadEffect(WRONG_REMOVE_EFFECT);
-	//audio->preloadEffect(GAME_OVER_EFFECT);
-	//audio->preloadEffect(NEW_RECORD_EFFECT);
+	auto audio = CocosDenshion::SimpleAudioEngine::getInstance();
+	audio->preloadBackgroundMusic(BGM);
+	audio->preloadEffect(START_LINK_EFFECT);
+	audio->preloadEffect(LINK_EFFECT);
+	audio->preloadEffect(UNDO_EFFECT);
+	audio->preloadEffect(REMOVE_EFFECT);
+	audio->preloadEffect(WRONG_REMOVE_EFFECT);
+	audio->preloadEffect(GAME_OVER_EFFECT);
+	audio->preloadEffect(NEW_RECORD_EFFECT);
+	audio->preloadEffect(CLICK_BUTTON);
 
 	//加载cocos studio导出的文件
 	FileUtils::getInstance()->addSearchPath("res");
+	
+	UserDefault::getInstance()->setBoolForKey("IS_MUSIC",true);
+	UserDefault::getInstance()->setBoolForKey("IS_EFFECT", true);
+	UserDefault::getInstance()->setBoolForKey("IS_VIBRATE", true);
 
 	//进入Start场景
 	auto scene = StartScene::create();

@@ -10,5 +10,8 @@
 #include "RoundData.h" //与一局游戏有关的游戏数据
 #include "InformationData.h" //与游戏信息有关的游戏数据
 #include "PlayerData.h" //与玩家有关的信息
+#include "AudioData.h"
+#include "VibrateData.h"
+#include "SettingData.h"
 
 #include "GameData.h" //

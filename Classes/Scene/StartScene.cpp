@@ -13,6 +13,7 @@
 #include "Interface/LoserLayer.h"
 #include "Interface/MapLayer.h"
 #include "TTButton.h"
+#include "DrawLight.h"
 
 
 bool StartScene::init()
@@ -25,11 +26,26 @@ bool StartScene::init()
 		createBackGround(str); //创建背景
 		createMenu();				//创建菜单
 
-
+		PlayStopBGM();
 		auto listenerkeyPad = EventListenerKeyboard::create();
 		listenerkeyPad->onKeyReleased = CC_CALLBACK_2(StartScene::onKeyReleased, this);
 		_eventDispatcher->addEventListenerWithSceneGraphPriority(listenerkeyPad, this);
+
 		return true;
+}
+
+void	StartScene::PlayStopBGM()
+{
+	bool flag = UserDefault::getInstance()->getBoolForKey("IS_MUSIC");
+	if (flag)
+	{
+		SimpleAudioEngine::getInstance()->playBackgroundMusic(BGM, true);
+		CocosDenshion::SimpleAudioEngine::getInstance()->setBackgroundMusicVolume(1.0);
+	}
+	else
+	{
+		SimpleAudioEngine::getInstance()->stopBackgroundMusic(true);
+	}
 }
 
 //创建背景
@@ -68,6 +84,10 @@ void StartScene::StartGame()
 {
 	//log("test");
 	logTime();
+	if (UserDefault::getInstance()->getBoolForKey("IS_EFFECT"))
+	{
+		CocosDenshion::SimpleAudioEngine::getInstance()->playEffect(CLICK_BUTTON);
+	}
 	LevelScene* levelScene = LevelScene::create();
 	if (levelScene)
 	{

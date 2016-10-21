@@ -4,6 +4,7 @@
 //#include <vector>
 #include "Unit/ElementUnit.h"
 #include "Data/ElementData.h"
+#include "Data/Data.h"
 
 
 using namespace cocos2d;
@@ -180,10 +181,11 @@ void MapLayer::removeLink()
 		}
 		signClear();
 		linkFinishFlag = true; //完成一次消除
-		//if (UserDefault::getInstance()->getBoolForKey(EFFECT_UD, EFFECT_DEFAULT_FLAG))
-		//	SimpleAudioEngine::getInstance()->playEffect(REMOVE_EFFECT); //播放音效
-		//if (UserDefault::getInstance()->getBoolForKey(VIBRATE_UD, VIBRATE_DEFAULT_FLAG))
-		//	Vibrator::vibrate(REMOVE_VIBRATOR_TIME); //震动 
+		if (UserDefault::getInstance()->getBoolForKey("IS_EFFECT"))
+			SimpleAudioEngine::getInstance()->playEffect(REMOVE_EFFECT); //播放音效
+		if (UserDefault::getInstance()->getBoolForKey("IS_VIBRATE"))
+			Vibrator::vibrate(REMOVE_VIBRATOR_TIME); //震动 
+
 		//成功消除一次，步数减少一次
 		//removeMyCount();
 	}
@@ -191,10 +193,10 @@ void MapLayer::removeLink()
 	{
 		signClear(); //取消对元素的标记
 		removeAllLine(); //删除连接线
-		//if (UserDefault::getInstance()->getBoolForKey(EFFECT_UD, EFFECT_DEFAULT_FLAG))
-		//	SimpleAudioEngine::getInstance()->playEffect(WRONG_REMOVE_EFFECT); //播放音效
-		//if (UserDefault::getInstance()->getBoolForKey(VIBRATE_UD, VIBRATE_DEFAULT_FLAG))
-		//	Vibrator::vibrate(WRONG_REMOVE_VIBRATOR_TIME); //震动
+		if (UserDefault::getInstance()->getBoolForKey("IS_EFFECT"))
+			SimpleAudioEngine::getInstance()->playEffect(WRONG_REMOVE_EFFECT); //播放音效
+		if (UserDefault::getInstance()->getBoolForKey("IS_VIBRATE"))
+			Vibrator::vibrate(WRONG_REMOVE_VIBRATOR_TIME); //震动
 	}
 
 	linkIndex.clear(); //清空连线序列
@@ -204,9 +206,9 @@ void MapLayer::removeLink()
 //消除被标记的元素，返回消除个数
 int		MapLayer::removeSignedElement()
 {
-#if(CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
-	LOGD("MapLayer::removeSignedElement()");
-#endif
+//#if(CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
+//	LOGD("MapLayer::removeSignedElement()");
+//#endif
 	removeAllCount = 0;
 	ERGODIC_MBLOCK(row,line)
 	{
@@ -220,8 +222,21 @@ int		MapLayer::removeSignedElement()
 					specialSignElement(elements[row][line]->getElement(), { row, line });
 				}
 			}
-			removeCount[removeElement(row, line)]++; //消除标记的元素
+			int ele = removeElement(row, line);
+			removeCount[ele]++; //消除标记的元素
 			removeAllCount++;
+			if (ele >= 10 && ele < 20)
+			{
+				showLineEffect(blocksCenter[row][line]);
+			}
+			if (ele >= 20 && ele < 30)
+			{
+				showRowEffect(blocksCenter[row][line]);
+			}
+			if (ele >= 30 && ele < 40)
+			{
+				showBoomEffect(blocksCenter[row][line]);
+			}
 		}
 	}
 	//signClear();
@@ -308,9 +323,9 @@ int MapLayer::getRemoveCount()
 //元素下落，填补被消除的元素。返回是否填补了空位，每列填补最下一个空位
 bool MapLayer::elementsFall()
 {
-#if(CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
-	LOGD("MapLayer::elementsFall()");
-#endif
+//#if(CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
+//	LOGD("MapLayer::elementsFall()");
+//#endif
 	log("elementsFall()");
 	bool flag = false; //是否填补了空位
 	//for (int i = 0; i < MATRIX_ROW; ++i)//对每一列单独处理 0
@@ -398,9 +413,9 @@ bool MapLayer::checkIsNull(int _row, int _line)
 //是否有效的连接结束
 bool MapLayer::isLinkFinish()
 {
-#if(CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
-	LOGD(" MapLayer::isLinkFinish()");
-#endif
+//#if(CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
+//	LOGD(" MapLayer::isLinkFinish()");
+//#endif
 	return linkFinishFlag;
 }
 
@@ -465,9 +480,9 @@ void	MapLayer::rowMyFall(int _row, int bottom) // 15
 //指定列的全部空位上方元素下落，顶端出现新元素i.j
 void MapLayer::rowFall(int _row, int bottom)//0,5
 {
-#if(CC_TARGET_PLATFORM==CC_PLATFORM_ANDROID)
-	LOGD("MapLayer::rowFall(int _row, int bottom)");
-#endif
+//#if(CC_TARGET_PLATFORM==CC_PLATFORM_ANDROID)
+//	LOGD("MapLayer::rowFall(int _row, int bottom)");
+//#endif
 	//log("MapLayer::rowFall(int _row, int bottom):%d,%d", _row, bottom);//0,1
 	for (int i = bottom; i > 0; )//7--i
 	{
@@ -529,9 +544,9 @@ void MapLayer::rowFall(int _row, int bottom)//0,5
 //初始化格子，确定格子区域，初始状态矩阵为空
 void  MapLayer::initBlocks()
 {
-#if(CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
-	LOGD(" MapLayer::initBlocks()");
-#endif
+//#if(CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
+//	LOGD(" MapLayer::initBlocks()");
+//#endif
 	string str = StringUtils::format("tiledmap/map_%d.tmx", GAMEDATA->getCurLevel());
 	_tileMap = TMXTiledMap::create(str);//("TileMaps/hexa-test.tmx");
 	//_tileMap = TMXTiledMap::create("tiledmap/map_15.tmx");//("TileMaps/hexa-test.tmx");
@@ -639,9 +654,9 @@ Vec2 MapLayer::MypositionForTileCoord(const Vec2& tileCoord)
 //初始化标记
 void MapLayer::initSign()
 {
-#if(CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
-	LOGD("MapLayer::initSign()");
-#endif
+//#if(CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
+//	LOGD("MapLayer::initSign()");
+//#endif
 	signClear();
 }
 
@@ -849,6 +864,7 @@ void MapLayer::onTouchEnded(Touch *touch, Event *unused_event) //触摸结束
 			{
 				if (blocksCenter[row][line].getDistance(touchPoint) < containsDis)
 				{
+					//showLineEffect(blocksCenter[row][line]);
 					showBoomEffect(blocksCenter[row][line]);
 					removeSignSpecial();
 					//signClear();
@@ -869,9 +885,9 @@ void MapLayer::onTouchEnded(Touch *touch, Event *unused_event) //触摸结束
 	}
 
 	touchedFlag = false;  //触摸结束
-#if(CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
-	LOGD("onTouchEnded");
-#endif
+//#if(CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
+//	LOGD("onTouchEnded");
+//#endif
 	log("onTouchEnded");
 }
 
@@ -899,11 +915,11 @@ bool MapLayer::removeEffect()
 
 void MapLayer::showLineEffect(Point p)
 {
-	ParticleSystem * efft = ParticleSystemQuad::create("effect/particle_2.plist");
+	ParticleSystem * efft = ParticleSystemQuad::create("effect/particle_4.plist");
 	efft->setPosition(p);
 	efft->setAutoRemoveOnFinish(true);
-	efft->setDuration(0.1f);
-	addChild(efft, 1);
+	efft->setDuration(1.0f);
+	addChild(efft, 2);
 
 	//CallFunc* call = CallFunc::create([=]{
 	//	if (efft)
@@ -917,14 +933,60 @@ void MapLayer::showLineEffect(Point p)
 	//DelayTime* time = DelayTime::create(1.0f);
 	//Sequence* action = Sequence::create(time, call, nullptr);
 	//efft->runAction(action);
+	log("showLineEffect(Point p)");
+	auto heng = Sprite::create("element/element_10.png");
+	if (heng)
+	{
+		heng->setPosition(p);
+		//heng->setScale(0.2);
+		addChild(heng, 1);
+		auto h = ScaleTo::create(1.0,12,1.0);
+		if (h)
+		{
+			log("????");
+			CallFunc* call = CallFunc::create([=]{
+				if (heng)
+				{
+					removeChild(heng);
+				}
+
+			});
+			DelayTime* time = DelayTime::create(0.1f);
+			Sequence* action = Sequence::create(h, time, call, nullptr);
+			heng->runAction(action);
+		}
+	}
 }
 void MapLayer::showRowEffect(Point p)
 {
-	ParticleSystem * efft = ParticleSystemQuad::create("effect/particle_2.plist");
-	efft->setPosition(p);
-	efft->setAutoRemoveOnFinish(true);
-	efft->setDuration(0.1f);
-	addChild(efft, 1);
+	//ParticleSystem * efft = ParticleSystemQuad::create("effect/particle_2.plist");
+	//efft->setPosition(p);
+	//efft->setAutoRemoveOnFinish(true);
+	//efft->setDuration(0.1f);
+	//addChild(efft, 1);
+	SpriteFrameCache *frameCache = SpriteFrameCache::sharedSpriteFrameCache();
+	frameCache->addSpriteFramesWithFile("effect/Plist.plist");
+
+	auto s = Sprite::createWithSpriteFrameName("huodongtuisong_0.png");
+	if (s)
+	{
+		s->setPosition(p);
+		s->setScale(3);
+		addChild(s,1);
+		auto a = CommonFunction::createWithSingleFrameName("huodongtuisong_", 0.1, 1);
+		Animate* animate = CCAnimate::create(a);
+
+		CallFunc* call = CallFunc::create([=]{
+			if (s)
+			{
+				removeChild(s);
+			}
+
+		});
+		Sequence* action = Sequence::create(animate, call, nullptr);
+
+		s->runAction(action);
+	}
 }
 void MapLayer::showBoomEffect(Point p)
 {
@@ -967,9 +1029,9 @@ void	MapLayer::isBoomElement(int _row, int _line)
 //给特殊元素需要消除的元素加上标记
 void	 MapLayer::specialSignElement(int ele, Coord c)
 {
-#if(CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
-	LOGD("MapLayer::specialSignElement(int ele, Coord c) : %d",ele);
-#endif
+//#if(CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
+//	LOGD("MapLayer::specialSignElement(int ele, Coord c) : %d",ele);
+//#endif
 	log("MapLayer::specialSignElement(int ele, Coord c)");
 	if (ele >= 10 && ele < 20) // hengxiang
 	{
@@ -1069,6 +1131,10 @@ void MapLayer::undoLink()
 	removeLatestLine(); //删除最后一条连接线
 	removeEffect(); // 删除最后一个元素的特效
 	unsignElement(latest); //取消最后一个元素的标记
+	if (UserDefault::getInstance()->getBoolForKey("IS_effect"))
+		SimpleAudioEngine::getInstance()->playEffect(UNDO_EFFECT); //播放音效
+	if (UserDefault::getInstance()->getBoolForKey("IS_VIBRATE"))
+		Vibrator::vibrate(UNDO_VIBRATOR_TIME); //震动
 }
 
 //取消撤销关于这特殊元素涉及的所有标识
@@ -1086,6 +1152,18 @@ void	MapLayer::removeSignSpecial()
 				int ele = removeElement(row, line);
 				removeCount[ele]++; //消除标记的元素
 				specialScore += specialSttlement(ele);
+				if (ele >= 10 && ele < 20)
+				{
+					showLineEffect(blocksCenter[row][line]);
+				}
+				if (ele >= 20 && ele < 30)
+				{
+					showRowEffect(blocksCenter[row][line]);
+				}
+				if (ele >= 30 && ele < 40)
+				{
+					showBoomEffect(blocksCenter[row][line]);
+				}
 			}
 		}
 	}
@@ -1213,9 +1291,9 @@ int MapLayer::getElement(Coord c)
 //指定列的顶端出现新元素
 void  MapLayer::appear(int row)
 {
-#if(CC_TARGET_PLATFORM==CC_PLATFORM_ANDROID)
-	LOGD("MapLayer::appear(int row)");
-#endif
+//#if(CC_TARGET_PLATFORM==CC_PLATFORM_ANDROID)
+//	LOGD("MapLayer::appear(int row)");
+//#endif
 	//log("appear(int row : %d)",row);
 	int top = 0;
 	int ele = abs(rand() % 5);// randElement(); // 0 1 2 3 4 
@@ -1309,10 +1387,11 @@ void MapLayer::linkStart(int row, int line)
 	signOnlyBlock(row, line); //标记唯一元素
 	linkIndex.push_back({ row, line });//添加到连线序列
 	//音效，震动
-	/*	if (UserDefault::getInstance()->getBoolForKey(EFFECT_UD, EFFECT_DEFAULT_FLAG))
+	if (UserDefault::getInstance()->getBoolForKey("IS_EFFECT"))
 	SimpleAudioEngine::getInstance()->playEffect(START_LINK_EFFECT); //播放音效
-	if (UserDefault::getInstance()->getBoolForKey(VIBRATE_UD, VIBRATE_DEFAULT_FLAG))
-	Vibrator::vibrate(START_LINK_VIBRATOR_TIME); //震动*/
+	//if (UserDefault::getInstance()->getBoolForKey("IS_VIBRATE"))
+	log(":::::::::");
+	Vibrator::vibrate(3); //震动
 }
 
 //连接两个元素
@@ -1322,6 +1401,10 @@ void MapLayer::linkElement(Coord from, Coord to)
 	signElement(to);  //标记元素
 	drawLine(from, to); //绘制连线
 	linkIndex.push_back(to); //添加到连线序列
+	if (UserDefault::getInstance()->getBoolForKey("IS_EFFECT"))
+		SimpleAudioEngine::getInstance()->playEffect(LINK_EFFECT); //播放音效
+	if (UserDefault::getInstance()->getBoolForKey("IS_VIBRATE"))
+		Vibrator::vibrate(LINK_VIBRATOR_TIME); //震动
 
 }
 
