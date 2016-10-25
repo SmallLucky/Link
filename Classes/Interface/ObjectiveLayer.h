@@ -13,6 +13,7 @@ public:
 
 	void startGame();
 	void backButton();
+	long millisecondNow();
 private:
 	LevelLayer* levelLayer;
 	Button* starGame;

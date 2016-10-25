@@ -98,13 +98,17 @@ bool AppDelegate::applicationDidFinishLaunching() {
 	audio->preloadEffect(GAME_OVER_EFFECT);
 	audio->preloadEffect(NEW_RECORD_EFFECT);
 	audio->preloadEffect(CLICK_BUTTON);
+	audio->preloadEffect(ELEMENT_BOOM);
+	audio->preloadEffect(ELEMENT_LINE);
+	audio->preloadEffect(ELEMENT_ROW);
+	audio->preloadEffect(ELEMENT_ROUND);
 
 	//加载cocos studio导出的文件
 	FileUtils::getInstance()->addSearchPath("res");
 	
-	UserDefault::getInstance()->setBoolForKey("IS_MUSIC",true);
-	UserDefault::getInstance()->setBoolForKey("IS_EFFECT", true);
-	UserDefault::getInstance()->setBoolForKey("IS_VIBRATE", true);
+	//UserDefault::getInstance()->getBoolForKey("IS_MUSIC",true);
+	//UserDefault::getInstance()->getBoolForKey("IS_EFFECT", true);
+	//UserDefault::getInstance()->getBoolForKey("IS_VIBRATE", true);
 
 	//进入Start场景
 	auto scene = StartScene::create();

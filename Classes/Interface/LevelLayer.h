@@ -9,7 +9,8 @@ USING_NS_CC;
 class LevelLayer : public Layer
 {
 public:
-
+	LevelLayer();
+	~LevelLayer();
 	bool init();
 	CREATE_FUNC(LevelLayer);;
 	void	addScrollView();
@@ -21,9 +22,23 @@ public:
 	void refreshUI();
 	void addCallBack();
 	void setCallBack();
+	void timeUI(); //
+	void setTimeUI(); //
+	void update(float dt); // 
+	long millisecondNow();
 private:
 	ScrollView* scrollview;
 	Point oldPoint;
 	int numBG; //±³¾°ÕÅÊý
 	Size visibleSize;
+
+	LabelAtlas * powerNum;
+	LabelAtlas * moneyNum;
+	LabelAtlas * loveNum;
+
+	LabelAtlas * minutes;
+	LabelAtlas * seconds; 
+	int minutsNum;
+	int mt;
+	int st;
 };

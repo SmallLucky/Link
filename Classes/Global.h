@@ -42,9 +42,11 @@ string stdFtoS(float x); //浮点数转字符串
 
 void addSprite(Sprite* & s, string img, Point pos, float size, Node* n, int zOrder = 0); //将Sprite添加到父节点中
 
+
 //
 
 #define GAMEDATA GameData::getInstance()
+#define REFRESHUI "refreshUI"		//
 
 //坐标结构体
 //坐标结构体

@@ -4,6 +4,14 @@
 #include "Data/RoundData.h"
 #include "CommonFunction.h"
 
+InformationLayer::InformationLayer()
+{
+
+}
+InformationLayer::~InformationLayer()
+{
+
+}
 bool InformationLayer::init()
 {
 	if (!Layer::init())

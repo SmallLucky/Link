@@ -15,3 +15,8 @@ extern const char* WRONG_REMOVE_EFFECT; //错误消除时的音效
 extern const char* GAME_OVER_EFFECT; //游戏结束的音效
 extern const char* NEW_RECORD_EFFECT; //新纪录的音效
 extern const char* CLICK_BUTTON; //点击button音效
+extern const char* ELEMENT_BOOM; //元素爆炸音效
+
+extern const char* ELEMENT_LINE; //特殊元素元素音效
+extern const char* ELEMENT_ROW; //元素音效
+extern const char* ELEMENT_ROUND; //元素音效

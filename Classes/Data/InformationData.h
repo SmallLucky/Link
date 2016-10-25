@@ -39,3 +39,4 @@ extern const Point POWER_POSITION; //体力信息的位置
 extern const Point POWER_ANCHOR; //体力信息的锚点
 extern const float POWER_SIZE; //体力信息的大小
 extern const Color4B POWER_COLOR; //体力信息的颜色
+

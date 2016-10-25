@@ -76,7 +76,15 @@ void ObjectiveLayer::addUI()
 
 void ObjectiveLayer::startGame()
 {
-	GAMEDATA->setPowerNum(GAMEDATA->getPowerNum() - 3);
+	GAMEDATA->setPowerNum(GAMEDATA->getPowerNum() - 2); //扣两点体力
+	//发送消息到UI层
+	EventCustom _event(REFRESHUI);
+	_eventDispatcher->dispatchEvent(&_event);
+
+	if (UserDefault::getInstance()->getIntegerForKey("GAME_TIME") == 0)
+	{
+		UserDefault::getInstance()->setIntegerForKey("GAME_TIME", millisecondNow());
+	}
 
 	auto power = Sprite::create("popbox/power.png");
 	power->setPosition(CommonFunction::getVisibleAchor(Anchor::MidTop, starGame,Vec2(-200, 600)));
@@ -85,12 +93,14 @@ void ObjectiveLayer::startGame()
 	Point powerPoint = CommonFunction::getVisibleAchor(Anchor::Center, starGame, Vec2(40, 0));
 	auto moveTo = MoveTo::create(1.0, powerPoint);
 	ScaleTo* scaleTo = ScaleTo::create(1,1);
+	auto time = DelayTime::create(0.5f);
 	Spawn* spawn = Spawn::create(moveTo, scaleTo,nullptr);
-	auto action = Sequence::create(spawn, CallFunc::create([&]{
+	auto action = Sequence::create(spawn, time, CallFunc::create([&]{
 		if (UserDefault::getInstance()->getBoolForKey("IS_EFFECT"))
 		{
 			CocosDenshion::SimpleAudioEngine::getInstance()->playEffect(CLICK_BUTTON);
 		}
+		//this->removeFromParent();
 		GameScene* gameScene = GameScene::create();
 		Director::getInstance()->replaceScene(gameScene);  //跳转
 	}), nullptr);
@@ -104,4 +114,11 @@ void ObjectiveLayer::backButton()
 		CocosDenshion::SimpleAudioEngine::getInstance()->playEffect(CLICK_BUTTON);
 	}
 	this->removeFromParent();
+}
+
+long ObjectiveLayer::millisecondNow()
+{
+	struct timeval now;
+	gettimeofday(&now, NULL);
+	return (now.tv_sec * 1000 + now.tv_usec / 1000);
 }

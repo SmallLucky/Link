@@ -9,6 +9,17 @@
 #include "SetLayer.h"
 
 //#define  GAMEDATA GameData::getInstance()
+LevelLayer::LevelLayer()
+{
+	auto _listenerReresh = EventListenerCustom::create(REFRESHUI, [=](EventCustom*event){
+		refreshUI();
+	});
+	_eventDispatcher->addEventListenerWithFixedPriority(_listenerReresh, 1);
+}
+LevelLayer::~LevelLayer()
+{
+	_eventDispatcher->removeCustomEventListeners(REFRESHUI);
+}
 bool LevelLayer::init()
 {
 	if (!Layer::init())
@@ -32,8 +43,34 @@ bool LevelLayer::init()
 	addScrollView();
 	addLevelButton();
 	addUI();
+
+	if (GAMEDATA->getPowerNum() == 500)
+	{
+		log("addTimeLabel");
+		UserDefault::getInstance()->setIntegerForKey("GAME_TIME",0);
+		UserDefault::getInstance()->setIntegerForKey("MIN_TIME",0);
+	}
+	else
+	{
+		//addlabel
+		if ((mt % 10) > (500 - GAMEDATA->getPowerNum()))
+		{
+			GAMEDATA->setPowerNum(500);
+			UserDefault::getInstance()->setIntegerForKey("GAME_TIME", 0);
+			UserDefault::getInstance()->setIntegerForKey("MIN_TIME", 0);
+		}
+		else
+		{
+			timeUI();
+			this->scheduleUpdate();
+		}
+	}
+
 	return true;
 }
+
+
+
 void	LevelLayer::addScrollView()
 {
 
@@ -108,7 +145,7 @@ void	LevelLayer::addUI()
 					power->setPosition(CommonFunction::getVisibleAchor(Anchor::LeftMid, small_kuang, Vec2(20, 0)));
 					small_kuang->addChild(power);
 				}
-				auto powerNum = LabelAtlas::create(Value(GAMEDATA->getPowerNum()).asString(), "fonts/level_fonts.png", 30, 30, '0');
+				powerNum = LabelAtlas::create(Value(GAMEDATA->getPowerNum()).asString(), "fonts/level_fonts.png", 30, 30, '0');
 				if (powerNum)
 				{
 					powerNum->setAnchorPoint(Vec2(0.5, 0.5));
@@ -126,7 +163,7 @@ void	LevelLayer::addUI()
 				small_kuang->addChild(addbutton);
 				addbutton->addClickEventListener(CC_CALLBACK_0(LevelLayer::addCallBack, this));
 
-				auto moneyNum = LabelAtlas::create(Value(GAMEDATA->getMoneyNum()).asString(), "fonts/level_fonts.png", 30, 30, '0');
+				moneyNum = LabelAtlas::create(Value(GAMEDATA->getMoneyNum()).asString(), "fonts/level_fonts.png", 30, 30, '0');
 				moneyNum->setAnchorPoint(Vec2(0.5, 0.5));
 				moneyNum->setPosition(CommonFunction::getVisibleAchor(Anchor::Center, small_kuang, Vec2(10, 0)));
 				small_kuang->addChild(moneyNum);
@@ -141,7 +178,7 @@ void	LevelLayer::addUI()
 				small_kuang->addChild(addbutton);
 				addbutton->addClickEventListener(CC_CALLBACK_0(LevelLayer::addCallBack, this));
 
-				auto loveNum = LabelAtlas::create(Value(GAMEDATA->getLoveNum()).asString(), "fonts/level_fonts.png", 30, 30, '0');
+				loveNum = LabelAtlas::create(Value(GAMEDATA->getLoveNum()).asString(), "fonts/level_fonts.png", 30, 30, '0');
 				loveNum->setAnchorPoint(Vec2(0.5, 0.5));
 				loveNum->setPosition(CommonFunction::getVisibleAchor(Anchor::Center, small_kuang, Vec2(10, 0)));
 				small_kuang->addChild(loveNum);
@@ -163,7 +200,80 @@ void	LevelLayer::addUI()
 
 
 }
+void  LevelLayer::timeUI() //
+{
+	long int t = millisecondNow() - UserDefault::getInstance()->getIntegerForKey("GAME_TIME"); //得到系统时间毫秒
+	//long int nowt = millisecondNow(); //现在的时间 
+	//nowt - t;
+	long int tt = t / 1000; // 秒
+	
+	mt = tt / 60;
+	st = tt % 60;
+	log("tt:%ld   %d:%d", tt,mt,st);
+	
+	minutsNum = mt - UserDefault::getInstance()->getIntegerForKey("MIN_TIME",0);
+	//log("****time:%ld ,millisecondNow:%ld  minutsNum:%ld ", t, millisecondNow(), minutsNum);
+	//GAMEDATA->setPowerNum(GAMEDATA->getPowerNum() + minutsNum / 10);
+	//refreshUI(); //
+	minutes = LabelAtlas::create(Value(9 - minutsNum).asString(), "fonts/level_fonts.png", 30, 30, '0');
+	minutes->setPosition(CommonFunction::getVisibleAchor(Anchor::MidButtom,powerNum,Vec2(0,-40)));
+	minutes->setAnchorPoint(Vec2(1,0.5));
+	powerNum->addChild(minutes);
+	auto f = Label::create(":","fonts/Marker Felt.ttf",30);
+	f->setPosition(CommonFunction::getVisibleAchor(Anchor::RightMid, minutes, Vec2(5, 0)));
+	f->setAnchorPoint(Vec2(0.5, 0.5));
+	minutes->addChild(f);
+	seconds = LabelAtlas::create(Value(59 - st).asString(), "fonts/level_fonts.png", 30, 30, '0');
+	seconds->setPosition(CommonFunction::getVisibleAchor(Anchor::RightMid , minutes,Vec2(10,0)));
+	seconds->setAnchorPoint(Vec2(0, 0.5));
+	minutes->addChild(seconds);
 
+}
+void  LevelLayer::setTimeUI() //
+{
+	long int t = millisecondNow() - UserDefault::getInstance()->getIntegerForKey("GAME_TIME"); //得到系统时间毫秒
+	//long int nowt = millisecondNow(); //现在的时间 
+	//nowt - t;
+	long int tt = t / 1000; // 秒
+
+	mt = tt / 60;
+	st = tt % 60;
+	log("tt:%ld   %d:%d", tt, mt, st);
+
+	minutsNum = mt - UserDefault::getInstance()->getIntegerForKey("MIN_TIME", 0);
+	log("****time:%ld ,millisecondNow:%ld  minutsNum:%ld ", t, millisecondNow(), minutsNum);
+	if (minutes)
+	{
+		minutes->setString(Value(9-minutsNum).asString());
+		seconds->setString(Value(59 - st).asString());
+	}
+	if (minutsNum % 10 == 0 && minutsNum != 0)
+	{
+		GAMEDATA->setPowerNum(GAMEDATA->getPowerNum() + 1);
+		UserDefault::getInstance()->setIntegerForKey("MIN_TIME", minutsNum);
+		refreshUI(); //]
+		if (GAMEDATA->getPowerNum() == 500)
+		{
+			UserDefault::getInstance()->setIntegerForKey("GAME_TIME", 0);
+			UserDefault::getInstance()->setIntegerForKey("MIN_TIME", 0);
+			//移除时间label
+			minutes->removeFromParent();
+			//关闭定时器
+			this->unscheduleUpdate();
+
+		}
+	}
+}
+void  LevelLayer::update(float dt) // 
+{
+	setTimeUI();
+}
+long LevelLayer::millisecondNow()
+{
+	struct timeval now;
+	gettimeofday(&now, NULL);
+	return (now.tv_sec * 1000 + now.tv_usec / 1000);
+}
 //添加关卡
 void LevelLayer::addLevelButton()
 {
@@ -209,10 +319,13 @@ void LevelLayer:: back_buttonCallBack()
 	StartScene* startScene = StartScene::create();
 	Director::getInstance()->replaceScene(startScene);
 }
-
+ //刷新数值label  
 void LevelLayer::refreshUI()
 {
 	log("refreshUI");
+	powerNum->setString(Value(GAMEDATA->getPowerNum()).asString());
+	loveNum->setString(Value(GAMEDATA->getLoveNum()).asString());
+	moneyNum->setString(Value(GAMEDATA->getMoneyNum()).asString());
 }
 
 void LevelLayer::addCallBack()

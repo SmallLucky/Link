@@ -48,13 +48,15 @@ void	SetLayer::addUI()
 	bg->addChild(setBG);
 
 	CheckBox* musicCBox = CheckBox::create("popbox/music_on.png", "popbox/sound_off.png", TextureResType::LOCAL); 
-	if (UserDefault::getInstance()->getBoolForKey("IS_MUSIC"))
+	if (UserDefault::getInstance()->getBoolForKey("IS_MUSIC",true))
 	{
 		//创建,参数：未选中图片名，选中图片名，文字，状态（0-未选中，1-选中）
+		log("false");
 		musicCBox->setSelectedState(false);
 	}
 	else
 	{
+		log("true");
 		musicCBox->setSelectedState(true);
 	}
 	
@@ -66,8 +68,9 @@ void	SetLayer::addUI()
 	musicCBox->addChild(musicLabel);
 
 	auto soundCBox = CheckBox::create("popbox/sound_on.png", "popbox/sound_off.png", TextureResType::LOCAL);//创建,参数：未选中图片名，选中图片名，文字，状态（0-未选中，1-选中）
-	if (UserDefault::getInstance()->getBoolForKey("IS_EFFECT"))
+	if (UserDefault::getInstance()->getBoolForKey(" ",true))
 	{
+		log("false");
 		soundCBox->setSelectedState(false);
 	}
 	else
@@ -82,8 +85,9 @@ void	SetLayer::addUI()
 	soundCBox->addChild(soundLabel);
 
 	CheckBox * vibrationCBox = CheckBox::create("popbox/vibration_on.png", "popbox/vibration_off.png", TextureResType::LOCAL);//创建,参数：未选中图片名，选中图片名，文字，状态（0-未选中，1-选中）
-	if (UserDefault::getInstance()->getBoolForKey("IS_VIBRATE"))
+	if (UserDefault::getInstance()->getBoolForKey("IS_VIBRATE",true))
 	{
+		log("false");
 		vibrationCBox->setSelectedState(false);
 	}
 	else

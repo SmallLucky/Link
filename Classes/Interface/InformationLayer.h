@@ -18,6 +18,8 @@ protected:
 	Sprite* targetScore_bg;
 
 public:
+	InformationLayer();
+	~InformationLayer();
 	CREATE_FUNC(InformationLayer);
 	bool init();
 

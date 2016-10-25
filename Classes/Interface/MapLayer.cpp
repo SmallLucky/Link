@@ -179,11 +179,11 @@ void MapLayer::removeLink()
 			removeSignSpecial();
 			isLine = false;
 		}
-		signClear();
+		signClear();  
 		linkFinishFlag = true; //完成一次消除
-		if (UserDefault::getInstance()->getBoolForKey("IS_EFFECT"))
+		if (UserDefault::getInstance()->getBoolForKey("IS_EFFECT",true))
 			SimpleAudioEngine::getInstance()->playEffect(REMOVE_EFFECT); //播放音效
-		if (UserDefault::getInstance()->getBoolForKey("IS_VIBRATE"))
+		if (UserDefault::getInstance()->getBoolForKey("IS_VIBRATE",true))
 			Vibrator::vibrate(REMOVE_VIBRATOR_TIME); //震动 
 
 		//成功消除一次，步数减少一次
@@ -193,9 +193,9 @@ void MapLayer::removeLink()
 	{
 		signClear(); //取消对元素的标记
 		removeAllLine(); //删除连接线
-		if (UserDefault::getInstance()->getBoolForKey("IS_EFFECT"))
+		if (UserDefault::getInstance()->getBoolForKey("IS_EFFECT",true))
 			SimpleAudioEngine::getInstance()->playEffect(WRONG_REMOVE_EFFECT); //播放音效
-		if (UserDefault::getInstance()->getBoolForKey("IS_VIBRATE"))
+		if (UserDefault::getInstance()->getBoolForKey("IS_VIBRATE",true))
 			Vibrator::vibrate(WRONG_REMOVE_VIBRATOR_TIME); //震动
 	}
 
@@ -336,6 +336,7 @@ bool MapLayer::elementsFall()
 	//		{
 	//			log("MapLayer::elementsFall() : i:%d,j:%d", i, j);
 	//			//log("MapLayer::elementsFall:%i,%i",i,j);
+	//			/*rowMyFall(i, j);*/
 	//			rowFall(i, j);//从最下方开始，一旦出现空位，所有上方元素下落，填补空位
 	//			flag = true;//填补了空位
 	//			break;//每一列只填补最下一个空位
@@ -369,7 +370,6 @@ bool	MapLayer::checkIsDrop(int r, int l)
 		{
 			if (elements[r][i] == nullptr)
 			{
-				//log("elements[r][i] == nullptr) continue;");
 				continue;
 			}else
 			{
@@ -381,6 +381,10 @@ bool	MapLayer::checkIsDrop(int r, int l)
 						{
 							return false;
 						}
+					}
+					else
+					{
+						return true;
 					}
 				}
 			}
@@ -478,67 +482,150 @@ void	MapLayer::rowMyFall(int _row, int bottom) // 15
 }
 
 //指定列的全部空位上方元素下落，顶端出现新元素i.j
-void MapLayer::rowFall(int _row, int bottom)//0,5
+void MapLayer::rowFall(int _row, int bottom)//0,5/1.2 5 5
 {
 //#if(CC_TARGET_PLATFORM==CC_PLATFORM_ANDROID)
 //	LOGD("MapLayer::rowFall(int _row, int bottom)");
 //#endif
-	//log("MapLayer::rowFall(int _row, int bottom):%d,%d", _row, bottom);//0,1
+	int r = _row;
+	bool isapp = true;
+	int j;
 	for (int i = bottom; i > 0; )//7--i
 	{
-		int j = i - 1;//6
-		if (checkIsNull(_row,i))
+		 j = i - 1;//6
+		if (elements[r][i] == nullptr)
 		{
-			//--i;
-			//continue;
-			break;
-		}
-		//while (checkIsNull(_row, j))//06
-		if (checkIsNull(_row, j))
-		{
-			//log("while (checkSpriteNull({ _row, j })):%i",j);
-			//j--;
-			if (!checkIsNull(max(_row -1 , 0), j))
+			if (checkIsNull(r, i))
 			{
-				//log("if (!checkIsNull(max(_row -1 , 0), j))");
-				elements[_row][i] = elements[max(_row - 1, 0)][j];
-				if (elements[_row][i])
+				//--i;
+				isapp = false;
+				continue;
+				//break;
+			}
+			//while (checkIsNull(_row, j))//06
+			if (j >= 0 )
+			{
+				if (checkIsNull(r, j))
 				{
-					Point pop = getMCenterByCoord(_row, i);
-					elements[max(_row - 1, 0)][j]->moveToPosition(pop, FALL_TIME);//上方元素掉落一个
-					elements[max(_row - 1, 0)][j] = nullptr;
-					//appear(max(_row - 1, 0));
+					//log("while (checkSpriteNull({ _row, j })):%i",j);
+					//j--;
+					isapp = false;
+					if (!checkIsNull(max(r - 1, 0), j) )
+					{
+						if (max(r - 1, 0) != r)
+						{
+							elements[r][i] = elements[max(r - 1, 0)][j];
+							if (elements[r][i])
+							{
+								Point pop = getMCenterByCoord(r, i);
+								elements[max(r - 1, 0)][j]->moveToPosition(pop, FALL_TIME);//上方元素掉落一个
+								elements[max(r - 1, 0)][j] = nullptr;
+								//r = max(r - 1, 0);
+							}
+							else
+							{
+								isapp = true;
+							}
+						}
+						else
+						{
+							if (!checkIsNull(min(r + 1, 5), j))
+							{
+								elements[r][i] = elements[min(r + 1, 5)][j];
+								if (elements[r][i])
+								{
+									Point pop = getMCenterByCoord(r, i);
+									elements[min(r + 1, 5)][j]->moveToPosition(pop, FALL_TIME);//上方元素掉落一个
+									elements[min(r + 1, 5)][j] = nullptr;
+									//r = min(r + 1, 5);
+								}
+								else
+								{
+									isapp = true;
+								}
+							}
+						}
+
+					}
+					else if (!checkIsNull(min(r + 1, 5), j))
+					{
+						if (min(r + 1, 5) != r)
+						{
+							elements[r][i] = elements[min(r + 1, 5)][j];
+							if (elements[r][i])
+							{
+								Point pop = getMCenterByCoord(r, i);
+								elements[min(r + 1, 5)][j]->moveToPosition(pop, FALL_TIME);//上方元素掉落一个
+								elements[min(r + 1, 5)][j] = nullptr;
+								//r = min(r + 1, 5);
+							}
+							else
+							{
+								isapp = true;
+							}
+						}
+						else
+						{
+							if (!checkIsNull(max(r - 1, 0), j))
+							{
+								elements[r][i] = elements[max(r - 1, 0)][j];
+								if (elements[r][i])
+								{
+									Point pop = getMCenterByCoord(r, i);
+									elements[max(r - 1, 0)][j]->moveToPosition(pop, FALL_TIME);//上方元素掉落一个
+									elements[max(r - 1, 0)][j] = nullptr;
+									//r = max(r - 1, 0);
+								}
+							}
+						}
+
+					}
+				}
+				else
+				{
+					//if (!checkIsDrop(r, j) && elements[r][j])
+					//{
+					//	isapp = false;
+					//	if (checkIsDrop(max(r-1,0),j))
+					//	{
+					//		elements[r][i] = elements[max(r - 1, 0)][j];
+					//		if (elements[r][i])
+					//		{
+					//			Point pop = getMCenterByCoord(r, i);
+					//			elements[max(r - 1, 0)][j]->moveToPosition(pop, FALL_TIME);//上方元素掉落一个
+					//			elements[max(r - 1, 0)][j] = nullptr;
+					//		}
+					//		else if (checkIsDrop(min(r + 1, 5), j))
+					//		{
+					//			isapp = false;
+					//			elements[r][i] = elements[min(r + 1, 5)][j];
+					//			if (elements[r][i])
+					//			{
+					//				Point pop = getMCenterByCoord(r, i);
+					//				elements[min(r + 1, 5)][j]->moveToPosition(pop, FALL_TIME);//上方元素掉落一个
+					//				elements[min(r + 1, 5)][j] = nullptr;
+					//			}
+					//		}
+					//	}
+					//}
+					elements[r][i] = elements[r][j]; //null
+					if (elements[r][i])
+					{
+						Point pop = getMCenterByCoord(r, i);
+						elements[r][j]->moveToPosition(pop, FALL_TIME);//上方元素掉落一个
+						elements[r][j] = nullptr;
+					}
 				}
 			}
-			else if (!checkIsNull(min(_row + 1, 5), j))
-			{
-				//log("if (!checkIsNull(min(_row + 1, 5), j))");
-				elements[_row][i] = elements[min(_row + 1, 5)][j];
-				if (elements[_row][i])
-				{
-					Point pop = getMCenterByCoord(_row, i);
-					elements[min(_row + 1, 5)][j]->moveToPosition(pop, FALL_TIME);//上方元素掉落一个
-					elements[min(_row + 1, 5)][j] = nullptr;
-					//appear(min(_row + 1, 5));
-				}
-			}
-		}
-		else
-		{
-			//log("else");
-			elements[_row][i] = elements[_row][j]; //null
-			if (elements[_row][i])
-			{
-				Point pop = getMCenterByCoord(_row, i);
-				elements[_row][j]->moveToPosition(pop, FALL_TIME);//上方元素掉落一个
-				elements[_row][j] = nullptr;
-				//appear(_row);
-			}
-			
+
 		}
 		i = j;
 	}
-	/*appear(_row);*/
+	if (isapp)
+	{
+		appear(r);
+	}
+	//appear(r);
 } 
 
 //初始化格子，确定格子区域，初始状态矩阵为空
@@ -743,7 +830,7 @@ bool MapLayer::onTouchBegan(Touch *touch, Event *unused_event) //开始触摸
 				//log("element:%i", getElement({ row, line }));
 				if (getIsBoom())
 				{
-					isBoomElement(row, line);
+					//isBoomElement(row, line);
 					return true;
 				}
 				if (getElement({ row, line }) == 5)
@@ -778,18 +865,6 @@ void MapLayer::onTouchMoved(Touch *touch, Event *unused_event) //触摸点移动
 		Point touchPoint = Director::getInstance()->convertToGL(touch->getLocationInView()); //获得触摸点
 		if (getIsBoom())
 		{
-			//ERGODIC_MBLOCK(row, line)
-			//{
-			//	if (blocksCenter[row][line].getDistance(touchPoint) < containsDis)
-			//	{
-			//		isBoomElement(row, line); //标记为特殊的xiaochu
-			//	}
-			//	else
-			//	{
-					//取消
-					signClear();
-		/*		}
-			}*/
 			return;
 		}
 		if (!linkIndex.empty())
@@ -863,13 +938,19 @@ void MapLayer::onTouchEnded(Touch *touch, Event *unused_event) //触摸结束
 			ERGODIC_MBLOCK(row, line)
 			{
 				if (blocksCenter[row][line].getDistance(touchPoint) < containsDis)
-				{
-					//showLineEffect(blocksCenter[row][line]);
+				{ 
+					//炸弹数量减一
+					if (UserDefault::getInstance()->getBoolForKey("IS_EFFECT", true))
+						CocosDenshion::SimpleAudioEngine::getInstance()->playEffect(ELEMENT_LINE);
 					showBoomEffect(blocksCenter[row][line]);
+					isBoomElement(row, line);
 					removeSignSpecial();
-					//signClear();
 					isCount = true;
 					linkFinishFlag = true;
+				}
+				else
+				{
+					isBoom = false;
 				}
 			}
 		}
@@ -888,7 +969,7 @@ void MapLayer::onTouchEnded(Touch *touch, Event *unused_event) //触摸结束
 //#if(CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
 //	LOGD("onTouchEnded");
 //#endif
-
+	if (UserDefault::getInstance()->getBoolForKey("IS_VIBRATE",true))
 	Vibrator::cancelVibrate();
 	log("onTouchEnded");
 }
@@ -917,6 +998,8 @@ bool MapLayer::removeEffect()
 
 void MapLayer::showLineEffect(Point p)
 {
+	if (UserDefault::getInstance()->getBoolForKey("IS_EFFECT", true))
+		CocosDenshion::SimpleAudioEngine::getInstance()->playEffect(ELEMENT_LINE);
 	ParticleSystem * efft = ParticleSystemQuad::create("effect/particle_4.plist");
 	efft->setPosition(p);
 	efft->setAutoRemoveOnFinish(true);
@@ -966,6 +1049,8 @@ void MapLayer::showRowEffect(Point p)
 	//efft->setAutoRemoveOnFinish(true);
 	//efft->setDuration(0.1f);
 	//addChild(efft, 1);
+	if (UserDefault::getInstance()->getBoolForKey("IS_EFFECT", true))
+		CocosDenshion::SimpleAudioEngine::getInstance()->playEffect(ELEMENT_LINE);
 	SpriteFrameCache *frameCache = SpriteFrameCache::sharedSpriteFrameCache();
 	frameCache->addSpriteFramesWithFile("effect/Plist.plist");
 
@@ -992,6 +1077,8 @@ void MapLayer::showRowEffect(Point p)
 }
 void MapLayer::showBoomEffect(Point p)
 {
+	//if (UserDefault::getInstance()->getBoolForKey("IS_EFFECT", true))
+	//	CocosDenshion::SimpleAudioEngine::getInstance()->playEffect(ELEMENT_BOOM);
 	ParticleSystem * efft = ParticleSystemQuad::create("effect/particle_2.plist");
 	efft->setPosition(p);
 	efft->setAutoRemoveOnFinish(true);
@@ -1133,9 +1220,9 @@ void MapLayer::undoLink()
 	removeLatestLine(); //删除最后一条连接线
 	removeEffect(); // 删除最后一个元素的特效
 	unsignElement(latest); //取消最后一个元素的标记
-	if (UserDefault::getInstance()->getBoolForKey("IS_effect"))
+	if (UserDefault::getInstance()->getBoolForKey("IS_EFFECT",true))
 		SimpleAudioEngine::getInstance()->playEffect(UNDO_EFFECT); //播放音效
-	if (UserDefault::getInstance()->getBoolForKey("IS_VIBRATE"))
+	if (UserDefault::getInstance()->getBoolForKey("IS_VIBRATE",true))
 		Vibrator::vibrate(UNDO_VIBRATOR_TIME); //震动
 }
 
@@ -1389,10 +1476,9 @@ void MapLayer::linkStart(int row, int line)
 	signOnlyBlock(row, line); //标记唯一元素
 	linkIndex.push_back({ row, line });//添加到连线序列
 	//音效，震动
-	if (UserDefault::getInstance()->getBoolForKey("IS_EFFECT"))
+	if (UserDefault::getInstance()->getBoolForKey("IS_EFFECT",true))
 	SimpleAudioEngine::getInstance()->playEffect(START_LINK_EFFECT); //播放音效
-	if (UserDefault::getInstance()->getBoolForKey("IS_VIBRATE"))
-	log(":::::::::");
+	if (UserDefault::getInstance()->getBoolForKey("IS_VIBRATE",true))
 	Vibrator::vibrate(3); //震动
 }
 
@@ -1403,9 +1489,9 @@ void MapLayer::linkElement(Coord from, Coord to)
 	signElement(to);  //标记元素
 	drawLine(from, to); //绘制连线
 	linkIndex.push_back(to); //添加到连线序列
-	if (UserDefault::getInstance()->getBoolForKey("IS_EFFECT"))
+	if (UserDefault::getInstance()->getBoolForKey("IS_EFFECT",true))
 		SimpleAudioEngine::getInstance()->playEffect(LINK_EFFECT); //播放音效
-	if (UserDefault::getInstance()->getBoolForKey("IS_VIBRATE"))
+	if (UserDefault::getInstance()->getBoolForKey("IS_VIBRATE",true))
 		Vibrator::vibrate(LINK_VIBRATOR_TIME); //震动
 
 }

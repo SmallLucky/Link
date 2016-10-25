@@ -36,7 +36,8 @@ bool StartScene::init()
 
 void	StartScene::PlayStopBGM()
 {
-	bool flag = UserDefault::getInstance()->getBoolForKey("IS_MUSIC");
+	//UserDefault::getInstance()->getBoolForKey("IS_VIBRATE",true); // 
+	bool flag = UserDefault::getInstance()->getBoolForKey("IS_MUSIC",true);
 	if (flag)
 	{
 		SimpleAudioEngine::getInstance()->playBackgroundMusic(BGM, true);
@@ -84,7 +85,7 @@ void StartScene::StartGame()
 {
 	//log("test");
 	logTime();
-	if (UserDefault::getInstance()->getBoolForKey("IS_EFFECT"))
+	if (UserDefault::getInstance()->getBoolForKey("IS_EFFECT",true))
 	{
 		CocosDenshion::SimpleAudioEngine::getInstance()->playEffect(CLICK_BUTTON);
 	}
