@@ -1,0 +1,236 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple Computer//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+	<dict>
+		<key>frames</key>
+		<dict>
+			<key>line_0.png</key>
+			<dict>
+				<key>frame</key>
+				<string>{{434,557},{182,79}}</string>
+				<key>offset</key>
+				<string>{0,1}</string>
+				<key>rotated</key>
+				<false />
+				<key>sourceSize</key>
+				<string>{640,100}</string>
+			</dict>
+			<key>line_1.png</key>
+			<dict>
+				<key>frame</key>
+				<string>{{988,821},{244,85}}</string>
+				<key>offset</key>
+				<string>{0,1}</string>
+				<key>rotated</key>
+				<false />
+				<key>sourceSize</key>
+				<string>{640,100}</string>
+			</dict>
+			<key>line_10.png</key>
+			<dict>
+				<key>frame</key>
+				<string>{{0,0},{640,87}}</string>
+				<key>offset</key>
+				<string>{0,1}</string>
+				<key>rotated</key>
+				<true />
+				<key>sourceSize</key>
+				<string>{640,100}</string>
+			</dict>
+			<key>line_11.png</key>
+			<dict>
+				<key>frame</key>
+				<string>{{0,640},{640,87}}</string>
+				<key>offset</key>
+				<string>{0,1}</string>
+				<key>rotated</key>
+				<false />
+				<key>sourceSize</key>
+				<string>{640,100}</string>
+			</dict>
+			<key>line_12.png</key>
+			<dict>
+				<key>frame</key>
+				<string>{{0,727},{640,87}}</string>
+				<key>offset</key>
+				<string>{0,1}</string>
+				<key>rotated</key>
+				<false />
+				<key>sourceSize</key>
+				<string>{640,100}</string>
+			</dict>
+			<key>line_13.png</key>
+			<dict>
+				<key>frame</key>
+				<string>{{0,814},{640,87}}</string>
+				<key>offset</key>
+				<string>{0,1}</string>
+				<key>rotated</key>
+				<false />
+				<key>sourceSize</key>
+				<string>{640,100}</string>
+			</dict>
+			<key>line_14.png</key>
+			<dict>
+				<key>frame</key>
+				<string>{{0,901},{640,87}}</string>
+				<key>offset</key>
+				<string>{0,1}</string>
+				<key>rotated</key>
+				<false />
+				<key>sourceSize</key>
+				<string>{640,100}</string>
+			</dict>
+			<key>line_15.png</key>
+			<dict>
+				<key>frame</key>
+				<string>{{87,0},{640,87}}</string>
+				<key>offset</key>
+				<string>{0,1}</string>
+				<key>rotated</key>
+				<true />
+				<key>sourceSize</key>
+				<string>{640,100}</string>
+			</dict>
+			<key>line_16.png</key>
+			<dict>
+				<key>frame</key>
+				<string>{{174,0},{640,87}}</string>
+				<key>offset</key>
+				<string>{0,1}</string>
+				<key>rotated</key>
+				<true />
+				<key>sourceSize</key>
+				<string>{640,100}</string>
+			</dict>
+			<key>line_17.png</key>
+			<dict>
+				<key>frame</key>
+				<string>{{348,0},{640,86}}</string>
+				<key>offset</key>
+				<string>{0,0}</string>
+				<key>rotated</key>
+				<true />
+				<key>sourceSize</key>
+				<string>{640,100}</string>
+			</dict>
+			<key>line_18.png</key>
+			<dict>
+				<key>frame</key>
+				<string>{{434,500},{640,57}}</string>
+				<key>offset</key>
+				<string>{0,-13}</string>
+				<key>rotated</key>
+				<false />
+				<key>sourceSize</key>
+				<string>{640,100}</string>
+			</dict>
+			<key>line_2.png</key>
+			<dict>
+				<key>frame</key>
+				<string>{{988,557},{264,85}}</string>
+				<key>offset</key>
+				<string>{0,1}</string>
+				<key>rotated</key>
+				<true />
+				<key>sourceSize</key>
+				<string>{640,100}</string>
+			</dict>
+			<key>line_3.png</key>
+			<dict>
+				<key>frame</key>
+				<string>{{901,557},{278,87}}</string>
+				<key>offset</key>
+				<string>{0,1}</string>
+				<key>rotated</key>
+				<true />
+				<key>sourceSize</key>
+				<string>{640,100}</string>
+			</dict>
+			<key>line_4.png</key>
+			<dict>
+				<key>frame</key>
+				<string>{{814,557},{294,87}}</string>
+				<key>offset</key>
+				<string>{0,1}</string>
+				<key>rotated</key>
+				<true />
+				<key>sourceSize</key>
+				<string>{640,100}</string>
+			</dict>
+			<key>line_5.png</key>
+			<dict>
+				<key>frame</key>
+				<string>{{727,911},{320,87}}</string>
+				<key>offset</key>
+				<string>{0,1}</string>
+				<key>rotated</key>
+				<false />
+				<key>sourceSize</key>
+				<string>{640,100}</string>
+			</dict>
+			<key>line_6.png</key>
+			<dict>
+				<key>frame</key>
+				<string>{{727,557},{354,87}}</string>
+				<key>offset</key>
+				<string>{0,1}</string>
+				<key>rotated</key>
+				<true />
+				<key>sourceSize</key>
+				<string>{640,100}</string>
+			</dict>
+			<key>line_7.png</key>
+			<dict>
+				<key>frame</key>
+				<string>{{640,557},{408,87}}</string>
+				<key>offset</key>
+				<string>{0,1}</string>
+				<key>rotated</key>
+				<true />
+				<key>sourceSize</key>
+				<string>{640,100}</string>
+			</dict>
+			<key>line_8.png</key>
+			<dict>
+				<key>frame</key>
+				<string>{{434,0},{500,87}}</string>
+				<key>offset</key>
+				<string>{0,1}</string>
+				<key>rotated</key>
+				<true />
+				<key>sourceSize</key>
+				<string>{640,100}</string>
+			</dict>
+			<key>line_9.png</key>
+			<dict>
+				<key>frame</key>
+				<string>{{261,0},{640,87}}</string>
+				<key>offset</key>
+				<string>{0,1}</string>
+				<key>rotated</key>
+				<true />
+				<key>sourceSize</key>
+				<string>{640,100}</string>
+			</dict>
+		</dict>
+		<key>metadata</key>
+		<dict>
+			<key>format</key>
+			<integer>2</integer>
+			<key>textureFileName</key>
+			<string>Line.png</string>
+			<key>realTextureFileName</key>
+			<string>Line.png</string>
+			<key>size</key>
+			<string>{2048,1024}</string>
+		</dict>
+		<key>texture</key>
+		<dict>
+			<key>width</key>
+			<integer>2048</integer>
+			<key>height</key>
+			<integer>1024</integer>
+		</dict>
+	</dict>
+</plist>

@@ -370,7 +370,8 @@ bool	MapLayer::checkIsDrop(int r, int l)
 		{
 			if (elements[r][i] == nullptr)
 			{
-				continue;
+				return true;
+				//continue;
 			}else
 			{
 				if (elements[r][i])
@@ -380,6 +381,13 @@ bool	MapLayer::checkIsDrop(int r, int l)
 						if (checkIsNull(max(r - 1, 0), i) && checkIsNull(min(r + 1, 5), i))
 						{
 							return false;
+						}
+						else
+						{
+							if (!checkIsNull(max(r - 1, 0), i) || !checkIsNull(min(r + 1, 5), i))
+							{
+								return true;
+							}
 						}
 					}
 					else
@@ -392,7 +400,14 @@ bool	MapLayer::checkIsDrop(int r, int l)
 		//log("true*//*");
 		return true;
 	}
-	return false;
+	else
+	{
+		if (checkIsNull(r,l))
+		{
+			return false;
+		}
+	}
+	return true;
 }
 
 bool MapLayer::checkIsNull(int _row, int _line)
@@ -432,6 +447,7 @@ void MapLayer::prepareLink()
 void	MapLayer::rowMyFall(int _row, int bottom) // 15
 {
 	int	j = bottom - 1;
+	log("******j%d ,j+1:%d",j,bottom);
 	if (j>=0)
 	{
 		if (checkIsNull(_row, j))
@@ -460,19 +476,41 @@ void	MapLayer::rowMyFall(int _row, int bottom) // 15
 					elements[min(_row + 1, 5)][j] = nullptr;
 				}
 			}
-		}
-		else
+		}else if(!checkIsDrop(_row, j))
 		{
-			//log("else");
-			elements[_row][bottom] = elements[_row][j]; //null
-			if (elements[_row][bottom])
+			if (!checkIsNull(max(_row - 1, 0), j))
 			{
-				Point pop = getMCenterByCoord(_row, bottom);
-				elements[_row][j]->moveToPosition(pop, FALL_TIME);//上方元素掉落一个
-				elements[_row][j] = nullptr;
-				//appear(_row);
+				log("if (!checkIsNull(max(_row -1 , 0), j))%d,%d", max(_row - 1, 0),j);
+				elements[_row][bottom] = elements[max(_row - 1, 0)][j];
+				if (elements[_row][bottom])
+				{
+					Point pop = getMCenterByCoord(_row, bottom);
+					elements[max(_row - 1, 0)][j]->moveToPosition(pop, FALL_TIME);//上方元素掉落一个
+					elements[max(_row - 1, 0)][j] = nullptr;
+				}
 			}
-		}
+			else if (!checkIsNull(min(_row + 1, 5), j) )
+			{
+				log("if (!checkIsNull(min(_row + 1, 5), j))%d,%d", min(_row + 1, 5),j);
+				elements[_row][bottom] = elements[min(_row + 1, 5)][j];
+				if (elements[_row][bottom])
+				{
+					Point pop = getMCenterByCoord(_row, bottom);
+					elements[min(_row + 1, 5)][j]->moveToPosition(pop, FALL_TIME);//上方元素掉落一个
+					elements[min(_row + 1, 5)][j] = nullptr;
+				}
+			}
+		}else
+			{
+				elements[_row][bottom] = elements[_row][j]; //null
+				if (elements[_row][bottom])
+				{
+					Point pop = getMCenterByCoord(_row, bottom);
+					elements[_row][j]->moveToPosition(pop, FALL_TIME);//上方元素掉落一个
+					elements[_row][j] = nullptr;
+					//appear(_row);
+				}
+			}
 	}
 	if (j < 0)
 	{
@@ -998,69 +1036,42 @@ bool MapLayer::removeEffect()
 
 void MapLayer::showLineEffect(Point p)
 {
-	if (UserDefault::getInstance()->getBoolForKey("IS_EFFECT", true))
-		CocosDenshion::SimpleAudioEngine::getInstance()->playEffect(ELEMENT_LINE);
-	ParticleSystem * efft = ParticleSystemQuad::create("effect/particle_4.plist");
-	efft->setPosition(p);
-	efft->setAutoRemoveOnFinish(true);
-	efft->setDuration(1.0f);
-	addChild(efft, 2);
+	SpriteFrameCache *frameCache = SpriteFrameCache::sharedSpriteFrameCache();
+	frameCache->addSpriteFramesWithFile("effect/Line.plist");
 
-	//CallFunc* call = CallFunc::create([=]{
-	//	if (efft)
-	//	{
-	//		removeChild(efft);
-	//	}
-
-	//});
-
-	//Blink* blink = Blink::create(1.0f, 10);
-	//DelayTime* time = DelayTime::create(1.0f);
-	//Sequence* action = Sequence::create(time, call, nullptr);
-	//efft->runAction(action);
-	log("showLineEffect(Point p)");
-	auto heng = Sprite::create("element/element_10.png");
-	if (heng)
+	auto s = Sprite::createWithSpriteFrameName("line_0.png");
+	if (s)
 	{
-		heng->setPosition(p);
-		//heng->setScale(0.2);
-		addChild(heng, 1);
-		auto h = ScaleTo::create(1.0,12,1.0);
-		if (h)
-		{
-			log("????");
-			CallFunc* call = CallFunc::create([=]{
-				if (heng)
-				{
-					removeChild(heng);
-				}
+		s->setPosition(Vec2(mapPoint.x,p.y));
+		//s->setScale(1);
+		addChild(s, 1);
+		auto a = CommonFunction::createWithSingleFrameName("line_", 0.05, 1);
+		Animate* animate = CCAnimate::create(a);
 
-			});
-			DelayTime* time = DelayTime::create(0.1f);
-			Sequence* action = Sequence::create(h, time, call, nullptr);
-			heng->runAction(action);
-		}
+		CallFunc* call = CallFunc::create([=]{
+			if (s)
+			{
+				removeChild(s);
+			}
+
+		});
+		Sequence* action = Sequence::create(animate, call, nullptr);
+
+		s->runAction(action);
 	}
 }
 void MapLayer::showRowEffect(Point p)
 {
-	//ParticleSystem * efft = ParticleSystemQuad::create("effect/particle_2.plist");
-	//efft->setPosition(p);
-	//efft->setAutoRemoveOnFinish(true);
-	//efft->setDuration(0.1f);
-	//addChild(efft, 1);
-	if (UserDefault::getInstance()->getBoolForKey("IS_EFFECT", true))
-		CocosDenshion::SimpleAudioEngine::getInstance()->playEffect(ELEMENT_LINE);
 	SpriteFrameCache *frameCache = SpriteFrameCache::sharedSpriteFrameCache();
-	frameCache->addSpriteFramesWithFile("effect/Plist.plist");
+	frameCache->addSpriteFramesWithFile("effect/Line.plist");
 
-	auto s = Sprite::createWithSpriteFrameName("huodongtuisong_0.png");
+	auto s = Sprite::createWithSpriteFrameName("line_0.png");
 	if (s)
 	{
-		s->setPosition(p);
-		s->setScale(3);
-		addChild(s,1);
-		auto a = CommonFunction::createWithSingleFrameName("huodongtuisong_", 0.1, 1);
+		s->setPosition(Vec2(p.x, mapPoint.y));
+		s->setRotation(90.0f);
+		addChild(s, 1);
+		auto a = CommonFunction::createWithSingleFrameName("line_", 0.05, 1);
 		Animate* animate = CCAnimate::create(a);
 
 		CallFunc* call = CallFunc::create([=]{
@@ -1077,9 +1088,7 @@ void MapLayer::showRowEffect(Point p)
 }
 void MapLayer::showBoomEffect(Point p)
 {
-	//if (UserDefault::getInstance()->getBoolForKey("IS_EFFECT", true))
-	//	CocosDenshion::SimpleAudioEngine::getInstance()->playEffect(ELEMENT_BOOM);
-	ParticleSystem * efft = ParticleSystemQuad::create("effect/particle_2.plist");
+	ParticleSystem * efft = ParticleSystemQuad::create("effect/particle_6.plist");
 	efft->setPosition(p);
 	efft->setAutoRemoveOnFinish(true);
 	efft->setDuration(0.1f);

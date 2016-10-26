@@ -111,6 +111,7 @@ void TotalLayer::GoOnCallBack()
 	{
 		GAMEDATA->setCurLevel(x);
 		GAMEDATA->setLock(GAMEDATA->getCurLevel());
+		GAMEDATA->setPowerNum(min(GAMEDATA->getPowerNum() + 1,500)); // ¹ý¹Ø½±Àø
 		LevelScene* levelScene = LevelScene::create();
 		Director::getInstance()->replaceScene(levelScene);
 	}

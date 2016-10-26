@@ -19,6 +19,17 @@ LevelLayer::LevelLayer()
 LevelLayer::~LevelLayer()
 {
 	_eventDispatcher->removeCustomEventListeners(REFRESHUI);
+
+	if (GAMEDATA->getPowerNum() == 500)
+	{
+		UserDefault::getInstance()->setIntegerForKey("LEAVE_TIME",0);
+		UserDefault::getInstance()->setIntegerForKey("LEAVE_POWER",500);
+	}
+	else
+	{
+		UserDefault::getInstance()->setIntegerForKey("LEAVE_TIME", millisecondNow());
+		UserDefault::getInstance()->setIntegerForKey("LEAVE_POWER",GAMEDATA->getPowerNum());
+	}
 }
 bool LevelLayer::init()
 {
@@ -29,7 +40,7 @@ bool LevelLayer::init()
 	GameData::getInstance()->praseJsonData();
 	//测试修改
 	numBG = 0;
-	
+	minutsNum = 0;
 	visibleSize = Director::getInstance()->getVisibleSize();
 
 	Sprite* bg1 = Sprite::create("bg/bg_1.png");
@@ -49,17 +60,27 @@ bool LevelLayer::init()
 		log("addTimeLabel");
 		UserDefault::getInstance()->setIntegerForKey("GAME_TIME",0);
 		UserDefault::getInstance()->setIntegerForKey("MIN_TIME",0);
+		UserDefault::getInstance()->setIntegerForKey("LEAVE_TIME", 0);
+		UserDefault::getInstance()->setIntegerForKey("LEAVE_POWER", 500);
 	}
 	else
 	{
-		//addlabel
-		if ((mt % 10) > (500 - GAMEDATA->getPowerNum()))
+		long int t =( millisecondNow() - UserDefault::getInstance()->getIntegerForKey("LEAVE_TIME"))/60000;
+		if (t >=10 )
 		{
-			GAMEDATA->setPowerNum(500);
-			UserDefault::getInstance()->setIntegerForKey("GAME_TIME", 0);
-			UserDefault::getInstance()->setIntegerForKey("MIN_TIME", 0);
+			int p = t / 10;
+			GAMEDATA->setPowerNum(min(GAMEDATA->getPowerNum() + p ,500));
+			refreshUI();;
+			UserDefault::getInstance()->setIntegerForKey("LEAVE_TIME", 0);
+			UserDefault::getInstance()->setIntegerForKey("LEAVE_POWER", GAMEDATA->getPowerNum());
+			if (GAMEDATA->getPowerNum() == 500)
+			{
+				UserDefault::getInstance()->setIntegerForKey("GAME_TIME", 0);
+				UserDefault::getInstance()->setIntegerForKey("MIN_TIME", 0);
+				UserDefault::getInstance()->setIntegerForKey("LEAVE_POWER", 500);
+			}
 		}
-		else
+		if (GAMEDATA->getPowerNum() < 500)
 		{
 			timeUI();
 			this->scheduleUpdate();
@@ -203,8 +224,6 @@ void	LevelLayer::addUI()
 void  LevelLayer::timeUI() //
 {
 	long int t = millisecondNow() - UserDefault::getInstance()->getIntegerForKey("GAME_TIME"); //得到系统时间毫秒
-	//long int nowt = millisecondNow(); //现在的时间 
-	//nowt - t;
 	long int tt = t / 1000; // 秒
 	
 	mt = tt / 60;
@@ -212,9 +231,6 @@ void  LevelLayer::timeUI() //
 	log("tt:%ld   %d:%d", tt,mt,st);
 	
 	minutsNum = mt - UserDefault::getInstance()->getIntegerForKey("MIN_TIME",0);
-	//log("****time:%ld ,millisecondNow:%ld  minutsNum:%ld ", t, millisecondNow(), minutsNum);
-	//GAMEDATA->setPowerNum(GAMEDATA->getPowerNum() + minutsNum / 10);
-	//refreshUI(); //
 	minutes = LabelAtlas::create(Value(9 - minutsNum).asString(), "fonts/level_fonts.png", 30, 30, '0');
 	minutes->setPosition(CommonFunction::getVisibleAchor(Anchor::MidButtom,powerNum,Vec2(0,-40)));
 	minutes->setAnchorPoint(Vec2(1,0.5));
@@ -232,10 +248,7 @@ void  LevelLayer::timeUI() //
 void  LevelLayer::setTimeUI() //
 {
 	long int t = millisecondNow() - UserDefault::getInstance()->getIntegerForKey("GAME_TIME"); //得到系统时间毫秒
-	//long int nowt = millisecondNow(); //现在的时间 
-	//nowt - t;
 	long int tt = t / 1000; // 秒
-
 	mt = tt / 60;
 	st = tt % 60;
 	log("tt:%ld   %d:%d", tt, mt, st);

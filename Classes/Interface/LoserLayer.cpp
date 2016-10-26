@@ -103,6 +103,16 @@ void LoserLayer::quitCallBack()
 void LoserLayer::againCallBack()
 {
 	log("again game");
-	auto gameScene = GameScene::create();
-	Director::getInstance()->replaceScene(gameScene);
+	//再玩一次减少体力
+	if (GAMEDATA->getPowerNum()>= 2)
+	{
+		GAMEDATA->setPowerNum(GAMEDATA->getPowerNum() - 2);
+		auto gameScene = GameScene::create();
+		Director::getInstance()->replaceScene(gameScene);
+	}
+	else
+	{
+		//提示体力不足，去购买！~！！缺界面
+	}
+
 }
