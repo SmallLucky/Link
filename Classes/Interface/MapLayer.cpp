@@ -712,6 +712,7 @@ void  MapLayer::initBlocks()
 			auto s = ElementUnit::create();
 			if (s)
 			{
+				s->setElementType(ElementType::cannotEliminate); // 不可一消除的元素
 				s->createElement(5, getMCenterByCoord(row, line));
 				elements[row][line] = s;
 				elementCount[5]++;
@@ -730,6 +731,7 @@ void  MapLayer::initBlocks()
 				auto s = ElementUnit::create();
 				if (s)
 				{
+					s->setElementType(ElementType::basisEliminate); // 基础消除元素
 					int color = abs(rand() % 5);
 					s->createElement(color, getMCenterByCoord(row, line));
 					elements[row][line] = s;
@@ -1421,19 +1423,15 @@ void  MapLayer::appear(int row)
 		ele = 11 + ((rand() % 3) * 10); //12 22 32 12+0,12+10,12+20
 		purple = 0;
 	}
-	//if (elements[row][top] == nullptr)
-	//{
-		createElement(ele, row, top);
-		if (elements[row][top])
-		{
-			this->addChild(elements[row][top]);
-		}
-		if (elements[row][top])
-		{
-			elements[row][top]->appear(FALL_TIME);
-		}
-		//log("MapLayer::appear(int row)");
-	//}
+	createElement(ele, row, top);
+	if (elements[row][top])
+	{
+		this->addChild(elements[row][top]);
+	}
+	if (elements[row][top])
+	{
+		elements[row][top]->appear(FALL_TIME);
+	}
 }
 
 //通过现有元素类型分布，随机获得一个元素类型
@@ -1530,6 +1528,7 @@ int  MapLayer::createElement(int element, int row, int line) //22
 		elementCount[element]++; // 对应元素类型基数自增
 		if (temp)
 		{
+			temp->setElementType(ElementType::basisEliminate);//设置为基本消除属性
 			temp->createElement(element, getMCenterByCoord(row, line));//创建一个元素并添加到屏幕上
 		}
 		return element;

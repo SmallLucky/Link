@@ -5,6 +5,14 @@
 #include "cocos2d.h"
 
 //单个元素信息
+enum ElementType
+{
+	basisEliminate,
+	canEliminate,
+	beEliminate,
+	cannotEliminate,
+};
+
 
 class ElementUnit : public Node
 {
@@ -20,8 +28,8 @@ public:
 
 	int getElement();	//返回元素类型
 
-	void setElementHp(int h);
-	int  getElementHp(){ return _hp; };
+	void setElementType(ElementType eType);
+	ElementType  getElementType(){ return _eType; };
 
 	string getImageString(int ele);
 
@@ -29,7 +37,7 @@ protected:
 	Sprite* elementSprite; //元素图案
 	int element;	//元素类型
 
-	int _hp;
+	ElementType _eType;
 
 };
 

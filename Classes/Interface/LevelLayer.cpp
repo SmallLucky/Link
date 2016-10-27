@@ -9,7 +9,7 @@
 #include "SetLayer.h"
 
 //#define  GAMEDATA GameData::getInstance()
-LevelLayer::LevelLayer()
+LevelLayer::LevelLayer() :mt(0)
 {
 	auto _listenerReresh = EventListenerCustom::create(REFRESHUI, [=](EventCustom*event){
 		refreshUI();
@@ -23,12 +23,16 @@ LevelLayer::~LevelLayer()
 	if (GAMEDATA->getPowerNum() == 500)
 	{
 		UserDefault::getInstance()->setIntegerForKey("LEAVE_TIME",0);
-		UserDefault::getInstance()->setIntegerForKey("LEAVE_POWER",500);
+		UserDefault::getInstance()->setIntegerForKey("LEAVE_POWER",0);
 	}
 	else
 	{
-		UserDefault::getInstance()->setIntegerForKey("LEAVE_TIME", millisecondNow());
-		UserDefault::getInstance()->setIntegerForKey("LEAVE_POWER",GAMEDATA->getPowerNum());
+		if (UserDefault::getInstance()->getIntegerForKey("LEAVE_TIME",0) == 0)
+		{
+			UserDefault::getInstance()->setIntegerForKey("LEAVE_TIME", millisecondNow());	
+		}
+		UserDefault::getInstance()->setIntegerForKey("LEAVE_POWER", mt);
+		log("wo jiao mt:%d", mt);
 	}
 }
 bool LevelLayer::init()
@@ -58,26 +62,30 @@ bool LevelLayer::init()
 	if (GAMEDATA->getPowerNum() == 500)
 	{
 		log("addTimeLabel");
-		UserDefault::getInstance()->setIntegerForKey("GAME_TIME",0);
-		UserDefault::getInstance()->setIntegerForKey("MIN_TIME",0);
-		UserDefault::getInstance()->setIntegerForKey("LEAVE_TIME", 0);
-		UserDefault::getInstance()->setIntegerForKey("LEAVE_POWER", 500);
+		UserDefault::getInstance()->setIntegerForKey("GAME_TIME",0);//游戏开始按钮减体力的时间写入
+		UserDefault::getInstance()->setIntegerForKey("MIN_TIME",0);//
+		UserDefault::getInstance()->setIntegerForKey("LEAVE_TIME", 0);//离开的时间记录
+		UserDefault::getInstance()->setIntegerForKey("LEAVE_POWER", 0);//推出场景的时间
 	}
 	else
 	{
-		long int t =( millisecondNow() - UserDefault::getInstance()->getIntegerForKey("LEAVE_TIME"))/60000;
-		if (t >=10 )
+		int t =( millisecondNow() - UserDefault::getInstance()->getIntegerForKey("LEAVE_TIME",0))/60000;
+		log("long int:%d",t);
+		int ht = UserDefault::getInstance()->getIntegerForKey("LEAVE_POWER",0)%10; //离开的时间10分钟以内
+		log("int ht :%d",ht);
+		if (UserDefault::getInstance()->getIntegerForKey("LEAVE_TIME",0) != 0)
 		{
-			int p = t / 10;
+			int p = (t + ht) / 10;
+			log("int p = %d",p);
 			GAMEDATA->setPowerNum(min(GAMEDATA->getPowerNum() + p ,500));
-			refreshUI();;
-			UserDefault::getInstance()->setIntegerForKey("LEAVE_TIME", 0);
-			UserDefault::getInstance()->setIntegerForKey("LEAVE_POWER", GAMEDATA->getPowerNum());
+			refreshUI();
+			UserDefault::getInstance()->setIntegerForKey("LEAVE_TIME", 0);//离开标记的时间取消
+			UserDefault::getInstance()->setIntegerForKey("LEAVE_POWER", 0);	//离开之前走过的时间
 			if (GAMEDATA->getPowerNum() == 500)
 			{
-				UserDefault::getInstance()->setIntegerForKey("GAME_TIME", 0);
-				UserDefault::getInstance()->setIntegerForKey("MIN_TIME", 0);
-				UserDefault::getInstance()->setIntegerForKey("LEAVE_POWER", 500);
+				UserDefault::getInstance()->setIntegerForKey("GAME_TIME", 0); //口血时间置0
+				UserDefault::getInstance()->setIntegerForKey("MIN_TIME", 0);//
+				UserDefault::getInstance()->setIntegerForKey("LEAVE_POWER", 0);//把游戏过去了几分钟置0
 			}
 		}
 		if (GAMEDATA->getPowerNum() < 500)
@@ -231,7 +239,7 @@ void  LevelLayer::timeUI() //
 	log("tt:%ld   %d:%d", tt,mt,st);
 	
 	minutsNum = mt - UserDefault::getInstance()->getIntegerForKey("MIN_TIME",0);
-	minutes = LabelAtlas::create(Value(9 - minutsNum).asString(), "fonts/level_fonts.png", 30, 30, '0');
+	minutes = LabelAtlas::create(Value(9 - (minutsNum%10)).asString(), "fonts/level_fonts.png", 30, 30, '0');
 	minutes->setPosition(CommonFunction::getVisibleAchor(Anchor::MidButtom,powerNum,Vec2(0,-40)));
 	minutes->setAnchorPoint(Vec2(1,0.5));
 	powerNum->addChild(minutes);
@@ -239,7 +247,7 @@ void  LevelLayer::timeUI() //
 	f->setPosition(CommonFunction::getVisibleAchor(Anchor::RightMid, minutes, Vec2(5, 0)));
 	f->setAnchorPoint(Vec2(0.5, 0.5));
 	minutes->addChild(f);
-	seconds = LabelAtlas::create(Value(59 - st).asString(), "fonts/level_fonts.png", 30, 30, '0');
+	seconds = LabelAtlas::create(Value(59 - (st%60)).asString(), "fonts/level_fonts.png", 30, 30, '0');
 	seconds->setPosition(CommonFunction::getVisibleAchor(Anchor::RightMid , minutes,Vec2(10,0)));
 	seconds->setAnchorPoint(Vec2(0, 0.5));
 	minutes->addChild(seconds);
@@ -257,8 +265,8 @@ void  LevelLayer::setTimeUI() //
 	log("****time:%ld ,millisecondNow:%ld  minutsNum:%ld ", t, millisecondNow(), minutsNum);
 	if (minutes)
 	{
-		minutes->setString(Value(9-minutsNum).asString());
-		seconds->setString(Value(59 - st).asString());
+		minutes->setString(Value(9-(minutsNum%10)).asString());
+		seconds->setString(Value(59 -(st%60)).asString());
 	}
 	if (minutsNum % 10 == 0 && minutsNum != 0)
 	{

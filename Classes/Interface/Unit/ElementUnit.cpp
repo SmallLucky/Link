@@ -15,7 +15,6 @@ bool ElementUnit:: init()
 void ElementUnit::createElement(int ele, Point pos)//22
 {
 	element = ele; //5
-	_hp = 0;
 	//this->setPosition(pos);		//设置自身位置，将子节点位置设置为原点即可出现在屏幕对应位置上
 
 	//elementSprite = Sprite::create(ELEMENT_NORMAL_IMG[ele]);	//根据元素类型选择
@@ -82,7 +81,7 @@ int ElementUnit::getElement()
 	return element;
 }
 
-void ElementUnit::setElementHp(int h)
+void ElementUnit::setElementType(ElementType eType)
 {
-	_hp = h;
+	_eType = eType;
 }
