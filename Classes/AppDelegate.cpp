@@ -102,6 +102,7 @@ bool AppDelegate::applicationDidFinishLaunching() {
 	audio->preloadEffect(ELEMENT_LINE);
 	audio->preloadEffect(ELEMENT_ROW);
 	audio->preloadEffect(ELEMENT_ROUND);
+	audio->preloadEffect(SHOP_MONEY);
 
 	//加载cocos studio导出的文件
 	FileUtils::getInstance()->addSearchPath("res");

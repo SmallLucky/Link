@@ -85,6 +85,8 @@ void ShopLayer::addUI()
 	propsButton->setPosition(CommonFunction::getVisibleAchor(Anchor::Center, BG_kuang, Vec2(-80, 160)));
 	BG_kuang->addChild(propsButton);
 	propsButton->addClickEventListener([=](Ref*){
+		if (UserDefault::getInstance()->getBoolForKey("IS_EFFECT", true))
+			CocosDenshion::SimpleAudioEngine::getInstance()->playEffect(CLICK_BUTTON);
 		shopBGRight->setVisible(false);
 		shopBGleft->setVisible(true);
 	});
@@ -93,6 +95,8 @@ void ShopLayer::addUI()
 	moneyButton->setPosition(CommonFunction::getVisibleAchor(Anchor::Center, BG_kuang, Vec2(30, 160)));
 	BG_kuang->addChild(moneyButton);
 	moneyButton->addClickEventListener([=](Ref*){
+		if (UserDefault::getInstance()->getBoolForKey("IS_EFFECT", true))
+			CocosDenshion::SimpleAudioEngine::getInstance()->playEffect(CLICK_BUTTON);
 		shopBGleft->setVisible(false);
 		shopBGRight->setVisible(true);
 	});
@@ -106,9 +110,7 @@ void ShopLayer::addUI()
 
 void ShopLayer::backButCallBack()
 {
-	if (UserDefault::getInstance()->getBoolForKey("IS_EFFECT"))
-	{
+	if (UserDefault::getInstance()->getBoolForKey("IS_EFFECT",true))
 		CocosDenshion::SimpleAudioEngine::getInstance()->playEffect(CLICK_BUTTON);
-	}
 	this->removeFromParent();
 }

@@ -1,6 +1,7 @@
 
 #include "ShopItem.h"
 #include "CommonFunction.h"
+#include "Data/Data.h"
 
 ShopItem::ShopItem()
 {
@@ -101,6 +102,8 @@ bool ShopItem::init(int diamNum, int giveNum, int moneyNum)
 
 void ShopItem::btnClickEvent(Ref* pSender)
 {
+	if (UserDefault::getInstance()->getBoolForKey("IS_EFFECT", true))
+		CocosDenshion::SimpleAudioEngine::getInstance()->playEffect(SHOP_MONEY);
 	log("go mai!");
 }
 

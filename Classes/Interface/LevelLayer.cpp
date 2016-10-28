@@ -317,10 +317,8 @@ void LevelLayer::addLevelButton()
 		}
 		//testButton->addClickEventListener(CC_CALLBACK_0(LevelLayer::test_buttonCallBack, this));
 		testButton->addClickEventListener([=](Ref* sender){
-			if (UserDefault::getInstance()->getBoolForKey("IS_EFFECT"))
-			{
+			if (UserDefault::getInstance()->getBoolForKey("IS_EFFECT",true))
 				CocosDenshion::SimpleAudioEngine::getInstance()->playEffect(CLICK_BUTTON);
-			}
 			GameData::getInstance()->setCurLevel(i);
 			log("getCurLevel:%i", GameData::getInstance()->getCurLevel());
 			//GAMEDATA->setCurLevel(GAMEDATA->getCurLevel() + 1);
@@ -333,10 +331,8 @@ void LevelLayer::addLevelButton()
 
 void LevelLayer:: back_buttonCallBack()
 {
-	if (UserDefault::getInstance()->getBoolForKey("IS_EFFECT"))
-	{
+	if (UserDefault::getInstance()->getBoolForKey("IS_EFFECT", true))
 		CocosDenshion::SimpleAudioEngine::getInstance()->playEffect(CLICK_BUTTON);
-	}
 	StartScene* startScene = StartScene::create();
 	Director::getInstance()->replaceScene(startScene);
 }
@@ -351,20 +347,16 @@ void LevelLayer::refreshUI()
 
 void LevelLayer::addCallBack()
 {
-	if (UserDefault::getInstance()->getBoolForKey("IS_EFFECT"))
-	{
+	if (UserDefault::getInstance()->getBoolForKey("IS_EFFECT",true))
 		CocosDenshion::SimpleAudioEngine::getInstance()->playEffect(CLICK_BUTTON);
-	}
 	ShopLayer* shop = ShopLayer::create();
 	addChild(shop);
 }
 
 void LevelLayer::setCallBack()
 {
-	if (UserDefault::getInstance()->getBoolForKey("IS_EFFECT"))
-	{
+	if (UserDefault::getInstance()->getBoolForKey("IS_EFFECT", true))
 		CocosDenshion::SimpleAudioEngine::getInstance()->playEffect(CLICK_BUTTON);
-	}
 	SetLayer* setLayer = SetLayer::create();
 	addChild(setLayer);
 }

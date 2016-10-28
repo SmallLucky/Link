@@ -20,3 +20,4 @@ extern const char* ELEMENT_BOOM; //元素爆炸音效
 extern const char* ELEMENT_LINE; //特殊元素元素音效
 extern const char* ELEMENT_ROW; //元素音效
 extern const char* ELEMENT_ROUND; //元素音效
+extern const char* SHOP_MONEY;

@@ -96,10 +96,8 @@ void ObjectiveLayer::startGame()
 	auto time = DelayTime::create(0.5f);
 	Spawn* spawn = Spawn::create(moveTo, scaleTo,nullptr);
 	auto action = Sequence::create(spawn, time, CallFunc::create([&]{
-		if (UserDefault::getInstance()->getBoolForKey("IS_EFFECT"))
-		{
-			CocosDenshion::SimpleAudioEngine::getInstance()->playEffect(CLICK_BUTTON);
-		}
+		if (UserDefault::getInstance()->getBoolForKey("IS_EFFECT",true))
+			CocosDenshion::SimpleAudioEngine::getInstance()->playEffect(NEW_RECORD_EFFECT);
 		//this->removeFromParent();
 		GameScene* gameScene = GameScene::create();
 		Director::getInstance()->replaceScene(gameScene);  //Ìø×ª

@@ -40,6 +40,8 @@ public:
 	//vector<int> special_row;
 	//vector<Coord> special_round;
 
+	void removeBeEliminate(int r, int l);//检测并消除可以被消除的元素，改变type值
+
 	bool checkIsNeedRefresh();  //检测是否需要进行刷新位置
 	void refreshAllElement();	//刷新所有基础元素的位置
 

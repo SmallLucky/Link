@@ -148,18 +148,15 @@ void  MapLayer::refreshAllElement()
 	{
 		if (elements[row][line] != nullptr)
 		{
-			if (getElement({row,line}) != 5)
+			if (getElement({row,line}) < 5)
 			{
-				if (getElement({ row, line }) < 10)
+				elements[row][line]->removeFromParent(); ///按理是不能移除，只能换位置
+				auto s = ElementUnit::create();
+				if (s)
 				{
-					elements[row][line]->removeFromParent(); ///按理是不能移除，只能换位置
-					auto s = ElementUnit::create();
-					if (s)
-					{
-						s->createElement(randElement(), blocksCenter[row][line]);
-						elements[row][line] = s;
-						addChild(elements[row][line]);
-					}
+					s->createElement(randElement(), blocksCenter[row][line]);
+					elements[row][line] = s;
+					addChild(elements[row][line]);
 				}
 			}
 		}
@@ -237,6 +234,7 @@ int		MapLayer::removeSignedElement()
 			{
 				showBoomEffect(blocksCenter[row][line]);
 			}
+			removeBeEliminate(row,line);//
 		}
 	}
 	//signClear();
@@ -269,6 +267,42 @@ int		MapLayer::removeSignedElement()
 	return removeAllCount;
 }
 
+//检测并消除可以被消除的元素，改变type值
+void MapLayer::removeBeEliminate(int r, int l)
+{
+	for (int i = max(r - 1, 0); i <= min(r + 1, MATRIX_ROW - 1); i++) // 0,2
+	{
+		for (int j = max(l - 1, 0); j <= min(l + 1, MATRIX_MLINE - 1); j++) //0,2
+		{
+			if (elements[i][j])
+			{
+				if (elements[i][j]->getElement() == 6)
+				{
+					removeElement(i, j); // 移除精灵
+					//修改瓦片属性
+					changeTiledType(i, j);
+
+				}
+			}
+		}
+
+	}
+}
+// 修改指定位置上瓦片的属性值
+void	MapLayer::changeTiledType(int r, int l)
+{
+	unsigned int gidnum = typeLayer->getTileGIDAt(Vec2(0, 0));
+
+	unsigned int num = typeLayer->getTileGIDAt(Vec2(r, l));
+	Value typevalue = _tileMap->getPropertiesForGID(num);
+	int type = typevalue.asValueMap()["type"].asInt();
+	log("(0,5)type1:%d", type);
+	if (type == 6)
+	{
+		typeLayer->setTileGID(gidnum, Vec2(r, l));
+	}
+
+}
 //删除所有线
 void MapLayer::removeAllLine()
 {
@@ -411,21 +445,21 @@ bool	MapLayer::checkIsDrop(int r, int l)
 }
 
 bool MapLayer::checkIsNull(int _row, int _line)
-{
+{ 
 	unsigned int num;
 	num = typeLayer->getTileGIDAt(Vec2(_row, _line));
 	getType = _tileMap->getPropertiesForGID(num);
 	int _type = getType.asValueMap()["type"].asInt();
-	if (_type == 2)
+	if (_type != 1)
 	{
 		//log("_type == 2");
 		return true;
 	}
-	if (_type == 3)
-	{
-		//log("_type == 2");
-		return true;
-	}
+	//if (_type == 3)
+	//{
+	//	//log("_type == 2");
+	//	return true;
+	//}
 	return false;
 }
 
@@ -673,8 +707,8 @@ void  MapLayer::initBlocks()
 //	LOGD(" MapLayer::initBlocks()");
 //#endif
 	string str = StringUtils::format("tiledmap/map_%d.tmx", GAMEDATA->getCurLevel());
-	_tileMap = TMXTiledMap::create(str);//("TileMaps/hexa-test.tmx");
-	//_tileMap = TMXTiledMap::create("tiledmap/map_15.tmx");//("TileMaps/hexa-test.tmx");
+	//_tileMap = TMXTiledMap::create(str);//("TileMaps/hexa-test.tmx");
+	_tileMap = TMXTiledMap::create("tiledmap/map_18.tmx");//("TileMaps/hexa-test.tmx");
 	if (_tileMap)
 	{
 		_tileMap->setAnchorPoint(Vec2(0.5, 0.5));
@@ -708,49 +742,33 @@ void  MapLayer::initBlocks()
 				//int _type = getType.asValueMap()["type"].asInt();
 		if (checkIsNull(row, line))
 		{
+			unsigned int num;
+			num = typeLayer->getTileGIDAt(Vec2(row, line));
+			int _type = _tileMap->getPropertiesForGID(num).asValueMap()["type"].asInt();
 			//这块瓦片是不显示 
 			auto s = ElementUnit::create();
 			if (s)
 			{
 				s->setElementType(ElementType::cannotEliminate); // 不可一消除的元素
-				s->createElement(5, getMCenterByCoord(row, line));
+				s->createElement(_type, getMCenterByCoord(row, line));
 				elements[row][line] = s;
-				elementCount[5]++;
+				elementCount[_type]++;
 				addChild(elements[row][line], 1);
 				//elements[row][line]->setVisible(false);
 			}
 		}
 		else
 		{
-			//unsigned int  num = typeLayer->getTileGIDAt(Vec2(row, line));
-			//Value gT = _tileMap->getPropertiesForGID(num);
-			//int _type = gT.asValueMap()["type"].asInt();
-			////elements[row][line] = nullptr;
-			//if (_type == 1)
-			//{
-				auto s = ElementUnit::create();
-				if (s)
-				{
-					s->setElementType(ElementType::basisEliminate); // 基础消除元素
-					int color = abs(rand() % 5);
-					s->createElement(color, getMCenterByCoord(row, line));
-					elements[row][line] = s;
-					elementCount[color]++;
-					addChild(elements[row][line], 1);
-				}		
-			//}
-			//if (_type == 3)
-			//{
-			//	auto s = ElementUnit::create();
-			//	if (s)
-			//	{
-			//		s->createElement(5, getMCenterByCoord(row, line));
-			//		elements[row][line] = s;
-			//		elementCount[5]++;
-			//		addChild(elements[row][line], 1);
-			//		elements[row][line]->setVisible(false);
-			//	}
-			//}
+			auto s = ElementUnit::create();
+			if (s)
+			{
+				s->setElementType(ElementType::basisEliminate); // 基础消除元素
+				int color = abs(rand() % 5);
+				s->createElement(color, getMCenterByCoord(row, line));
+				elements[row][line] = s;
+				elementCount[color]++;
+				addChild(elements[row][line], 1);
+			}		
 		}
 	}
 	removeAllCount = 0;
@@ -873,8 +891,8 @@ bool MapLayer::onTouchBegan(Touch *touch, Event *unused_event) //开始触摸
 					//isBoomElement(row, line);
 					return true;
 				}
-				if (getElement({ row, line }) == 5)
-				{
+				if (getElement({ row, line }) >= 5 && getElement({ row, line }) < 10)
+				{ 
 					log("wild");
 					touchedFlag = false;//成为有效触摸
 					return false;
@@ -980,8 +998,6 @@ void MapLayer::onTouchEnded(Touch *touch, Event *unused_event) //触摸结束
 				if (blocksCenter[row][line].getDistance(touchPoint) < containsDis)
 				{ 
 					//炸弹数量减一
-					if (UserDefault::getInstance()->getBoolForKey("IS_EFFECT", true))
-						CocosDenshion::SimpleAudioEngine::getInstance()->playEffect(ELEMENT_LINE);
 					showBoomEffect(blocksCenter[row][line]);
 					isBoomElement(row, line);
 					removeSignSpecial();
@@ -1038,6 +1054,9 @@ bool MapLayer::removeEffect()
 
 void MapLayer::showLineEffect(Point p)
 {
+	if (UserDefault::getInstance()->getBoolForKey("IS_EFFECT", true))
+		SimpleAudioEngine::getInstance()->playEffect(ELEMENT_LINE); //播放音效
+
 	SpriteFrameCache *frameCache = SpriteFrameCache::sharedSpriteFrameCache();
 	frameCache->addSpriteFramesWithFile("effect/Line.plist");
 
@@ -1064,6 +1083,8 @@ void MapLayer::showLineEffect(Point p)
 }
 void MapLayer::showRowEffect(Point p)
 {
+	if (UserDefault::getInstance()->getBoolForKey("IS_EFFECT", true))
+		SimpleAudioEngine::getInstance()->playEffect(ELEMENT_ROW); //播放音效
 	SpriteFrameCache *frameCache = SpriteFrameCache::sharedSpriteFrameCache();
 	frameCache->addSpriteFramesWithFile("effect/Line.plist");
 
@@ -1090,6 +1111,8 @@ void MapLayer::showRowEffect(Point p)
 }
 void MapLayer::showBoomEffect(Point p)
 {
+	if (UserDefault::getInstance()->getBoolForKey("IS_EFFECT", true))
+		SimpleAudioEngine::getInstance()->playEffect(ELEMENT_BOOM); //播放音效
 	ParticleSystem * efft = ParticleSystemQuad::create("effect/particle_6.plist");
 	efft->setPosition(p);
 	efft->setAutoRemoveOnFinish(true);
@@ -1150,6 +1173,10 @@ void	 MapLayer::specialSignElement(int ele, Coord c)
 					if (eletype < 10 && eletype != 5)
 					{
 						signFlagSpecial[i][c.line] = true; // 加上标记
+						if (eletype == 6)
+						{
+							changeTiledType(i,c.line); //消除的是被消除的，修改瓦片属性
+						}
 					}
 					else
 					{
@@ -1303,21 +1330,7 @@ int		MapLayer::specialSttlement(int ele)//
 	}
 }
 
-// 修改指定位置上瓦片的属性值
-void	MapLayer:: changeTiledType(int r, int l)
-{
-	unsigned int gidnum = typeLayer->getTileGIDAt(Vec2(0, 0));
 
-	unsigned int num = typeLayer->getTileGIDAt(Vec2(r, l));
-	Value typevalue = _tileMap->getPropertiesForGID(num);
-	int type = typevalue.asValueMap()["type"].asInt();
-	log("(0,5)type1:%d", type);
-	if (type == 5)
-	{
-		typeLayer->setTileGID(gidnum, Vec2(r, l));
-	}
-
-}
 ////绘制矩形辅助线
 //void MapLayer::drawGuideLine(Point leftBottom, Point rightTop)
 //{

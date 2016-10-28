@@ -55,6 +55,8 @@ void GameScene::addUI()
 	stopButton->addClickEventListener([=](Ref*){
 		if (matrix->isResponse())
 		{
+			if (UserDefault::getInstance()->getBoolForKey("IS_EFFECT", true))
+				CocosDenshion::SimpleAudioEngine::getInstance()->playEffect(CLICK_BUTTON);
 			StopLayer* stopLayer = StopLayer::create();
 			addChild(stopLayer, 2);
 		}
@@ -67,6 +69,8 @@ void GameScene::addUI()
 		/*props_bg->setTag(i);*/
 		rightYun->addChild(props_bg);
 		props_bg->addClickEventListener([=](Ref*){
+			if (UserDefault::getInstance()->getBoolForKey("IS_EFFECT", true))
+				CocosDenshion::SimpleAudioEngine::getInstance()->playEffect(CLICK_BUTTON);
 			if (matrix->isResponse())
 			{
 				if (i == 1)
