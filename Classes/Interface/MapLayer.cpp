@@ -213,7 +213,7 @@ int		MapLayer::removeSignedElement()
 		{
 			if (elements[row][line])
 			{
-				if (elements[row][line]->getElement() >= 10)
+				if (elements[row][line]->getElement() >= 10 && elements[row][line]->getElement() < 30)
 				{
 					isLine = true;
 					specialSignElement(elements[row][line]->getElement(), { row, line });
@@ -232,7 +232,7 @@ int		MapLayer::removeSignedElement()
 			}
 			if (ele >= 30 && ele < 40)
 			{
-				showBoomEffect(blocksCenter[row][line]);
+				//showBoomEffect(blocksCenter[row][line]);
 			}
 			removeBeEliminate(row,line);//
 		}
@@ -297,7 +297,7 @@ void	MapLayer::changeTiledType(int r, int l)
 	Value typevalue = _tileMap->getPropertiesForGID(num);
 	int type = typevalue.asValueMap()["type"].asInt();
 	log("(0,5)type1:%d", type);
-	if (type == 6)
+	if (type == 6 || type == 5)
 	{
 		typeLayer->setTileGID(gidnum, Vec2(r, l));
 	}
@@ -383,8 +383,6 @@ bool MapLayer::elementsFall()
 		{
 			if (elements[i][j] == nullptr && checkIsDrop(i, j))
 			{
-				//log("MapLayer::elementsFall() : i:%d,j:%d", i, j);
-				//rowFall(i, j);
 				rowMyFall(i,j);
 				flag = true;
 				break;
@@ -452,14 +450,8 @@ bool MapLayer::checkIsNull(int _row, int _line)
 	int _type = getType.asValueMap()["type"].asInt();
 	if (_type != 1)
 	{
-		//log("_type == 2");
 		return true;
 	}
-	//if (_type == 3)
-	//{
-	//	//log("_type == 2");
-	//	return true;
-	//}
 	return false;
 }
 
@@ -481,13 +473,10 @@ void MapLayer::prepareLink()
 void	MapLayer::rowMyFall(int _row, int bottom) // 15
 {
 	int	j = bottom - 1;
-	log("******j%d ,j+1:%d",j,bottom);
 	if (j>=0)
 	{
 		if (checkIsNull(_row, j))
 		{
-			//log("MapLayer::rowMyFall(int _row, int bottom):%i", j);
-			//j--;
 			if (!checkIsNull(max(_row - 1, 0), j))
 			{
 				//log("if (!checkIsNull(max(_row -1 , 0), j))");
@@ -542,7 +531,6 @@ void	MapLayer::rowMyFall(int _row, int bottom) // 15
 					Point pop = getMCenterByCoord(_row, bottom);
 					elements[_row][j]->moveToPosition(pop, FALL_TIME);//上方元素掉落一个
 					elements[_row][j] = nullptr;
-					//appear(_row);
 				}
 			}
 	}
@@ -718,7 +706,7 @@ void  MapLayer::initBlocks()
 
 		mapLayer = _tileMap->getLayer("map");
 		typeLayer = _tileMap->getLayer("type");
-		typeLayer->setVisible(false);
+		//typeLayer->setVisible(false);
 
 		line = _tileMap->getMapSize().height; // 10
 		row = _tileMap->getMapSize().width; // 8
@@ -891,7 +879,7 @@ bool MapLayer::onTouchBegan(Touch *touch, Event *unused_event) //开始触摸
 					//isBoomElement(row, line);
 					return true;
 				}
-				if (getElement({ row, line }) >= 5 && getElement({ row, line }) < 10)
+				if ((getElement({ row, line }) >= 5 && getElement({ row, line }) < 10) || getElement({ row, line }) >= 30)
 				{ 
 					log("wild");
 					touchedFlag = false;//成为有效触摸
@@ -942,6 +930,13 @@ void MapLayer::onTouchMoved(Touch *touch, Event *unused_event) //触摸点移动
 				Coord linkPos = *(linkIndex.end() - 2); //连线的倒数第二个元素
 				if (blocksCenter[linkPos.row][linkPos.line].getDistance(touchPoint) < containsDis)
 				{
+					if (elements[_row][_line])
+					{
+						if (elements[_row][_line]->getElement() >= 30) //撤销的是大于30的特殊元素，取消变换元素
+						{
+							undoChangeElement();
+						}
+					}
 					undoLink(); //若触摸点回到上一个连接的元素，则撤销最后一次连接
 					return;
 				}
@@ -963,10 +958,15 @@ void MapLayer::onTouchMoved(Touch *touch, Event *unused_event) //触摸点移动
 									linkElement(latestPos, { i, j }); //连接两个元素 加上了标记
 									//特效
 									showEffect(blocksCenter[i][j]);
+									//特殊元素30以上将周围3*3变色
+
 									if (elements[i][j]->getElement() > 10)
-									{
+									{ 
 										elementType = elements[i][j]->getElement() % 10;//获得元素类型
-										log("onTouchMoved(Touch *touch, Event *unused_event) :elementType %d", elementType);
+										if (elements[i][j]->getElement() >= 30)
+										{
+											changeElement(elementType,i,j); // 修改精灵
+										}
 									}
 									else
 									{
@@ -979,7 +979,7 @@ void MapLayer::onTouchMoved(Touch *touch, Event *unused_event) //触摸点移动
 	
 					}
 				}
-			}
+			} 
 
 		}
 
@@ -1030,6 +1030,69 @@ void MapLayer::onTouchEnded(Touch *touch, Event *unused_event) //触摸结束
 	log("onTouchEnded");
 }
 
+//修改周围三乘三的元素
+void	MapLayer::changeElement(int ele, int r, int l)
+{
+	temp_element.clear();
+	temp_elementPos.clear();
+	for (int i = max(r - 1, 0); i <= min(r + 1, MATRIX_ROW - 1); i++) // 0,2
+	{
+		for (int j = max(l - 1, 0); j <= min(l + 1, MATRIX_MLINE - 1); j++) //0,2
+		{
+			if (elements[i][j])
+			{
+				int typeElement = elements[i][j]->getElement();
+				if (typeElement < 5 && typeElement != ele) //特殊元素
+				{
+					temp_element.push_back(typeElement); // 按顺序存入类型
+					temp_elementPos.push_back({i,j}); //存入坐标
+					elementCount[typeElement]--;
+					elements[i][j]->removeFromParent();
+					auto s = ElementUnit::create();
+					if (s)
+					{
+						s->createElement(ele, blocksCenter[i][j]);
+						elements[i][j] = s;
+						elementCount[ele]++;
+						addChild(elements[i][j],1);
+
+					}
+
+				}
+			}
+		}
+
+	}
+}
+//撤销修改的三乘三元素
+void	MapLayer::undoChangeElement()
+{
+	for (int i = 0; i < temp_elementPos.size(); i++)
+	{
+		if (elements[temp_elementPos[i].row][temp_elementPos[i].line])
+		{
+			int te = elements[temp_elementPos[i].row][temp_elementPos[i].line]->getElement();
+			elementCount[te]--;
+			elements[temp_elementPos[i].row][temp_elementPos[i].line]->removeFromParent();
+			auto s = ElementUnit::create();
+			if (s)
+			{
+				s->createElement(temp_element[i], blocksCenter[temp_elementPos[i].row][temp_elementPos[i].line]);
+				elements[temp_elementPos[i].row][temp_elementPos[i].line] = s;
+				elementCount[temp_element[i]]++;
+				addChild(elements[temp_elementPos[i].row][temp_elementPos[i].line], 1);
+			}
+		}
+
+	}
+	if (!temp_element.empty())
+	{
+		temp_element.clear();
+	}if (!temp_elementPos.empty())
+	{
+		temp_elementPos.clear();
+	}
+}
 
 void MapLayer::showEffect(Point p)
 {
@@ -1134,14 +1197,10 @@ void	MapLayer::isBoomElement(int _row, int _line)
 			//log("i: %d,j:%d",i,j);
 			if (elements[i][j])
 			{
-				if (elements[i][j]->getElement() == 5)
+				signSpecialElement({ i, j }); //标记为特殊消除
+				if (elements[i][j]->getElement() == 5 || elements[i][j]->getElement() == 6)
 				{
-					continue;
-				}
-				else
-				{
-					int x = signSpecialElement({ i, j });
-					//log("***%d", x);
+					changeTiledType(i,j);
 				}
 			}
 		}
@@ -1289,7 +1348,7 @@ void	MapLayer::removeSignSpecial()
 				}
 				if (ele >= 30 && ele < 40)
 				{
-					showBoomEffect(blocksCenter[row][line]);
+					//showBoomEffect(blocksCenter[row][line]);
 				}
 			}
 		}

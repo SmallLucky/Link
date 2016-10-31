@@ -36,11 +36,15 @@ public:
 	bool isLine;
 	bool getIsLine(){ return isLine; };
 
-	//vector<int> special_Line;
+	
 	//vector<int> special_row;
 	//vector<Coord> special_round;
 
 	void removeBeEliminate(int r, int l);//检测并消除可以被消除的元素，改变type值
+	void changeElement(int ele,int r, int l);  //修改周围三乘三的元素
+	void undoChangeElement(); //撤销修改的三乘三元素
+	vector<int> temp_element; // 暂时存放替换前元素
+	vector<Coord> temp_elementPos;
 
 	bool checkIsNeedRefresh();  //检测是否需要进行刷新位置
 	void refreshAllElement();	//刷新所有基础元素的位置
