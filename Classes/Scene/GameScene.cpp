@@ -22,7 +22,7 @@ bool GameScene::init()
 #endif
 		return false;
 	}
-	addUI();
+	//addUI();
 	stateMachine = StateMachine::createWithGameScene(this); //创建状态机
 	stateMachine->changeState(StartState::create(this)); //进入准备开始游戏状态
 	this->scheduleUpdate();

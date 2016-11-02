@@ -22,7 +22,7 @@ bool StartScene::init()
 		{
 			return false;
 		}
-		string str = "bg/stargame_bg.png";
+		string str = "bg/bg.png";
 		createBackGround(str); //创建背景
 		createMenu();				//创建菜单
 
@@ -58,6 +58,13 @@ void StartScene:: createBackGround(string filename)
 		BG->setPosition(CommonFunction::getVisibleAchor(Anchor::Center, Vec2(0, 0)));
 		addChild(BG);
 	}
+
+	auto icon = Sprite::create("bg/starticon.png");
+	if (icon)
+	{
+		icon->setPosition(CommonFunction::getVisibleAchor(Anchor::Center,BG,Vec2(0,230)));
+		BG->addChild(icon);
+	}
 }
 
 //创建菜单
@@ -67,8 +74,8 @@ void StartScene::createMenu()
 	if (startGame)
 	{
 		startGame->addClickEventListener(CC_CALLBACK_0(StartScene::StartGame, this));
-		startGame->setPosition(CommonFunction::getVisibleAchor(Anchor::MidButtom, Vec2(0, 300)));
-		addChild(startGame);
+		startGame->setPosition(CommonFunction::getVisibleAchor(Anchor::Center, BG, Vec2(0, -270)));
+		BG->addChild(startGame);
 	}
 
 
@@ -84,7 +91,7 @@ void StartScene::createMenu()
 void StartScene::StartGame()
 {
 	//log("test");
-	logTime();
+	//logTime();
 	if (UserDefault::getInstance()->getBoolForKey("IS_EFFECT",true))
 	{
 		CocosDenshion::SimpleAudioEngine::getInstance()->playEffect(CLICK_BUTTON);

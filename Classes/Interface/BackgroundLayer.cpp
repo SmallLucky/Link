@@ -10,7 +10,7 @@ bool BackgroundLayer::init()
 		return false;
 	}
 	Size visiblesize = Director::getInstance()->getVisibleSize();
-	addSprite(backgroun, "bg/bg_1.png", Vec2(visiblesize.width/2,visiblesize.height/2), BACKGROUND_SIZE, this); //½«±³¾°Í¼Æ¬Ìí¼Óµ½ÆÁÄ»
+	addSprite(backgroun, "bg/game_bg.png", Vec2(visiblesize.width/2,visiblesize.height/2), BACKGROUND_SIZE, this); //½«±³¾°Í¼Æ¬Ìí¼Óµ½ÆÁÄ»
 
 
 

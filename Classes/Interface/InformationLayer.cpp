@@ -22,8 +22,7 @@ bool InformationLayer::init()
 	addUI();
 	initCountLabel(); //初始化时间标签
 	initScoreLabel(); //初始化分数标签
-	//initTimeLabel(); //初始化时间标签
-	//initPowerLabel();//初始化体力
+
 
 	initTargetScore();
 	return true;
@@ -32,30 +31,60 @@ bool InformationLayer::init()
 
 void	InformationLayer::addUI()
 {
-	Size s = Director::getInstance()->getVisibleSize();
-	info_bg = Sprite::create("infor/infor_bg.png");
-	info_bg->setPosition(CommonFunction::getVisibleAchor(Anchor::MidTop,Vec2(0,-150)));
+	//Size s = Director::getInstance()->getVisibleSize();
+	info_bg = Sprite::create("infor/Inforbg.png");
+	info_bg->setPosition(CommonFunction::getVisibleAchor(Anchor::MidTop,Vec2(0,0)));
+	info_bg->setAnchorPoint(Vec2(0.5,1));
 	addChild(info_bg);
 
 	count_bg = Sprite::create("infor/count_bg.png");
-	count_bg->setPosition(CommonFunction::getVisibleAchor(Anchor::LeftMid,info_bg,Vec2(120,0)));
+	count_bg->setPosition(CommonFunction::getVisibleAchor(Anchor::LeftMid,info_bg,Vec2(100,50)));
+	count_bg->setAnchorPoint(Vec2(0.5,1));
 	info_bg->addChild(count_bg);
 	
 	targetScore_bg = Sprite::create("infor/target_bg.png");
-	targetScore_bg->setPosition(CommonFunction::getVisibleAchor(Anchor::Center,info_bg,Vec2(0,35)));
+	targetScore_bg->setPosition(CommonFunction::getVisibleAchor(Anchor::RightMid,info_bg,Vec2(-100,50)));
+	targetScore_bg->setAnchorPoint(Vec2(0.5, 1));
 	info_bg->addChild(targetScore_bg);
 
-	score_bg = Sprite::create("infor/score_bg.png");
-	score_bg->setPosition(CommonFunction::getVisibleAchor(Anchor::Center,info_bg,Vec2(0,-40)));
+	score_bg = Sprite::create("infor/score_label.png");
+	score_bg->setPosition(CommonFunction::getVisibleAchor(Anchor::RightMid, info_bg, Vec2(-140, -15)));
+	score_bg->setAnchorPoint(Vec2(1,0.5));
 	info_bg->addChild(score_bg);
 
-	auto dog = Sprite::create("infor/dog.png");
-	dog->setPosition(CommonFunction::getVisibleAchor(Anchor::RightMid,info_bg,Vec2(-100,-20)));
-	info_bg->addChild(dog);
+	auto countlabel = Sprite::create("infor/count_label.png");
+	countlabel->setPosition(CommonFunction::getVisibleAchor(Anchor::MidTop,count_bg,Vec2(0,0)));
+	countlabel->setAnchorPoint(Vec2(0.5,0));
+	count_bg->addChild(countlabel);
 
-	auto sugar = Sprite::create("infor/sugar.png");
-	sugar->setPosition(CommonFunction::getVisibleAchor(Anchor::LeftMid,info_bg,Vec2(100,-60)));
-	info_bg->addChild(sugar);
+	auto targetlabel = Sprite::create("infor/target_label.png");
+	targetlabel->setPosition(CommonFunction::getVisibleAchor(Anchor::MidTop, targetScore_bg,Vec2(0,0)));
+	targetlabel->setAnchorPoint(Vec2(0.5, 0));
+	targetScore_bg->addChild(targetlabel);
+
+	auto petbg = Sprite::create("infor/pet_bg.png");
+	petbg->setPosition(CommonFunction::getVisibleAchor(Anchor::Center,info_bg,Vec2(0,0)));
+	info_bg->addChild(petbg);
+
+	auto pet = Sprite::create("infor/pet_1.png");
+	pet->setPosition(CommonFunction::getVisibleAchor(Anchor::Center,petbg,Vec2(0,0)));
+	petbg->addChild(pet);
+
+	auto levelbg = Sprite::create("infor/level_bg.png");
+	levelbg->setPosition(CommonFunction::getVisibleAchor(Anchor::MidButtom,petbg,Vec2(0,25)));
+	levelbg->setAnchorPoint(Vec2(0.5,1));
+	petbg->addChild(levelbg,-1);
+
+	auto levellabel = Sprite::create("infor/level_label.png");
+	levellabel->setPosition(CommonFunction::getVisibleAchor(Anchor::Center,levelbg,Vec2(0,-5)));
+	levellabel->setAnchorPoint(Vec2(1,0.5));
+	levelbg->addChild(levellabel);
+
+	auto levelnum = LabelAtlas::create(Value(GAMEDATA->getCurLevel()).asString(), "fonts/game_levelnum.png",14,21,'0');
+	levelnum->setPosition(CommonFunction::getVisibleAchor(Anchor::RightMid,levellabel,Vec2(5,0)));
+	levelnum->setAnchorPoint(Vec2(0,0.5));
+	levellabel->addChild(levelnum);
+
 }
 
 //添加一个标签
@@ -72,8 +101,8 @@ void InformationLayer::createLabel(Label* &label, char* text, Color4B color, Poi
 
 void  InformationLayer::initTargetScore()
 {
-	targatLabel = LabelAtlas::create(Value(GAMEDATA->getTargetScore(GAMEDATA->getCurLevel())).asString(), "fonts/infor_num_1.png", 20, 30, '0');
-	targatLabel->setPosition(CommonFunction::getVisibleAchor(Anchor::Center,targetScore_bg,Vec2(0,-15)));
+	targatLabel = LabelAtlas::create(Value(GAMEDATA->getTargetScore(GAMEDATA->getCurLevel())).asString(), "fonts/game_targetnum.png", 24, 34, '0');
+	targatLabel->setPosition(CommonFunction::getVisibleAchor(Anchor::Center,targetScore_bg,Vec2(0,0)));
 	targatLabel->setAnchorPoint(Vec2(0.5, 0.5));
 	targetScore_bg->addChild(targatLabel);
 }
@@ -119,10 +148,10 @@ void InformationLayer::showTime(float t)
 //初始化得分标签
 void InformationLayer::initScoreLabel()
 {
-	scoreLabel = LabelAtlas::create(Value(GAMEDATA->getCurSocre()).asString(), "fonts/infor_num_1.png", 20, 30, '0');
-	scoreLabel->setPosition(CommonFunction::getVisibleAchor(Anchor::Center, score_bg, Vec2(0,-15)));
+	scoreLabel = LabelAtlas::create(Value(GAMEDATA->getCurSocre()).asString(), "fonts/game_scorenum.png", 16, 19, '0');
+	scoreLabel->setPosition(CommonFunction::getVisibleAchor(Anchor::RightMid, score_bg, Vec2(10,0)));
 	//scoreLabel->setScale(1.2);
-	scoreLabel->setAnchorPoint(Vec2(0.5,0.5));
+	scoreLabel->setAnchorPoint(Vec2(0,0.5));
 	score_bg->addChild(scoreLabel);
 }
 
@@ -148,15 +177,11 @@ void InformationLayer::scoreUp(int delta, int time)
 //初始化步数标签
 void InformationLayer::initCountLabel()
 {
-	countLabel = LabelAtlas::create(Value(GAMEDATA->getCount(GAMEDATA->getCurLevel())).asString(), "fonts/infor_num_1.png", 20, 30, '0');
-	countLabel->setPosition(CommonFunction::getVisibleAchor(Anchor::Center, count_bg, Vec2(0, -10)));
-	countLabel->setScale(1.2);
+	countLabel = LabelAtlas::create(Value(GAMEDATA->getCount(GAMEDATA->getCurLevel())).asString(), "fonts/game_countnum.png", 33, 48, '0');
+	countLabel->setPosition(CommonFunction::getVisibleAchor(Anchor::Center, count_bg, Vec2(0, 0)));
+	//countLabel->setScale(1.2);
 	countLabel->setAnchorPoint(Vec2(0.5,0.5));
 	count_bg->addChild(countLabel);
-
-	//char text[32];
-	//sprintf(text, "COUNT:15");
-	//createLabel(countLabel, text, COUNT_NORMAL_COLOR, COUNT_POSITION, COUNT_SIZE, COUNT_ANCHOR); //添加时间标签，之后通过showTime函数修改
 }
 
 //显示步数

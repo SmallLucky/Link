@@ -25,49 +25,57 @@ bool ObjectiveLayer::init()
 
 void ObjectiveLayer::addUI()
 {
+	auto BG_kuang = Sprite::create("popbox/dikuang.png");
+	BG_kuang->setPosition(CommonFunction::getVisibleAchor(Anchor::Center,Vec2(0, 0)));
+	addChild(BG_kuang);
 
-	auto cat = Sprite::create("popbox/cat_1.png");
-	cat->setPosition(CommonFunction::getVisibleAchor(Anchor::Center, Vec2(0, 330)));
-	addChild(cat);
+	auto hong = Sprite::create("popbox/hong.png");
+	hong->setPosition(CommonFunction::getVisibleAchor(Anchor::MidTop,BG_kuang,Vec2(0,-30)));
+	BG_kuang->addChild(hong);
 
-	auto BG_kuang = Sprite::create("popbox/popbox_big_bg.png");
-	BG_kuang->setPosition(CommonFunction::getVisibleAchor(Anchor::Center, cat, Vec2(-30, -310)));
-	cat->addChild(BG_kuang);
+	auto pet = Sprite::create("popbox/pet_1.png");
+	pet->setPosition(CommonFunction::getVisibleAchor(Anchor::MidTop,hong,Vec2(0,-20)));
+	pet->setAnchorPoint(Vec2(0.5,0));
+	hong->addChild(pet);
 
-	auto di = Sprite::create("popbox/mubiao_di.png");
-	di->setPosition(CommonFunction::getVisibleAchor(Anchor::Center,BG_kuang,Vec2(-20,230)));
-	BG_kuang->addChild(di);
+	auto level = Sprite::create("popbox/labelLevel.png");
+	level->setPosition(CommonFunction::getVisibleAchor(Anchor::Center,hong,Vec2(-40,15)));
+	hong->addChild(level);
 
-	auto num = LabelAtlas::create(Value(GAMEDATA->getCurLevel()+1).asString(),"fonts/infor_num_1.png",20,30,'0');
-	num->setPosition(CommonFunction::getVisibleAchor(Anchor::RightMid,di,Vec2(10,0)));
+	auto num = LabelAtlas::create(Value(GAMEDATA->getCurLevel()+1).asString(),"fonts/levelNumber.png",23,38,'0');
+	num->setPosition(CommonFunction::getVisibleAchor(Anchor::RightMid, level, Vec2(10, 0)));
 	num->setAnchorPoint(Vec2(0,0.5));
-	num->setScale(1.5);
-	di->addChild(num);
+	level->addChild(num);
+
+	auto di_kuang = Sprite::create("popbox/neiKuang.png");
+	di_kuang->setPosition(CommonFunction::getVisibleAchor(Anchor::Center,BG_kuang,Vec2(0,20)));
+	BG_kuang->addChild(di_kuang);
 	
-	auto guan = Sprite::create("popbox/mubiao_guan.png");
-	guan->setPosition(CommonFunction::getVisibleAchor(Anchor::RightMid,num,Vec2(30,0)));
-	guan->setScale(0.7);
-	num->addChild(guan);
-
 	auto target_bg = Sprite::create("popbox/target_bg.png");
-	target_bg->setPosition(CommonFunction::getVisibleAchor(Anchor::Center, BG_kuang, Vec2(30, -10)));
-	BG_kuang->addChild(target_bg);
+	target_bg->setPosition(CommonFunction::getVisibleAchor(Anchor::Center, di_kuang, Vec2(-80, 50)));
+	di_kuang->addChild(target_bg);
 
-	auto score_bg = Sprite::create("popbox/labelkuang_l.png");
-	score_bg->setPosition(CommonFunction::getVisibleAchor(Anchor::Center, target_bg, Vec2(0, -20)));
-	target_bg->addChild(score_bg);
+	auto targetNum = LabelAtlas::create(Value(GAMEDATA->getTargetScore(GAMEDATA->getCurLevel())).asString(),"fonts/targetNumber.png",30,48,'0');
+	targetNum->setPosition(CommonFunction::getVisibleAchor(Anchor::MidButtom,target_bg,Vec2(0,-20)));
+	targetNum->setAnchorPoint(Vec2(0.5,1));
+	target_bg->addChild(targetNum);
 
-	auto scoreNum = Label::createWithTTF(Value(GAMEDATA->getTargetScore(GAMEDATA->getCurLevel())).asString(), "fonts/Marker Felt.ttf", 60);
-	scoreNum->setPosition(CommonFunction::getVisibleAchor(Anchor::Center, score_bg, Vec2(0, 0)));
-	score_bg->addChild(scoreNum);
+	auto count_bg = Sprite::create("popbox/count_bg.png");
+	count_bg->setPosition(CommonFunction::getVisibleAchor(Anchor::Center,di_kuang,Vec2(100,50)));
+	di_kuang->addChild(count_bg);
 
-	starGame = Button::create("popbox/start_game.png");
-	starGame->setPosition(CommonFunction::getVisibleAchor(Anchor::MidButtom, BG_kuang, Vec2(30, 200)));
+	auto countNum = LabelAtlas::create(Value(GAMEDATA->getCount(GAMEDATA->getCurLevel())).asString(), "fonts/countNumber.png", 30, 48, '0');
+	countNum->setPosition(CommonFunction::getVisibleAchor(Anchor::MidButtom,count_bg,Vec2(0,-20)));
+	countNum->setAnchorPoint(Vec2(0.5, 1));
+	count_bg->addChild(countNum);
+
+	starGame = Button::create("button/start_game.png");
+	starGame->setPosition(CommonFunction::getVisibleAchor(Anchor::MidButtom, BG_kuang, Vec2(0, 100)));
 	BG_kuang->addChild(starGame);
 	starGame->addClickEventListener(CC_CALLBACK_0(ObjectiveLayer::startGame, this));
 
-	auto backButton = Button::create("popbox/button_cancel.png");
-	backButton->setPosition(CommonFunction::getVisibleAchor(Anchor::MidButtom, BG_kuang, Vec2(30, -10)));
+	auto backButton = Button::create("popbox/cancel.png");
+	backButton->setPosition(CommonFunction::getVisibleAchor(Anchor::RightTop, BG_kuang, Vec2(-30, -30)));
 	BG_kuang->addChild(backButton);
 	backButton->addClickEventListener(CC_CALLBACK_0(ObjectiveLayer::backButton, this));
 
@@ -90,7 +98,7 @@ void ObjectiveLayer::startGame()
 	power->setPosition(CommonFunction::getVisibleAchor(Anchor::MidTop, starGame,Vec2(-200, 600)));
 	power->setScale(0.1);
 	starGame->addChild(power);
-	Point powerPoint = CommonFunction::getVisibleAchor(Anchor::Center, starGame, Vec2(40, 0));
+	Point powerPoint = CommonFunction::getVisibleAchor(Anchor::Center, starGame, Vec2(37, 10));
 	auto moveTo = MoveTo::create(1.0, powerPoint);
 	ScaleTo* scaleTo = ScaleTo::create(1,1);
 	auto time = DelayTime::create(0.5f);

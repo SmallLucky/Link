@@ -94,7 +94,7 @@ bool MapLayer::init()
 		return false;
 	}
 	Size visibleSize = Director::getInstance()->getVisibleSize();
-	mapPoint = { visibleSize.width / 2, visibleSize.height/2 - 50 };
+	mapPoint = { visibleSize.width / 2, visibleSize.height/2 - 80 };
 
 	initBlocks();//初始化格子，确定格子区域，初始状态矩阵为空
 	initSign(); //初始化标记
@@ -291,8 +291,17 @@ void MapLayer::removeBeEliminate(int r, int l)
 // 修改指定位置上瓦片的属性值
 void	MapLayer::changeTiledType(int r, int l)
 {
-	unsigned int gidnum = typeLayer->getTileGIDAt(Vec2(0, 0));
-
+	unsigned int gidnum;
+	for (int i = 0; i < 6; i++) //从第一行找到适合替换的瓦片格子
+	{
+		int t = _tileMap->getPropertiesForGID(typeLayer->getTileGIDAt(Vec2(i, 0))).asValueMap()["type"].asInt();
+		if (t == 1)
+		{
+			gidnum = typeLayer->getTileGIDAt(Vec2(i, 0));
+			break;
+		}
+	}
+	
 	unsigned int num = typeLayer->getTileGIDAt(Vec2(r, l));
 	Value typevalue = _tileMap->getPropertiesForGID(num);
 	int type = typevalue.asValueMap()["type"].asInt();
@@ -362,30 +371,18 @@ bool MapLayer::elementsFall()
 //#endif
 	log("elementsFall()");
 	bool flag = false; //是否填补了空位
-	//for (int i = 0; i < MATRIX_ROW; ++i)//对每一列单独处理 0
-	//{
-	//	for (int j = MATRIX_LINE; j >= 0; --j)//7
-	//	{
-	//		if (elements[i][j] == nullptr && checkIsDrop(i,j))
-	//		{
-	//			log("MapLayer::elementsFall() : i:%d,j:%d", i, j);
-	//			//log("MapLayer::elementsFall:%i,%i",i,j);
-	//			/*rowMyFall(i, j);*/
-	//			rowFall(i, j);//从最下方开始，一旦出现空位，所有上方元素下落，填补空位
-	//			flag = true;//填补了空位
-	//			break;//每一列只填补最下一个空位
-	//		}
-	//	}
-	//}
 	for (int j = MATRIX_LINE; j >= 0; --j)//5
 	{
 		for (int i = 0; i < MATRIX_ROW; ++i)//对每hang单独处理 0
 		{
-			if (elements[i][j] == nullptr && checkIsDrop(i, j))
+			if (elements[i][j] == nullptr )// && checkIsDrop(i, j)
 			{
-				rowMyFall(i,j);
-				flag = true;
-				break;
+				if (checkIsDrop(i, j))
+				{
+					rowMyFall(i, j);
+					flag = true;
+					break;
+				}
 			}
 		}
 	}
@@ -393,53 +390,168 @@ bool MapLayer::elementsFall()
 }
 
 //检测是否可以下落
-bool	MapLayer::checkIsDrop(int r, int l)
+bool	MapLayer::checkIsDrop(int r, int l) // 检测的空格子
 {
-	//log("MapLayer::checkIsDrop(int r, int l)");
-	if (elements[r][l] == nullptr)//05
+	//检测它的上一个，上左，上右是否可以有精灵落下来
+	if (elements[r][l-1]) //上you 
 	{
-		for (int i = (l-1); i >= 0; i--)//04
-		{
-			if (elements[r][i] == nullptr)
+		if (checkIsNull(r,max(l-1,0))) //上一个是石头
+		{ //看左右
+			if (elements[max(r - 1, 0)][max(l - 1, 0)]) //左边有
 			{
-				return true;
-				//continue;
-			}else
-			{
-				if (elements[r][i])
+				if (checkIsNull(max(r - 1, 0), max(l - 1, 0))) //shitou //左边是否有石头 、
 				{
-					if (checkIsNull(r,i))
+					if (elements[min(r + 1, 5)][max(l - 1, 0)]) //右边有
 					{
-						if (checkIsNull(max(r - 1, 0), i) && checkIsNull(min(r + 1, 5), i))
+						if (checkIsNull(min(r + 1, 5), max(l - 1, 0))) //左边是石头，判断右边
 						{
+							//上左右都是石头
 							return false;
+						}
+						else //右边有且不是石头
+						{
+							//上左石头右有且不是
+							return true; //表示是普通元素
+						}
+					}
+					else //右边是空，判断右边是否是一个可以下落得到元素的格子
+					{
+						if (checkIsDrop(min(r + 1, 5), max(l - 1, 0))) //可以下落
+						{
+							return true;
 						}
 						else
 						{
-							if (!checkIsNull(max(r - 1, 0), i) || !checkIsNull(min(r + 1, 5), i))
-							{
-								return true;
-							}
+							return false;
 						}
 					}
-					else
+				}
+				else //左有 且不是石头
+				{
+					return true;
+				}
+			}
+			else //上左为空
+			{
+				//判断是不是一个可以通过下落得到元素的格子
+				if (checkIsDrop(max(r - 1, 0), max(l - 1, 0))) //调用自身来判断
+				{
+					return true;//可以下落的格子
+				}
+				else //需要判断右边是不是可以下落 
+				{
+					if (elements[min(r + 1, 5)][max(l - 1, 0)]) //右边有
 					{
-						return true;
+						if (checkIsNull(min(r + 1, 5), max(l - 1, 0))) //左边是石头，判断右边
+						{
+							//上左右都是石头
+							return false;
+						}
+						else //右边有且不是石头
+						{
+							//上左石头右有且不是
+							return true; //表示是普通元素
+						}
+					}
+					else //右边是空，判断右边是否是一个可以下落得到元素的格子
+					{
+						if (checkIsDrop(min(r + 1, 5), max(l - 1, 0))) //可以下落
+						{
+							return true;
+						}
+						else
+						{//左空不可以，上石头，右空不可以
+							return false;
+						}
 					}
 				}
 			}
 		}
-		//log("true*//*");
-		return true;
-	}
-	else
-	{
-		if (checkIsNull(r,l))
+		else //上一个有且不是石头
 		{
-			return false;
+			return true;
 		}
 	}
-	return true;
+	else //上一个格子是空
+	{
+		//判断是不是一个可以通过下落得到元素的格子调用自身
+		if (checkIsDrop(r,max(l-1,0)))
+		{
+			return true;
+		}
+		else  //表示上空，但是属于不可以下落的格子，这样话要判断左右
+		{
+			if (elements[max(r - 1, 0)][max(l - 1, 0)]) //左边有
+			{
+				if (checkIsNull(max(r - 1, 0), max(l - 1, 0))) //shitou //左边是否有石头 、
+				{
+					if (elements[min(r + 1, 5)][max(l - 1, 0)]) //右边有
+					{
+						if (checkIsNull(min(r + 1, 5), max(l - 1, 0))) //左边是石头，判断右边
+						{
+							//上左右都是石头
+							return false;
+						}
+						else //右边有且不是石头
+						{
+							//上左石头右有且不是
+							return true; //表示是普通元素
+						}
+					}
+					else //右边是空，判断右边是否是一个可以下落得到元素的格子
+					{
+						if (checkIsDrop(min(r + 1, 5), max(l - 1, 0))) //可以下落
+						{
+							return true;
+						}
+						else
+						{
+							return false;
+						}
+					}
+				}
+				else //左有 且不是石头
+				{
+					return true;
+				}
+			}
+			else //上左为空
+			{
+				//判断是不是一个可以通过下落得到元素的格子
+				if (checkIsDrop(max(r - 1, 0), max(l - 1, 0))) //调用自身来判断
+				{
+					return true;//可以下落的格子
+				}
+				else //需要判断右边是不是可以下落 
+				{
+					if (elements[min(r + 1, 5)][max(l - 1, 0)]) //右边有
+					{
+						if (checkIsNull(min(r + 1, 5), max(l - 1, 0))) //左边是石头，判断右边
+						{
+							//上左右都是石头
+							return false;
+						}
+						else //右边有且不是石头
+						{
+							//上左石头右有且不是
+							return true; //表示是普通元素
+						}
+					}
+					else //右边是空，判断右边是否是一个可以下落得到元素的格子
+					{
+						if (checkIsDrop(min(r + 1, 5), max(l - 1, 0))) //可以下落
+						{
+							return true;
+						}
+						else
+						{//左空不可以，上空不可以，右空不可以
+							return false;
+						}
+					}
+				}
+			}
+		}
+	}
 }
 
 bool MapLayer::checkIsNull(int _row, int _line)
@@ -470,75 +582,158 @@ void MapLayer::prepareLink()
 	linkFinishFlag = false;
 }
 
-void	MapLayer::rowMyFall(int _row, int bottom) // 15
-{
+void	MapLayer::rowMyFall(int _row, int bottom) // 15 //前提就判断了这个格子是满足掉落条件的，那么就通过循环将格子铺满
+{ //在上左右寻找可以掉落的格子，在line为0的时候创建
 	int	j = bottom - 1;
-	if (j>=0)
-	{
-		if (checkIsNull(_row, j))
+	if (j>=0) //空格子是在第二排以下
+	{//优先匹配上，再是左，右
+		if (elements[_row][j]) //上有
 		{
-			if (!checkIsNull(max(_row - 1, 0), j))
-			{
-				//log("if (!checkIsNull(max(_row -1 , 0), j))");
-				elements[_row][bottom] = elements[max(_row - 1, 0)][j];
-				if (elements[_row][bottom])
-				{
-					Point pop = getMCenterByCoord(_row, bottom);
-					elements[max(_row - 1, 0)][j]->moveToPosition(pop, FALL_TIME);//上方元素掉落一个
-					elements[max(_row - 1, 0)][j] = nullptr;
-				}
+			if (checkIsNull(_row,j)) //上是特殊元素不能下落返回的是true
+			{ //检测左边
+				rightAndLeft(_row,bottom);
 			}
-			else if (!checkIsNull(min(_row + 1, 5), j))
+			else //上有且不是石头
 			{
-				//log("if (!checkIsNull(min(_row + 1, 5), j))");
-				elements[_row][bottom] = elements[min(_row + 1, 5)][j];
+				elements[_row][bottom] = elements[_row][j];////上
 				if (elements[_row][bottom])
 				{
 					Point pop = getMCenterByCoord(_row, bottom);
-					elements[min(_row + 1, 5)][j]->moveToPosition(pop, FALL_TIME);//上方元素掉落一个
-					elements[min(_row + 1, 5)][j] = nullptr;
-				}
-			}
-		}else if(!checkIsDrop(_row, j))
-		{
-			if (!checkIsNull(max(_row - 1, 0), j))
-			{
-				log("if (!checkIsNull(max(_row -1 , 0), j))%d,%d", max(_row - 1, 0),j);
-				elements[_row][bottom] = elements[max(_row - 1, 0)][j];
-				if (elements[_row][bottom])
-				{
-					Point pop = getMCenterByCoord(_row, bottom);
-					elements[max(_row - 1, 0)][j]->moveToPosition(pop, FALL_TIME);//上方元素掉落一个
-					elements[max(_row - 1, 0)][j] = nullptr;
-				}
-			}
-			else if (!checkIsNull(min(_row + 1, 5), j) )
-			{
-				log("if (!checkIsNull(min(_row + 1, 5), j))%d,%d", min(_row + 1, 5),j);
-				elements[_row][bottom] = elements[min(_row + 1, 5)][j];
-				if (elements[_row][bottom])
-				{
-					Point pop = getMCenterByCoord(_row, bottom);
-					elements[min(_row + 1, 5)][j]->moveToPosition(pop, FALL_TIME);//上方元素掉落一个
-					elements[min(_row + 1, 5)][j] = nullptr;
-				}
-			}
-		}else
-			{
-				elements[_row][bottom] = elements[_row][j]; //null
-				if (elements[_row][bottom])
-				{
-					Point pop = getMCenterByCoord(_row, bottom);
-					elements[_row][j]->moveToPosition(pop, FALL_TIME);//上方元素掉落一个
+					elements[_row][j]->moveToPosition(pop, FALL_TIME);
 					elements[_row][j] = nullptr;
 				}
 			}
+		}
+		else //上格子是空 
+		{//那就判断下这个是可以掉落的空格子不
+			if (checkIsDrop(_row,j)) //是可以掉落的
+			{
+				elements[_row][bottom] = elements[_row][j]; ////上
+				if (elements[_row][bottom])
+				{
+					Point pop = getMCenterByCoord(_row, bottom);
+					elements[_row][j]->moveToPosition(pop, FALL_TIME);
+					elements[_row][j] = nullptr;
+				}
+			}
+			else //上是空，但是是不可以掉落的格子，那么就需要去检测左边，右边
+			{
+				rightAndLeft(_row, bottom); //判断左右
+			}
+		}
 	}
 	if (j < 0)
 	{
 		appear(_row);
 	}
+}
 
+void MapLayer::rightAndLeft(int _row, int bottom)
+{
+	int	j = bottom - 1;
+	if (elements[max(_row - 1, 0)][j]) //上左有
+	{
+		if (checkIsNull(max(_row - 1, 0), j)) //是石头
+		{ //那就判断右边，因为是可以下落的，所以有一个可以满足条件
+			if (elements[min(_row + 1, 5)][j]) //上右有
+			{
+				if (checkIsNull(min(_row + 1, 5), j))
+				{
+					log("dou shi shi tou ,zou dao zhe bu ke xue!!!!");
+				}
+				//上右有且是可以掉落的基本元素
+				elements[_row][bottom] = elements[min(_row + 1, 5)][j];
+				if (elements[_row][bottom])
+				{
+					Point pop = getMCenterByCoord(_row, bottom);
+					elements[min(_row + 1, 5)][j]->moveToPosition(pop, FALL_TIME);//上方元素掉落一个
+					elements[min(_row + 1, 5)][j] = nullptr;
+				}
+			}
+			else //上右 是空
+			{
+				//那就判断下这个是可以掉落的空格子不
+				if (checkIsDrop(min(_row + 1, 5), j)) //是可以掉落的
+				{
+					elements[_row][bottom] = elements[min(_row + 1, 5)][j];
+					if (elements[_row][bottom])
+					{
+						Point pop = getMCenterByCoord(_row, bottom);
+						elements[min(_row + 1, 5)][j]->moveToPosition(pop, FALL_TIME);//上方元素掉落一个
+						elements[min(_row + 1, 5)][j] = nullptr;
+					}
+				}
+				else
+				{
+					log("te me zou dao zhe ye shi bu ke xue de ba !!!!");
+				}
+
+			}
+		}
+		else//上左有且不是石头
+		{//那就是基本元素喽
+			elements[_row][bottom] = elements[max(_row - 1, 0)][j]; ////上左
+			if (elements[_row][bottom])
+			{
+				Point pop = getMCenterByCoord(_row, bottom);
+				elements[max(_row - 1, 0)][j]->moveToPosition(pop, FALL_TIME);
+				elements[max(_row - 1, 0)][j] = nullptr;
+			}
+		}
+	}
+	else//上左是空
+	{
+		//那就判断下这个是可以掉落的空格子不
+		if (checkIsDrop(max(_row - 1, 0), j)) //是可以掉落的
+		{
+			elements[_row][bottom] = elements[max(_row - 1, 0)][j]; ////上左
+			if (elements[_row][bottom])
+			{
+				Point pop = getMCenterByCoord(_row, bottom);
+				elements[max(_row - 1, 0)][j]->moveToPosition(pop, FALL_TIME);
+				elements[max(_row - 1, 0)][j] = nullptr;
+			}
+		}
+		else //是空，但是不可以掉落 /那么意味着，要去检测上右
+		{
+			if (elements[min(_row + 1, 5)][j]) //you
+			{
+				if (checkIsNull(min(_row + 1, 5), j))
+				{
+					log("zhe ge zhen de bu ke xue!!!!");
+				}
+				else //有且不是石头可以下落
+				{
+					elements[_row][bottom] = elements[min(_row + 1, 5)][j];
+					if (elements[_row][bottom])
+					{
+						Point pop = getMCenterByCoord(_row, bottom);
+						elements[min(_row + 1, 5)][j]->moveToPosition(pop, FALL_TIME);//上方元素掉落一个
+						elements[min(_row + 1, 5)][j] = nullptr;
+					}
+				}
+			}
+			else //null
+			{
+				if (checkIsDrop(min(_row + 1, 5), j))//直接检测右边是不是可以掉落，是的话直接掉落 ***其实需要检测是不是有
+				{
+					elements[_row][bottom] = elements[min(_row + 1, 5)][j];
+					if (elements[_row][bottom])
+					{
+						Point pop = getMCenterByCoord(_row, bottom);
+						elements[min(_row + 1, 5)][j]->moveToPosition(pop, FALL_TIME);//上方元素掉落一个
+						elements[min(_row + 1, 5)][j] = nullptr;
+					}
+				}
+				else
+				{
+					log("wo ca zhe ye shi bu ke xue de !!");
+				}
+			}
+
+		}
+
+	}
 }
 
 //指定列的全部空位上方元素下落，顶端出现新元素i.j
@@ -643,31 +838,6 @@ void MapLayer::rowFall(int _row, int bottom)//0,5/1.2 5 5
 				}
 				else
 				{
-					//if (!checkIsDrop(r, j) && elements[r][j])
-					//{
-					//	isapp = false;
-					//	if (checkIsDrop(max(r-1,0),j))
-					//	{
-					//		elements[r][i] = elements[max(r - 1, 0)][j];
-					//		if (elements[r][i])
-					//		{
-					//			Point pop = getMCenterByCoord(r, i);
-					//			elements[max(r - 1, 0)][j]->moveToPosition(pop, FALL_TIME);//上方元素掉落一个
-					//			elements[max(r - 1, 0)][j] = nullptr;
-					//		}
-					//		else if (checkIsDrop(min(r + 1, 5), j))
-					//		{
-					//			isapp = false;
-					//			elements[r][i] = elements[min(r + 1, 5)][j];
-					//			if (elements[r][i])
-					//			{
-					//				Point pop = getMCenterByCoord(r, i);
-					//				elements[min(r + 1, 5)][j]->moveToPosition(pop, FALL_TIME);//上方元素掉落一个
-					//				elements[min(r + 1, 5)][j] = nullptr;
-					//			}
-					//		}
-					//	}
-					//}
 					elements[r][i] = elements[r][j]; //null
 					if (elements[r][i])
 					{
@@ -891,10 +1061,6 @@ bool MapLayer::onTouchBegan(Touch *touch, Event *unused_event) //开始触摸
 					touchedFlag = true;//成为有效触摸
 					//加个特效看看
 					showEffect(blocksCenter[row][line]);
-					//ParticleSystem* m_emitter1 = ParticleSystemQuad::create("effect/particle_1.plist");
-					//m_emitter1->setPosition(CommonFunction::getVisibleAchor(Anchor::Center,elements[row][line],Vec2(0,0)));
-					//elements[row][line]->addChild(m_emitter1);
-
 					return true; //对该次触摸的后续操作做出反映
 				}
 			}
@@ -923,7 +1089,6 @@ void MapLayer::onTouchMoved(Touch *touch, Event *unused_event) //触摸点移动
 				//log("return");
 				return; //若触摸点仍在同一个格子里，则不操作
 			}
-
 			if (linkIndex.size() > 1) //若已经形成连线（有两个或以上元素连接）
 			{
 				//log("linkIndex.size() > 1");
@@ -941,7 +1106,6 @@ void MapLayer::onTouchMoved(Touch *touch, Event *unused_event) //触摸点移动
 					return;
 				}
 			}
-
 			//遍历连线最后一个元素周围的所有元素 // 1,1
 			for (int i = max(_row - 1, 0); i <= min(_row + 1, MATRIX_ROW - 1); i++) // 0,2
 			{
@@ -976,13 +1140,10 @@ void MapLayer::onTouchMoved(Touch *touch, Event *unused_event) //触摸点移动
 								}
 							}
 						}
-	
 					}
 				}
 			} 
-
 		}
-
 	}
 }
 void MapLayer::onTouchEnded(Touch *touch, Event *unused_event) //触摸结束
@@ -1646,3 +1807,110 @@ void MapLayer::signOnlyBlock(int row, int line)
 	signClear();
 	signElement(row, line);
 }
+
+
+/*
+if (elements[max(_row - 1, 0)][j]) //上左有
+{
+	if (checkIsNull(max(_row - 1, 0), j)) //是石头
+	{ //那就判断右边，因为是可以下落的，所以有一个可以满足条件
+		if (elements[min(_row + 1, 5)][j]) //上右有
+		{
+			if (checkIsNull(min(_row + 1, 5), j))
+			{
+				log("dou shi shi tou ,zou dao zhe bu ke xue!!!!");
+			}
+			//上右有且是可以掉落的基本元素
+			elements[_row][bottom] = elements[min(_row + 1, 5)][j];
+			if (elements[_row][bottom])
+			{
+				Point pop = getMCenterByCoord(_row, bottom);
+				elements[min(_row + 1, 5)][j]->moveToPosition(pop, FALL_TIME);//上方元素掉落一个
+				elements[min(_row + 1, 5)][j] = nullptr;
+			}
+		}
+		else //上右 是空
+		{
+			//那就判断下这个是可以掉落的空格子不
+			if (checkIsDrop(min(_row + 1, 5), j)) //是可以掉落的
+			{
+				elements[_row][bottom] = elements[min(_row + 1, 5)][j];
+				if (elements[_row][bottom])
+				{
+					Point pop = getMCenterByCoord(_row, bottom);
+					elements[min(_row + 1, 5)][j]->moveToPosition(pop, FALL_TIME);//上方元素掉落一个
+					elements[min(_row + 1, 5)][j] = nullptr;
+				}
+			}
+			else
+			{
+				log("te me zou dao zhe ye shi bu ke xue de ba !!!!");
+			}
+
+		}
+	}
+	else//上左有且不是石头
+	{//那就是基本元素喽
+		elements[_row][bottom] = elements[max(_row - 1, 0)][j]; ////上左
+		if (elements[_row][bottom])
+		{
+			Point pop = getMCenterByCoord(_row, bottom);
+			elements[max(_row - 1, 0)][j]->moveToPosition(pop, FALL_TIME);
+			elements[max(_row - 1, 0)][j] = nullptr;
+		}
+	}
+}
+else//上左是空
+{
+	//那就判断下这个是可以掉落的空格子不
+	if (checkIsDrop(max(_row - 1, 0), j)) //是可以掉落的
+	{
+		elements[_row][bottom] = elements[max(_row - 1, 0)][j]; ////上左
+		if (elements[_row][bottom])
+		{
+			Point pop = getMCenterByCoord(_row, bottom);
+			elements[max(_row - 1, 0)][j]->moveToPosition(pop, FALL_TIME);
+			elements[max(_row - 1, 0)][j] = nullptr;
+		}
+	}
+	else //是空，但是不可以掉落 /那么意味着，要去检测上右
+	{
+		if (elements[min(_row + 1, 5)][j]) //you
+		{
+			if (checkIsNull(min(_row + 1, 5), j))
+			{
+				log("zhe ge zhen de bu ke xue!!!!");
+			}
+			else //有且不是石头可以下落
+			{
+				elements[_row][bottom] = elements[min(_row + 1, 5)][j];
+				if (elements[_row][bottom])
+				{
+					Point pop = getMCenterByCoord(_row, bottom);
+					elements[min(_row + 1, 5)][j]->moveToPosition(pop, FALL_TIME);//上方元素掉落一个
+					elements[min(_row + 1, 5)][j] = nullptr;
+				}
+			}
+		}
+		else //null
+		{
+			if (checkIsDrop(min(_row + 1, 5), j))//直接检测右边是不是可以掉落，是的话直接掉落 ***其实需要检测是不是有
+			{
+				elements[_row][bottom] = elements[min(_row + 1, 5)][j];
+				if (elements[_row][bottom])
+				{
+					Point pop = getMCenterByCoord(_row, bottom);
+					elements[min(_row + 1, 5)][j]->moveToPosition(pop, FALL_TIME);//上方元素掉落一个
+					elements[min(_row + 1, 5)][j] = nullptr;
+				}
+			}
+			else
+			{
+				log("wo ca zhe ye shi bu ke xue de !!");
+			}
+		}
+
+	}
+
+}
+*/

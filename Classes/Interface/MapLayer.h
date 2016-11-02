@@ -157,6 +157,7 @@ private:
 
 	/**/
 	void rowMyFall(int _row, int bottom);
+	void rightAndLeft(int _row, int bottom);
 
 	void appear(int row);		//指定列的顶端出现新元素
 

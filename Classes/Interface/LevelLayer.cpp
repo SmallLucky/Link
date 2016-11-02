@@ -59,6 +59,11 @@ bool LevelLayer::init()
 	addLevelButton();
 	addUI();
 
+	//ParticleSystem * efft = ParticleSystemQuad::create("effect/particle_1.plist");
+	////ParticleSystem* m_emitter1 = ParticleSystemQuad::create("effect/particle_1.plist");
+	//efft->setPosition(CommonFunction::getVisibleAchor(Anchor::MidButtom, Vec2(0, 0)));
+	//addChild(efft, 1);
+
 	if (GAMEDATA->getPowerNum() == 500)
 	{
 		log("addTimeLabel");
@@ -108,7 +113,7 @@ void	LevelLayer::addScrollView()
 	{
 		scrollview->setAnchorPoint(Vec2(0.5, 0));
 		scrollview->setContentSize(Director::getInstance()->getVisibleSize());
-		scrollview->setInnerContainerSize(Size(visibleSize.width, visibleSize.height * 3));
+		scrollview->setInnerContainerSize(Size(visibleSize.width, 10375));
 		scrollview->setDirection(ScrollView::Direction::VERTICAL);
 		scrollview->setBackGroundColor(Color3B::GRAY);
 		scrollview->setBackGroundColorOpacity(0);
@@ -119,8 +124,8 @@ void	LevelLayer::addScrollView()
 		scrollview->setScrollBarPositionFromCorner(Vec2(10, 0));
 		scrollview->setScrollBarOpacity(0); //设置滚动条透明度
 		scrollview->jumpToBottom();
-		int l = visibleSize.height;
-		log("*****%.2f", (float)((l * 3 - 160)*100 / (l * 3)));
+		//int l = visibleSize.height;
+		//log("*****%.2f", (float)((10375 - 160) * 100 / (10375)));
 		int index = 0;
 		for (int i = 0; i < GAMEDATA->m_lock.size(); i++)
 		{
@@ -130,16 +135,17 @@ void	LevelLayer::addScrollView()
 				break;
 			}
 		}
-		float p = (float)((l * 3 - GAMEDATA->getOffsetY(index)) * 100 / (l * 3));
+		float p = (float)((200 + 10375 - GAMEDATA->getOffsetY(index)) * 100 / (10375));
 		//scrollview->jumpToPercentVertical(p);
-		if (p < 70)
-		{
-			scrollview->scrollToPercentVertical(p, 5.0, true); //显示百分比
-		}
-		else
-		{
-			scrollview->jumpToPercentVertical(p);
-		}
+		scrollview->scrollToPercentVertical(p, 5.0, true);
+		//if (p < 70)
+		//{
+		//	scrollview->scrollToPercentVertical(p, 5.0, true); //显示百分比
+		//}
+		//else
+		//{
+		//	scrollview->jumpToPercentVertical(p);
+		//}
 		/*scrollview->set*/
 			//LinearGravity
 		addChild(scrollview);
@@ -307,7 +313,8 @@ void LevelLayer::addLevelButton()
 		scrollview->addChild(testButton);
 		testButton->setTag(i);
 		auto level_num = LabelAtlas::create(Value(i +1).asString(),"fonts/level_fonts.png",30,30,'0');
-		level_num->setPosition(CommonFunction::getVisibleAchor(Anchor::MidTop, testButton, Vec2(-15,0)));
+		level_num->setAnchorPoint(Vec2(0.5,0.5));
+		level_num->setPosition(CommonFunction::getVisibleAchor(Anchor::Center, testButton, Vec2(0,0)));
 		testButton->addChild(level_num);
 
 		if (GameData::getInstance()->m_lock[i] == 1)
