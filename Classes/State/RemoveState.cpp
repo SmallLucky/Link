@@ -57,9 +57,8 @@ void RemoveState::onUpdate(float dt)
 		scene->gameNextLevel();
 		
 	}
-	if (scene->getMyCount()<= 0)
+	if (scene->getIsGameOver())
 	{
-		log("gameOverFlag");
 		gameOverFlag = true; //若步数用尽，则游戏结束
 	}
 	matrixTime += dt;

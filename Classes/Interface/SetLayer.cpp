@@ -29,25 +29,25 @@ bool SetLayer:: init()
 
 void	SetLayer::addUI()
 {
-	auto cat = Sprite::create("popbox/cat_1.png");
-	cat->setAnchorPoint(Vec2(0.5,0.5));
-	cat->setPosition(CommonFunction::getVisibleAchor(Anchor::Center,Vec2(0,200)));
-	addChild(cat);
+	//auto cat = Sprite::create("popbox/cat_1.png");
+	//cat->setAnchorPoint(Vec2(0.5,0.5));
+	//cat->setPosition(CommonFunction::getVisibleAchor(Anchor::Center,Vec2(0,200)));
+	//addChild(cat);
 
-	Sprite* bg = Sprite::create("popbox/popbox_bg.png");
+	Sprite* bg = Sprite::create("popbox/mid_kuang.png");
 	bg->setAnchorPoint(Vec2(0.5, 0.5));
-	bg->setPosition(CommonFunction::getVisibleAchor(Anchor::MidButtom,cat,Vec2(-40,-40)));
-	cat->addChild(bg);
+	bg->setPosition(CommonFunction::getVisibleAchor(Anchor::Center,Vec2(0,0)));
+	addChild(bg);
 
-	auto setLabel = Sprite::create("popbox/set_label.png");
-	setLabel->setPosition(CommonFunction::getVisibleAchor(Anchor::Center,bg,Vec2(40,100)));
-	bg->addChild(setLabel);
-	
-	auto setBG = Sprite::create("popbox/set_bg.png");
-	setBG->setPosition(CommonFunction::getVisibleAchor(Anchor::Center, bg, Vec2(30,-50)));
-	bg->addChild(setBG);
+	auto hong = Sprite::create("popbox/mid_hong.png");
+	hong->setPosition(CommonFunction::getVisibleAchor(Anchor::MidTop,bg,Vec2(0,-30)));
+	bg->addChild(hong);
 
-	CheckBox* musicCBox = CheckBox::create("popbox/music_on.png", "popbox/sound_off.png", TextureResType::LOCAL); 
+	auto setLabel = Sprite::create("popbox/setLabel.png");
+	setLabel->setPosition(CommonFunction::getVisibleAchor(Anchor::Center, hong, Vec2(0, 10)));
+	hong->addChild(setLabel);
+
+	CheckBox* musicCBox = CheckBox::create("popbox/music_on.png", "popbox/music_off.png", TextureResType::LOCAL); 
 	if (UserDefault::getInstance()->getBoolForKey("IS_MUSIC",true))
 	{
 		//创建,参数：未选中图片名，选中图片名，文字，状态（0-未选中，1-选中）
@@ -60,15 +60,15 @@ void	SetLayer::addUI()
 		musicCBox->setSelectedState(true);
 	}
 	
-	musicCBox->setPosition(CommonFunction::getVisibleAchor(Anchor::Center,setBG,Vec2(-150,0)));
-	setBG->addChild(musicCBox,1);
+	musicCBox->setPosition(CommonFunction::getVisibleAchor(Anchor::Center,bg,Vec2(-120,0)));
+	bg->addChild(musicCBox, 1);
 
 	auto musicLabel = Sprite::create("popbox/music_label.png");
-	musicLabel->setPosition(CommonFunction::getVisibleAchor(Anchor::MidButtom, musicCBox, Vec2(0, -45)));
+	musicLabel->setPosition(CommonFunction::getVisibleAchor(Anchor::MidButtom, musicCBox, Vec2(0, -30)));
 	musicCBox->addChild(musicLabel);
 
 	auto soundCBox = CheckBox::create("popbox/sound_on.png", "popbox/sound_off.png", TextureResType::LOCAL);//创建,参数：未选中图片名，选中图片名，文字，状态（0-未选中，1-选中）
-	if (UserDefault::getInstance()->getBoolForKey(" ",true))
+	if (UserDefault::getInstance()->getBoolForKey("IS_EFFECT",true))
 	{
 		log("false");
 		soundCBox->setSelectedState(false);
@@ -77,11 +77,11 @@ void	SetLayer::addUI()
 	{
 		soundCBox->setSelectedState(true);
 	}
-	soundCBox->setPosition(CommonFunction::getVisibleAchor(Anchor::Center, setBG, Vec2(0, 0)));
-	setBG->addChild(soundCBox);
+	soundCBox->setPosition(CommonFunction::getVisibleAchor(Anchor::Center, bg, Vec2(0, 0)));
+	bg->addChild(soundCBox);
 
 	auto soundLabel = Sprite::create("popbox/sound_label.png");
-	soundLabel->setPosition(CommonFunction::getVisibleAchor(Anchor::MidButtom, soundCBox, Vec2(0, -45)));
+	soundLabel->setPosition(CommonFunction::getVisibleAchor(Anchor::MidButtom, soundCBox, Vec2(0, -30)));
 	soundCBox->addChild(soundLabel);
 
 	CheckBox * vibrationCBox = CheckBox::create("popbox/vibration_on.png", "popbox/vibration_off.png", TextureResType::LOCAL);//创建,参数：未选中图片名，选中图片名，文字，状态（0-未选中，1-选中）
@@ -94,20 +94,20 @@ void	SetLayer::addUI()
 	{
 		vibrationCBox->setSelectedState(true);
 	}
-	vibrationCBox->setPosition(CommonFunction::getVisibleAchor(Anchor::Center, setBG, Vec2(150, 0)));
-	setBG->addChild(vibrationCBox);
+	vibrationCBox->setPosition(CommonFunction::getVisibleAchor(Anchor::Center, bg, Vec2(120, 0)));
+	bg->addChild(vibrationCBox);
 
 	auto vibrationLabel = Sprite::create("popbox/vibration_label.png");
-	vibrationLabel->setPosition(CommonFunction::getVisibleAchor(Anchor::MidButtom, vibrationCBox, Vec2(0, -45)));
+	vibrationLabel->setPosition(CommonFunction::getVisibleAchor(Anchor::MidButtom, vibrationCBox, Vec2(0, -30)));
 	vibrationCBox->addChild(vibrationLabel);
 
 	musicCBox->addEventListener(CC_CALLBACK_2(SetLayer::musicCBoxCallBack, this));
 	soundCBox->addEventListener(CC_CALLBACK_2(SetLayer::soundCBoxCallBack, this));
 	vibrationCBox->addEventListener(CC_CALLBACK_2(SetLayer::vibrationCBoxCallBack, this));
 
-	auto backSet = Button::create("popbox/button_cancel.png");
+	auto backSet = Button::create("popbox/cancel.png");
 	backSet->addClickEventListener(CC_CALLBACK_0(SetLayer::backButtonCallBack, this));
-	backSet->setPosition(CommonFunction::getVisibleAchor(Anchor::MidButtom, bg, Vec2(25, -20)));
+	backSet->setPosition(CommonFunction::getVisibleAchor(Anchor::RightTop, bg, Vec2(-20, -20)));
 	bg->addChild(backSet);
 }
 

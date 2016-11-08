@@ -18,6 +18,7 @@ bool StartState::entryState()
 	scene->initMatrix(); //初始化矩阵
 	scene->initInformation(); //初始化信息
 
+
 	return true;
 }
 

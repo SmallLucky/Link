@@ -46,7 +46,11 @@ void addSprite(Sprite* & s, string img, Point pos, float size, Node* n, int zOrd
 //
 
 #define GAMEDATA GameData::getInstance()
+#define REWARDDATA RewardData::getInstance()
 #define REFRESHUI "refreshUI"		//
+#define REFRESHPROPS "refreshProps"		//
+#define ISGAMEOVERTRUE "isGameOverTrue"		//
+#define ISGAMEOVERFALSE "isGameOverFalse"		//
 
 //坐标结构体
 //坐标结构体

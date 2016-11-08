@@ -1,6 +1,7 @@
 #include "AppDelegate.h"
 #include "Scene/StartScene.h"
 #include "Data/AudioData.h"
+#include "Data/Data.h"
 
 USING_NS_CC;
 
@@ -111,6 +112,11 @@ bool AppDelegate::applicationDidFinishLaunching() {
 	//UserDefault::getInstance()->getBoolForKey("IS_EFFECT", true);
 	//UserDefault::getInstance()->getBoolForKey("IS_VIBRATE", true);
 
+	//GameData::getInstance()->praseJsonData();
+	//RewardData::getInstance()->praseJsonData();
+	//TextureCache::sharedTextureCache()->addImageAsync("bg/bg_1.png", this);//, callfuncO_selector(TextureCacheTest::loadingCallBack
+	//CCTextureCache::addImageAsync("bg/bg_1.png");
+	TextureCache::getInstance()->addImage("bg/bg_1.png");
 	//½øÈëStart³¡¾°
 	auto scene = StartScene::create();
 	director->runWithScene(scene);

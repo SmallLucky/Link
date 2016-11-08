@@ -18,6 +18,8 @@ GameData::~GameData()
 	m_targetScore.clear();
 	m_offsetX.clear();
 	m_offsetY.clear();
+	m_count.clear();
+	m_coins.clear();
 }
 
 GameData* GameData::getInstance()
@@ -111,6 +113,10 @@ void GameData::praseJsonData()
 
 	m_lock.clear();
 	m_targetScore.clear();
+	m_offsetX.clear();
+	m_offsetY.clear();
+	m_count.clear();
+	m_coins.clear();
 
 	rapidjson::Value & json_array = doc["Tollgate"];
 
@@ -132,6 +138,13 @@ void GameData::praseJsonData()
 		rapidjson::Value & count = chapter["count"];
 		rapidjson::Value & refresh = chapter["refresh"];
 		rapidjson::Value & boom = chapter["boom"];
+		rapidjson::Value & shopcoins = chapter["shopcoins"];
+
+		for (unsigned int c = 0; c < shopcoins.Size(); c++)
+		{
+			rapidjson::Value & value = shopcoins[c];
+			m_coins.push_back(value.GetInt());
+		}
 
 		for (unsigned int j = 0; j < lock.Size(); j++)
 		{
@@ -215,6 +228,11 @@ int GameData:: getTargetScore(int level)
 		return -1;
 	}
 	return m_targetScore[level];
+}
+
+int GameData::getShopCoins(int index)
+{
+	return m_coins[index];
 }
 
 int GameData::getCount(int level)
@@ -327,6 +345,40 @@ void GameData::setPowerNum(int _num)
 
 		rapidjson::Value& power = chapter["power"];
 		power.SetInt(power_num);
+	}
+	praseFinish(doc);
+}
+
+void GameData::setrefresh(int num)
+{
+	auto doc = preparePrase();
+	refresh_num = num;
+
+	rapidjson::Value& json_array = doc["Tollgate"];
+	for (unsigned int i = 0; i < json_array.Size(); i++)
+	{
+		rapidjson::Value& frist = json_array[i];
+		rapidjson::Value& chapter = frist["chapter"];
+
+		rapidjson::Value& power = chapter["refresh"];
+		power.SetInt(refresh_num);
+	}
+	praseFinish(doc);
+}
+
+void GameData::setBoomb(int num)
+{
+	auto doc = preparePrase();
+	boom_num = num;
+
+	rapidjson::Value& json_array = doc["Tollgate"];
+	for (unsigned int i = 0; i < json_array.Size(); i++)
+	{
+		rapidjson::Value& frist = json_array[i];
+		rapidjson::Value& chapter = frist["chapter"];
+
+		rapidjson::Value& power = chapter["boom"];
+		power.SetInt(boom_num);
 	}
 	praseFinish(doc);
 }

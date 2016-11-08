@@ -15,3 +15,4 @@
 #include "SettingData.h"
 
 #include "GameData.h" //
+#include "RewardData.h" //

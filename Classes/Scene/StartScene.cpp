@@ -14,6 +14,8 @@
 #include "Interface/MapLayer.h"
 #include "TTButton.h"
 #include "DrawLight.h"
+#include "Interface/Unit/ShopItem.h"
+#include "Interface/AddCount.h"
 
 
 bool StartScene::init()
@@ -101,6 +103,14 @@ void StartScene::StartGame()
 	{
 		Director::getInstance()->replaceScene(levelScene);
 	}
+
+	//AddCount* la = AddCount::create();
+	//addChild(la);
+
+	//ShopItem* it = ShopItem::createShopItem(1,105);
+	//it->setPosition(CommonFunction::getVisibleAchor(Anchor::Center,Vec2(0,0)));
+	//addChild(it);
+
 	//TotalLayer * total = TotalLayer::create();
 	//addChild(total);
 	//LoserLayer* lose = LoserLayer::create();

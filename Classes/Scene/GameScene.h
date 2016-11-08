@@ -23,22 +23,35 @@ protected:
 
 	//步数
 	int _count;
-	int m_count = 0;
+	int m_count = 1;
 	void showCount(int c); //显示游戏剩余步数
 
 	//体力
 	 static int _power;
 
+	 LabelAtlas* refreshNum;
+	 LabelAtlas* boombNum;
+
+
 	void restart(Ref* pSender); //开始新游戏
 	void createQuitButton(string normal, string selected);//创建退出游戏按钮
 	void quitGame(Ref* pSender); //退出游戏
 	void onKeyReleased(EventKeyboard::KeyCode keycode, Event* event);
+
+	bool isGameOver;
 public:
 	bool getIsLine(){ return matrix->getIsLine(); }
 
 	bool isRefreshElement(){ return matrix->checkIsNeedRefresh(); }
 	void refreshElement() { matrix->refreshAllElement();  }
+	void refreshProps();
+
+	void addCountLayer();
+	bool getIsGameOver();
+	void setIsGameOver(bool b);
 public:
+	GameScene();
+	~GameScene();
 	CREATE_FUNC(GameScene);
 	bool init();
 

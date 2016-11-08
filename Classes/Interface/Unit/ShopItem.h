@@ -16,8 +16,9 @@ public:
 	ShopItem();
 	~ShopItem();
 	//CREATE_FUNC(ShopItem);
-	static ShopItem*createShopItem(int diamNum, int giveNum, int moneyNum);
-	virtual bool init(int diamNum, int giveNum, int moneyNum);
+	//第一个参数是创建item的类型
+	static ShopItem*createShopItem(int type, int moneyNum); 
+	virtual bool init(int type, int moneyNum);
 
 private:
 	void btnClickEvent(Ref* pSender);

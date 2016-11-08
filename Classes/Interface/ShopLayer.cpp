@@ -21,88 +21,136 @@ bool ShopLayer:: init()
 
 void ShopLayer::addUI()
 {
-	auto cat = Sprite::create("popbox/cat_4.png");
-	cat->setPosition(CommonFunction::getVisibleAchor(Anchor::Center, Vec2(0, 330)));
-	addChild(cat);
-	auto BG_kuang = Sprite::create("popbox/popbox_big_bg.png");
-	BG_kuang->setPosition(CommonFunction::getVisibleAchor(Anchor::Center, cat, Vec2(-30, -310)));
-	cat->addChild(BG_kuang);
+	auto BG_kuang = Sprite::create("popbox/changKuang.png");
+	BG_kuang->setPosition(CommonFunction::getVisibleAchor(Anchor::Center, Vec2(0, 0)));
+	addChild(BG_kuang);
 
-	auto shopBGleft = Sprite::create("popbox/shop_bg_left.png");
-	shopBGleft->setPosition(CommonFunction::getVisibleAchor(Anchor::Center,BG_kuang,Vec2(30,-80)));
-	BG_kuang->addChild(shopBGleft);
+	auto hong = Sprite::create("popbox/shopHong.png");
+	hong->setPosition(CommonFunction::getVisibleAchor(Anchor::MidTop, BG_kuang, Vec2(0, -25)));
+	BG_kuang->addChild(hong);
 
-	auto shopBGRight = Sprite::create("popbox/shop_bg_right.png");
-	shopBGRight->setPosition(CommonFunction::getVisibleAchor(Anchor::Center, BG_kuang, Vec2(30, -80)));
-	BG_kuang->addChild(shopBGRight);
-	shopBGRight->setVisible(false);
+	//props
+	auto props_bg = Sprite::create("popbox/shop_propskuang.png");
+	props_bg->setPosition(CommonFunction::getVisibleAchor(Anchor::Center,BG_kuang,Vec2(0,70)));
+	BG_kuang->addChild(props_bg);
 
+	//props_bg->setVisible(false);
+
+	auto pat = Sprite::create("popbox/pet.png");
+	pat->setPosition(CommonFunction::getVisibleAchor(Anchor::MidButtom,props_bg,Vec2(0,-150)));
+	props_bg->addChild(pat);
+	
 	auto propsscrollView = ScrollView::create();
 	propsscrollView->setDirection(ui::ScrollView::Direction::VERTICAL);
-	propsscrollView->setAnchorPoint(Vec2(0.5, 0.5));
-	propsscrollView->setContentSize(Size(shopBGleft->getContentSize().width, shopBGleft->getContentSize().height - 100));
+	propsscrollView->setAnchorPoint(Vec2(0.5, 0));
+	propsscrollView->setContentSize(Size(props_bg->getContentSize().width, props_bg->getContentSize().height));
 	propsscrollView->setInertiaScrollEnabled(true);
-	propsscrollView->setBounceEnabled(true);
-	propsscrollView->setInnerContainerSize(Size(shopBGleft->getContentSize().width, 8 * 99));
+	propsscrollView->setBounceEnabled(true); //¿ªÆô»Øµ¯
+	propsscrollView->setInnerContainerSize(Size(props_bg->getContentSize().width, 2 * 165));
 	propsscrollView->setBackGroundColor(Color3B::GRAY);
-	propsscrollView->setPosition(CommonFunction::getVisibleAchor(Center, shopBGleft, Vec2(0, -20)));
-	shopBGleft->addChild(propsscrollView);
+	propsscrollView->setPosition(CommonFunction::getVisibleAchor(Anchor::MidButtom, props_bg, Vec2(0, 0)));
+	props_bg->addChild(propsscrollView);
+
 	auto propsscrv_width = propsscrollView->getContentSize().width;
-	for (int i = 0; i <8; i++)
+	for (int i = 0; i <2; i++)
 	{
-		auto item = ShopItem::createShopItem((i + 3),1, (i + 3));
+		auto item = ShopItem::createShopItem(2,i);
 		item->setTag(i);
 		int item_height = item->getContentSize().height;
 		propsscrollView->addChild(item);
-		item->setPosition(CommonFunction::getVisibleAchor(Anchor::MidTop, propsscrollView, Vec2(0, (0 - i * (item_height)-item_height / 2) + 4 * 90)));//item_height/4
+		item->setAnchorPoint(Vec2(0.5,0.5));
+		item->setPosition(CommonFunction::getVisibleAchor(Anchor::MidTop, propsscrollView, Vec2(0, -100 - (i*150))));//item_height/4(0 - i * (item_height)-item_height / 2) + 4 * 90)
 	}
+
+	auto money_bg = Sprite::create("popbox/shop_moneykuang.png");
+	money_bg->setPosition(CommonFunction::getVisibleAchor(Anchor::Center, BG_kuang,Vec2(0,-65)));
+	BG_kuang->addChild(money_bg);
+	money_bg->setVisible(false);
 
 	auto moneyscrollView = ScrollView::create();
 	moneyscrollView->setDirection(ui::ScrollView::Direction::VERTICAL);
-	moneyscrollView->setAnchorPoint(Vec2(0.5, 0.5));
-	moneyscrollView->setContentSize(Size(shopBGRight->getContentSize().width, shopBGRight->getContentSize().height - 100));
+	moneyscrollView->setAnchorPoint(Vec2(0.5, 0));
+	moneyscrollView->setContentSize(Size(money_bg->getContentSize().width, money_bg->getContentSize().height-10));
 	moneyscrollView->setInertiaScrollEnabled(true);
 	moneyscrollView->setBounceEnabled(true);
-	moneyscrollView->setInnerContainerSize(Size(shopBGRight->getContentSize().width, 8 * 99));
-	//moneyscrollView->setBackGroundColor(Color3B::BLACK);
-	moneyscrollView->setPosition(CommonFunction::getVisibleAchor(Anchor::Center, shopBGRight, Vec2(0, -20)));
-	//auto test = Sprite::create("popbox/big_gold.png");
-	//test->setPosition(CommonFunction::getVisibleAchor(Anchor::MidTop, moneyscrollView, Vec2(0, 4*99)));
-	//moneyscrollView->addChild(test);
-	shopBGRight->addChild(moneyscrollView);
-	for (int i = 0; i <8; i++)
+	moneyscrollView->setInnerContainerSize(Size(money_bg->getContentSize().width, GAMEDATA->m_coins.size() * 162));
+	moneyscrollView->setBackGroundColor(Color3B::BLACK);
+	moneyscrollView->setPosition(CommonFunction::getVisibleAchor(Anchor::MidButtom, money_bg, Vec2(0, 5)));
+	money_bg->addChild(moneyscrollView);
+
+	for (int i = 0; i < GAMEDATA->m_coins.size(); i++)
 	{
-		auto item = ShopItem::createShopItem((i + 4), 2, (i + 4));
+		auto item = ShopItem::createShopItem(1, GAMEDATA->getShopCoins(i));
 		item->setTag(i);
 		int item_height = item->getContentSize().height;
+		item->setAnchorPoint(Vec2(0.5, 0.5));
+		item->setPosition(CommonFunction::getVisibleAchor(Anchor::MidTop, moneyscrollView, Vec2(0,-70 - (i*150))));//item_height/4
 		moneyscrollView->addChild(item);
-		item->setPosition(CommonFunction::getVisibleAchor(Anchor::MidTop, moneyscrollView, Vec2(0, (0 - i * (item_height)-item_height / 2) + 4*90)));//item_height/4
 	}
 
+	Button* proButton;
+	Button* monButton;
+	Button* gifButton;
+	for (int i = 0; i < 3; i++)
+	{
+		auto buttonBG = Sprite::create("popbox/buttonBG.png");
+		buttonBG->setPosition(CommonFunction::getVisibleAchor(Anchor::MidTop, BG_kuang, Vec2(i * 150 - 150, -120)));
+		BG_kuang->addChild(buttonBG);
 
+		string str = StringUtils::format("button/shop_button%d.png", i);
+		string str_1 = StringUtils::format("button/ban_%d.png", i);
 
-	auto propsButton = Button::create("popbox/shopprops_button.png");
-	propsButton->setPosition(CommonFunction::getVisibleAchor(Anchor::Center, BG_kuang, Vec2(-80, 160)));
-	BG_kuang->addChild(propsButton);
-	propsButton->addClickEventListener([=](Ref*){
-		if (UserDefault::getInstance()->getBoolForKey("IS_EFFECT", true))
-			CocosDenshion::SimpleAudioEngine::getInstance()->playEffect(CLICK_BUTTON);
-		shopBGRight->setVisible(false);
-		shopBGleft->setVisible(true);
-	});
+		if (i == 0)
+		{
+			proButton = Button::create(str,str_1,str_1);
+			proButton->setPosition(CommonFunction::getVisibleAchor(Anchor::Center, buttonBG, Vec2(0, 0)));
+			buttonBG->addChild(proButton, 1);
+			proButton->setBright(false);
+		}
+		if (i == 1)
+		{
+			monButton = Button::create(str, str_1, str_1);
+			monButton->setPosition(CommonFunction::getVisibleAchor(Anchor::Center, buttonBG, Vec2(0, 0)));
+			buttonBG->addChild(monButton, 1);
+		}
+		if (i == 2)
+		{
+			gifButton = Button::create(str, str, str);
+			gifButton->setPosition(CommonFunction::getVisibleAchor(Anchor::Center, buttonBG, Vec2(0, 0)));
+			buttonBG->addChild(gifButton, 1);
+		}
+	}
+	if (proButton)
+	{
+		proButton->addClickEventListener([=](Ref*){
+			proButton->setBright(false);
+			monButton->setBright(true);
+			gifButton->setBright(true);
+			props_bg->setVisible(true);
+			money_bg->setVisible(false);
+		});
+	}
+	if (monButton)
+	{
+		monButton->addClickEventListener([=](Ref*){
+			monButton->setBright(false);
+			proButton->setBright(true);
+			gifButton->setBright(true);
+			props_bg->setVisible(false);
+			money_bg->setVisible(true);
+		});
+	}
+	if (gifButton)
+	{
+		gifButton->addClickEventListener([=](Ref*){
+			//gifButton->setBright(false);
+			//monButton->setBright(true);
+			//proButton->setBright(true);
+		});
+	}
 
-	auto moneyButton = Button::create("popbox/shopmoney_button.png");
-	moneyButton->setPosition(CommonFunction::getVisibleAchor(Anchor::Center, BG_kuang, Vec2(30, 160)));
-	BG_kuang->addChild(moneyButton);
-	moneyButton->addClickEventListener([=](Ref*){
-		if (UserDefault::getInstance()->getBoolForKey("IS_EFFECT", true))
-			CocosDenshion::SimpleAudioEngine::getInstance()->playEffect(CLICK_BUTTON);
-		shopBGleft->setVisible(false);
-		shopBGRight->setVisible(true);
-	});
-
-	auto backButton = Button::create("popbox/button_cancel.png");
-	backButton->setPosition(CommonFunction::getVisibleAchor(Anchor::MidButtom, BG_kuang, Vec2(30, -10)));
+	auto backButton = Button::create("popbox/cancel.png");
+	backButton->setPosition(CommonFunction::getVisibleAchor(Anchor::RightTop, BG_kuang, Vec2(-20, -20)));
 	BG_kuang->addChild(backButton);
 	backButton->addClickEventListener(CC_CALLBACK_0(ShopLayer::backButCallBack, this));
 

@@ -7,6 +7,7 @@
 #include "Expand/TouchableLayer.h"
 #include "Unit/ElementUnit.h"
 #include "Unit/MyEffect.h"
+#include "DrawLine.h"
 
 class MapLayer : public TouchableLayer
 {
@@ -107,7 +108,7 @@ private:
 	int *removeCount;		//消除各元素的数量
 
 	vector<Coord> linkIndex; //一次连线中的连线顺序
-	vector<DrawNode*> linkBrush;	//连接两个元素的线
+	vector<DrawLine*> linkBrush;	//连接两个元素的线
 
 	int removeAllCount; //一次连线消除总数
 

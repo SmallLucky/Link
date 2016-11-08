@@ -11,4 +11,5 @@ public:
 	void addUI();
 	void GoOnCallBack();
 	void backCallBack();
+	void addReward();
 };

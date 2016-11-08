@@ -5,6 +5,7 @@
 #include "Data/GameData.h"
 #include "Scene/LevelScene.h"
 #include "Scene/StartScene.h"
+#include "Data/Data.h"
 
 bool TotalLayer:: init()
 {
@@ -23,88 +24,154 @@ bool TotalLayer:: init()
 
 void TotalLayer::addUI()
 {
-	auto sp = Sprite::create("bg/bg_1.png");
-	sp->setPosition(CommonFunction::getVisibleAchor(Anchor::Center,Vec2(0,0)));
-	addChild(sp);
-	auto cat = Sprite::create("popbox/cat_2.png");
-	cat->setPosition(CommonFunction::getVisibleAchor(Anchor::Center,Vec2(0,330)));
-	addChild(cat);
-	auto BG_kuang = Sprite::create("popbox/popbox_big_bg.png");
-	BG_kuang->setPosition(CommonFunction::getVisibleAchor(Anchor::Center, cat, Vec2(-30, -310)));
-	cat->addChild(BG_kuang);
+	//auto sp = Sprite::create("bg/bg_1.png");
+	//sp->setPosition(CommonFunction::getVisibleAchor(Anchor::Center,Vec2(0,0)));
+	//addChild(sp);
 
-	auto star1 = Sprite::create("popbox/star_1.png");
-	star1->setPosition(CommonFunction::getVisibleAchor(Anchor::MidTop,cat,Vec2(-170,-20)));
-	cat->addChild(star1);
-	auto star2 = Sprite::create("popbox/star_2.png");
-	star2->setPosition(CommonFunction::getVisibleAchor(Anchor::MidTop, cat, Vec2(-30, 30)));
-	cat->addChild(star2);
-	auto star3 = Sprite::create("popbox/star_1.png");
-	star3->setPosition(CommonFunction::getVisibleAchor(Anchor::MidTop, cat, Vec2(180, 0)));
-	star3->setScale(0.6);
-	cat->addChild(star3);
+	auto BG_kuang = Sprite::create("popbox/dikuang.png");
+	BG_kuang->setPosition(CommonFunction::getVisibleAchor(Anchor::Center, Vec2(0, 0)));
+	addChild(BG_kuang);
 
-	auto successful = Sprite::create("popbox/successful.png");
-	successful->setPosition(CommonFunction::getVisibleAchor(Anchor::Center, BG_kuang,Vec2(30,240)));
-	BG_kuang->addChild(successful);
+	auto pet = Sprite::create("popbox/pet_3.png");
+	pet->setPosition(CommonFunction::getVisibleAchor(Anchor::MidTop, BG_kuang,Vec2(0, 100)));
+	BG_kuang->addChild(pet);
 
-	auto di = Sprite::create("popbox/total_di.png");
-	di->setPosition(CommonFunction::getVisibleAchor(Anchor::MidButtom, successful, Vec2(-40, -10)));
-	successful->addChild(di);
+	auto hong = Sprite::create("popbox/sucess_hong.png");
+	hong->setPosition(CommonFunction::getVisibleAchor(Anchor::MidTop, BG_kuang, Vec2(0, -40)));
+	BG_kuang->addChild(hong);
 
-	auto num = LabelAtlas::create(Value(GAMEDATA->getCurLevel() + 1).asString(), "fonts/infor_num_1.png", 20, 30, '0');
-	num->setPosition(CommonFunction::getVisibleAchor(Anchor::RightMid, di, Vec2(10, 0)));
-	num->setAnchorPoint(Vec2(0, 0.5));
-	di->addChild(num);
+	auto levelnumbg = Sprite::create("popbox/success_levenumbg.png");
+	levelnumbg->setPosition(CommonFunction::getVisibleAchor(Anchor::MidButtom, hong, Vec2(0, 0)));
+	hong->addChild(levelnumbg);
 
-	auto guan = Sprite::create("popbox/total_guan.png");
-	guan->setPosition(CommonFunction::getVisibleAchor(Anchor::RightMid, num, Vec2(30, 0)));
-	num->addChild(guan);
+	auto level = LabelAtlas::create(Value(GAMEDATA->getCurLevel()+1).asString(), "fonts/success_levelnum.png", 17, 24, '0');
+	level->setAnchorPoint(Vec2(0.5, 0.5));
+	level->setPosition(CommonFunction::getVisibleAchor(Anchor::Center, levelnumbg, Vec2(0, 0)));
+	levelnumbg->addChild(level);
 
-	auto success_bg = Sprite::create("popbox/successful_bg.png");
-	success_bg->setPosition(CommonFunction::getVisibleAchor(Anchor::Center,BG_kuang,Vec2(30,-10)));
-	BG_kuang->addChild(success_bg);
+	auto comonon = Sprite::create("popbox/gift.png");
+	comonon->setPosition(CommonFunction::getVisibleAchor(Anchor::Center, BG_kuang, Vec2(0, 100)));
+	BG_kuang->addChild(comonon);
 
-	for (int i = 0; i < 2; i++)
+	auto nextLevel = Button::create("button/next_level.png");
+	nextLevel->setPosition(CommonFunction::getVisibleAchor(Anchor::MidButtom,BG_kuang,Vec2(0,80)));
+	BG_kuang->addChild(nextLevel);
+	nextLevel->addClickEventListener(CC_CALLBACK_0(TotalLayer::backCallBack, this));
+
+
+	auto line = Sprite::create("popbox/line.png");
+	line->setPosition(CommonFunction::getVisibleAchor(Anchor::MidButtom,BG_kuang,Vec2(0,150)));
+	BG_kuang->addChild(line);
+
+	bool ispower = true;
+	bool islove = true;
+	bool iscoins = true;
+	bool isrefresh = true;
+	bool isboom = true;
+	for (int i = 0; i < 4; i++) //0123
 	{
-		for (int j = 0; j < 2; j++)
+		auto giftBg = Sprite::create("popbox/success_propsbg.png");
+		giftBg->setPosition(CommonFunction::getVisibleAchor(Anchor::MidTop,line,Vec2(170 - (i*115),90)));
+		line->addChild(giftBg);
+		for (int j = 0; j < 5; j++)
 		{
-			auto label_kuang = Sprite::create("popbox/labelkuang_h.png");
-			label_kuang->setPosition(CommonFunction::getVisibleAchor(Anchor::Center,success_bg,Vec2(90 + (i*180 - 180) ,(j*90 - 90) +30)));
-			success_bg->addChild(label_kuang);
-			auto gift = Sprite::create("popbox/star_1.png");
-			gift->setPosition(CommonFunction::getVisibleAchor(Anchor::LeftMid,label_kuang,Vec2(30,0)));
-			label_kuang->addChild(gift);
+			if (REWARDDATA->getPower(GAMEDATA->getCurLevel()) != 0  && ispower)
+			{
+				auto power = Sprite::create("popbox/power.png");
+				power->setPosition(CommonFunction::getVisibleAchor(Anchor::Center,giftBg,Vec2(0,0)));
+				power->setScale(1.5);
+				giftBg->addChild(power);
+				auto x = Sprite::create("popbox/X.png");
+				x->setPosition(CommonFunction::getVisibleAchor(Anchor::RightButtom,giftBg,Vec2(0,0)));
+				giftBg->addChild(x);
+
+				auto num = LabelAtlas::create(Value(REWARDDATA->getPower(GAMEDATA->getCurLevel())).asString(), "fonts/succes_propsnum.png", 27, 34, '0');
+				num->setPosition(CommonFunction::getVisibleAchor(Anchor::RightMid,x,Vec2(0,0)));
+				num->setAnchorPoint(Vec2(0,0.5));
+				x->addChild(num);
+				ispower = false;
+				break;
+			}
+			else if (REWARDDATA->getRefresh(GAMEDATA->getCurLevel()) != 0 && isrefresh)
+			{
+				auto refresh = Sprite::create("infor/props_0.png");
+				refresh->setPosition(CommonFunction::getVisibleAchor(Anchor::Center, giftBg, Vec2(0, 0)));
+				giftBg->addChild(refresh);
+
+				auto x = Sprite::create("popbox/X.png");
+				x->setPosition(CommonFunction::getVisibleAchor(Anchor::RightButtom, giftBg, Vec2(0, 0)));
+				giftBg->addChild(x);
+
+				auto num = LabelAtlas::create(Value(REWARDDATA->getRefresh(GAMEDATA->getCurLevel())).asString(), "fonts/succes_propsnum.png", 27, 34, '0');
+				num->setPosition(CommonFunction::getVisibleAchor(Anchor::RightMid, x, Vec2(0, 0)));
+				num->setAnchorPoint(Vec2(0, 0.5));
+				x->addChild(num);
+				isrefresh = false;
+				break;
+			}
+			else if(REWARDDATA->getBoom(GAMEDATA->getCurLevel()) != 0 && isboom)
+			{
+				auto boom = Sprite::create("infor/props_1.png");
+				boom->setPosition(CommonFunction::getVisibleAchor(Anchor::Center, giftBg, Vec2(0, 0)));
+				giftBg->addChild(boom);
+
+				auto x = Sprite::create("popbox/X.png");
+				x->setPosition(CommonFunction::getVisibleAchor(Anchor::RightButtom, giftBg, Vec2(0, 0)));
+				giftBg->addChild(x);
+
+				auto num = LabelAtlas::create(Value(REWARDDATA->getBoom(GAMEDATA->getCurLevel())).asString(), "fonts/succes_propsnum.png", 27, 34, '0');
+				num->setPosition(CommonFunction::getVisibleAchor(Anchor::RightMid, x, Vec2(0, 0)));
+				num->setAnchorPoint(Vec2(0, 0.5));
+				x->addChild(num);
+				isboom = false;
+				break;
+			}
+			else if(REWARDDATA->getCoins(GAMEDATA->getCurLevel()) != 0 && iscoins)
+			{
+				auto coins = Sprite::create("popbox/big_gold.png");
+				coins->setPosition(CommonFunction::getVisibleAchor(Anchor::Center, giftBg, Vec2(0, 0)));
+				coins->setScale(1.5);
+				giftBg->addChild(coins);
+
+				auto x = Sprite::create("popbox/X.png");
+				x->setPosition(CommonFunction::getVisibleAchor(Anchor::RightButtom, giftBg, Vec2(0, 0)));
+				giftBg->addChild(x);
+				auto num = LabelAtlas::create(Value(REWARDDATA->getCoins(GAMEDATA->getCurLevel())).asString(), "fonts/succes_propsnum.png", 27, 34, '0');
+				num->setPosition(CommonFunction::getVisibleAchor(Anchor::RightMid, x, Vec2(0, 0)));
+				num->setAnchorPoint(Vec2(0, 0.5));
+				x->addChild(num);
+				iscoins = false;
+				break;
+			}
+			else if(REWARDDATA->getLove(GAMEDATA->getCurLevel()) != 0 && islove)
+			{
+				auto love = Sprite::create("infor/big_hart.png");
+				love->setPosition(CommonFunction::getVisibleAchor(Anchor::Center, giftBg, Vec2(0, 0)));
+				love->setScale(1.5);
+				giftBg->addChild(love);
+				auto x = Sprite::create("popbox/X.png");
+				x->setPosition(CommonFunction::getVisibleAchor(Anchor::RightButtom, giftBg, Vec2(0, 0)));
+				giftBg->addChild(x);
+				auto num = LabelAtlas::create(Value(REWARDDATA->getLove(GAMEDATA->getCurLevel())).asString(), "fonts/succes_propsnum.png", 27, 34, '0');
+				num->setPosition(CommonFunction::getVisibleAchor(Anchor::RightMid, x, Vec2(0, 0)));
+				num->setAnchorPoint(Vec2(0, 0.5));
+				x->addChild(num);
+				islove = false;
+				break;
+			}
 		}
 	}
 
-	auto goOnButton = Button::create("popbox/next_level.png");
-	goOnButton->setPosition(CommonFunction::getVisibleAchor(Anchor::MidButtom, BG_kuang, Vec2(30, 160)));
-	BG_kuang->addChild(goOnButton);
-	goOnButton->addClickEventListener(CC_CALLBACK_0(TotalLayer::GoOnCallBack,this));
-
-	auto backButton = Button::create("popbox/button_cancel.png");
-	backButton->setPosition(CommonFunction::getVisibleAchor(Anchor::MidButtom, BG_kuang, Vec2(30, -10)));
+	auto backButton = Button::create("popbox/cancel.png");
+	backButton->setPosition(CommonFunction::getVisibleAchor(Anchor::RightTop, BG_kuang, Vec2(-20, -20)));
 	BG_kuang->addChild(backButton);
 	backButton->addClickEventListener(CC_CALLBACK_0(TotalLayer::backCallBack, this));
 
-	//auto level = Label::createWithTTF(Value(GAMEDATA->getCurLevel()+1).asString(), "fonts/Marker Felt.ttf", 60);
-	//level->setPosition(CommonFunction::getVisibleAchor(Anchor::Center, BG_kuang, Vec2(0, 100)));
-	//BG_kuang->addChild(level);
-
-	////star score
-	//auto scoreLabel = Label::createWithTTF("Score:", "fonts/Marker Felt.ttf", 60);
-	//scoreLabel->setPosition(CommonFunction::getVisibleAchor(Anchor::Center, BG_kuang, Vec2(-100, 0)));
-	//BG_kuang->addChild(scoreLabel);
-
-	//auto scoreNum = Label::createWithTTF(Value(GAMEDATA->getCurSocre()).asString(), "fonts/Marker Felt.ttf", 60);
-	//scoreNum->setAnchorPoint(Vec2(0, 0.5));
-	//scoreNum->setPosition(CommonFunction::getVisibleAchor(Anchor::Center, scoreLabel, Vec2(70, 0)));
-	//scoreLabel->addChild(scoreNum);
 }
 
 void TotalLayer::GoOnCallBack()
 {
+	addReward();
 	log("GoOnCallBack");
 	int x = GAMEDATA->getCurLevel() + 1;
 	if ( x < GAMEDATA->m_lock.size())
@@ -125,8 +192,14 @@ void TotalLayer::GoOnCallBack()
 
 void TotalLayer::backCallBack()
 {
+	addReward();
 	log("backCallBack");
 	this->removeFromParent();
 	LevelScene* levelScene = LevelScene::create();
 	Director::getInstance()->replaceScene(levelScene);
+}
+
+void	TotalLayer:: addReward()
+{
+
 }

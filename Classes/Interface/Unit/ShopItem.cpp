@@ -12,10 +12,10 @@ ShopItem::~ShopItem()
 
 }
 //CREATE_FUNC(ShopItem);
-ShopItem* ShopItem::createShopItem(int diamNum, int giveNum, int moneyNum)
+ShopItem* ShopItem::createShopItem(int type, int moneyNum)
 {
 	ShopItem* item = new ShopItem();
-	if (item && item->init(diamNum, giveNum, moneyNum))
+	if (item && item->init(type, moneyNum))
 	{
 		item->autorelease();
 		return item;
@@ -24,78 +24,60 @@ ShopItem* ShopItem::createShopItem(int diamNum, int giveNum, int moneyNum)
 	return nullptr;
 
 }
-bool ShopItem::init(int diamNum, int giveNum, int moneyNum)
+bool ShopItem::init(int type, int moneyNum)
 {
 	if (!Node::init())
 	{
 		return false;
 	}
 	auto bg_sp = Sprite::create("popbox/shop_itembg.png");
-	bg_sp->setScale(0.9f);
 	addChild(bg_sp);
-	this->setContentSize(bg_sp->getContentSize());
+	//this->setContentSize(bg_sp->getContentSize());
 
-	//购买按钮
-	auto buy_btn = Button::create("popbox/shop_buttongold.png");
-	buy_btn->setPosition(CommonFunction::getVisibleAchor(Anchor::RightMid, bg_sp, Vec2(-80, 0)));
-	buy_btn->addClickEventListener(CC_CALLBACK_1(ShopItem::btnClickEvent, this));
-	bg_sp->addChild(buy_btn);
-	buy_btn->setSwallowTouches(false);
-
-	if (giveNum == 1) // propes
+	if (bg_sp)
 	{
-		//钻石精灵
-		auto diamond_sp = Sprite::create("popbox/props_1.png");
-		diamond_sp->setPosition(CommonFunction::getVisibleAchor(Anchor::LeftMid, bg_sp, Vec2(diamond_sp->getContentSize().width/2+15, 0)));
-		bg_sp->addChild(diamond_sp);
+		if (type == 1) // propes
+		{
+			string str = StringUtils::format("popbox/gold_%d.png", moneyNum);
+			auto coins = Sprite::create(str);
+			coins->setAnchorPoint(Vec2(0, 0.5));
+			coins->setPosition(CommonFunction::getVisibleAchor(Anchor::LeftMid, bg_sp, Vec2(25, -8)));
+			bg_sp->addChild(coins);
 
-		//钻石个数文本
-		auto x = Sprite::create("popbox/X.png");
-		x->setPosition(CommonFunction::getVisibleAchor(Anchor::RightMid,diamond_sp,Vec2(diamond_sp->getContentSize().width/2-10,0)));
-		diamond_sp->addChild(x);
+			auto moneynum = Sprite::create(StringUtils::format("popbox/x%d.png",moneyNum));
+			moneynum->setPosition(CommonFunction::getVisibleAchor(Anchor::Center, bg_sp, Vec2(0, 0)));
+			bg_sp->addChild(moneynum);
+			
+			auto shop_button = Button::create("button/shop_money.png");
+			shop_button->setPosition(CommonFunction::getVisibleAchor(Anchor::RightMid,bg_sp,Vec2(-100,0)));
+			bg_sp->addChild(shop_button);
+			shop_button->addClickEventListener([=](Ref*){
+				if (UserDefault::getInstance()->getBoolForKey("IS_EFFECT", true))
+					CocosDenshion::SimpleAudioEngine::getInstance()->playEffect(SHOP_MONEY);
+				log("go mai %d",moneyNum);
+			});
+		}
+		if (type == 2)
+		{
+			auto props = Sprite::create(StringUtils::format("popbox/shopprops_%d.png",moneyNum));
+			props->setAnchorPoint(Vec2(0,0.5));
+			props->setPosition(CommonFunction::getVisibleAchor(Anchor::LeftMid,bg_sp,Vec2(30,0)));
+			bg_sp->addChild(props);
 
-		auto number_diamond = LabelAtlas::create("128", "fonts/shop_num_1.png", 30, 30, '0');
-		number_diamond->setPosition(CommonFunction::getVisibleAchor(Anchor::RightMid,x,Vec2(5,0)));
-		number_diamond->setAnchorPoint(Vec2(0,0.5));
-		x->addChild(number_diamond);
+			auto pro_num0 = Button::create("button/shop_props0.png");
+			pro_num0->setPosition(CommonFunction::getVisibleAchor(Anchor::Center,bg_sp,Vec2(60,0)));
+			bg_sp->addChild(pro_num0);
+			pro_num0->addClickEventListener([=](Ref*){
+				log("props:%d",3);
+			});
 
-		auto money = Sprite::create("popbox/small_gold.png");
-		money->setPosition(CommonFunction::getVisibleAchor(Anchor::LeftMid,buy_btn,Vec2(15,5)));
-		money->setAnchorPoint(Vec2(0,0.5));
-		buy_btn->addChild(money);
-
-		auto money_number = LabelAtlas::create("23","fonts/shop_num_2.png",30,30,'0');
-		money_number->setPosition(CommonFunction::getVisibleAchor(Anchor::RightMid,money,Vec2(0,0)));
-		money_number->setAnchorPoint(Vec2(0, 0.5));
-		money->addChild(money_number);
-
-	}
-	if (giveNum == 2) //money
-	{
-		//钻石精灵
-		auto gold_sp = Sprite::create("popbox/big_gold.png");
-		gold_sp->setPosition(CommonFunction::getVisibleAchor(Anchor::LeftMid, bg_sp, Vec2(gold_sp->getContentSize().width / 2 + 15, 0)));
-		bg_sp->addChild(gold_sp);
-
-		//钻石个数文本
-		auto x = Sprite::create("popbox/X.png");
-		x->setPosition(CommonFunction::getVisibleAchor(Anchor::RightMid, gold_sp, Vec2(gold_sp->getContentSize().width / 2 - 10, 0)));
-		gold_sp->addChild(x);
-
-		auto number_diamond = LabelAtlas::create("128", "fonts/shop_num_1.png", 30, 30, '0');
-		number_diamond->setPosition(CommonFunction::getVisibleAchor(Anchor::RightMid, x, Vec2(5, 0)));
-		number_diamond->setAnchorPoint(Vec2(0, 0.5));
-		x->addChild(number_diamond);
-
-		auto money = Sprite::create("popbox/m.png");
-		money->setPosition(CommonFunction::getVisibleAchor(Anchor::LeftMid, buy_btn, Vec2(15, 5)));
-		money->setAnchorPoint(Vec2(0, 0.5));
-		buy_btn->addChild(money);
-
-		auto money_number = LabelAtlas::create("23", "fonts/shop_num_2.png", 30, 30, '0');
-		money_number->setPosition(CommonFunction::getVisibleAchor(Anchor::RightMid, money, Vec2(0, 0)));
-		money_number->setAnchorPoint(Vec2(0, 0.5));
-		money->addChild(money_number);
+			auto pro_num1 = Button::create("button/shop_props1.png");
+			pro_num1->setPosition(CommonFunction::getVisibleAchor(Anchor::RightMid,bg_sp,Vec2(-80,0)));
+			bg_sp->addChild(pro_num1);
+			pro_num1->addClickEventListener([=](Ref*){
+				log("props1:%d", 6);
+			});
+		}
 	}
 	return true;
 }

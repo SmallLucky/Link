@@ -54,10 +54,15 @@ public:
 
 	int getTargetScore(int level);
 	int getCount(int level);
-
+	int getShopCoins(int index);
 	//获得x，y的偏移量
 	int getOffsetX(int level);
 	int getOffsetY(int level);
+
+	int getRefresh(){ return refresh_num; };
+	void setrefresh(int num);
+	int getBoomb(){ return boom_num; }
+	void setBoomb(int num);
 
 private:
 	GameData();
@@ -67,6 +72,7 @@ private:
 
 public:
 	vector <int> m_lock;
+	vector <int> m_coins;
 private:
 	int cur_level;		//当前关卡
 	int cur_score;		//当前分数
@@ -85,5 +91,6 @@ private:
 	vector <int> m_offsetX;
 	vector <int> m_offsetY;
 	vector <int> m_count;
+	//vector <int> m_coins;
 };
 

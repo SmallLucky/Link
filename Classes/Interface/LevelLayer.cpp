@@ -7,9 +7,10 @@
 #include "ObjectiveLayer.h"
 #include "ShopLayer.h"
 #include "SetLayer.h"
-
+#include "PowerShop.h"
+#include "Data/RewardData.h"
 //#define  GAMEDATA GameData::getInstance()
-LevelLayer::LevelLayer() :mt(0)
+LevelLayer::LevelLayer() :mt(0),minutes(nullptr)
 {
 	auto _listenerReresh = EventListenerCustom::create(REFRESHUI, [=](EventCustom*event){
 		refreshUI();
@@ -42,6 +43,7 @@ bool LevelLayer::init()
 		return false;
 	}
 	GameData::getInstance()->praseJsonData();
+	RewardData::getInstance()->praseJsonData();
 	//测试修改
 	numBG = 0;
 	minutsNum = 0;
@@ -138,16 +140,6 @@ void	LevelLayer::addScrollView()
 		float p = (float)((200 + 10375 - GAMEDATA->getOffsetY(index)) * 100 / (10375));
 		//scrollview->jumpToPercentVertical(p);
 		scrollview->scrollToPercentVertical(p, 5.0, true);
-		//if (p < 70)
-		//{
-		//	scrollview->scrollToPercentVertical(p, 5.0, true); //显示百分比
-		//}
-		//else
-		//{
-		//	scrollview->jumpToPercentVertical(p);
-		//}
-		/*scrollview->set*/
-			//LinearGravity
 		addChild(scrollview);
 		for (int i = 0; i < 3; i++)
 		{
@@ -180,6 +172,15 @@ void	LevelLayer::addUI()
 					power->setPosition(CommonFunction::getVisibleAchor(Anchor::LeftMid, small_kuang, Vec2(20, 0)));
 					small_kuang->addChild(power);
 				}
+
+				auto addbutton = Button::create("popbox/add_button.png");
+				addbutton->setPosition(CommonFunction::getVisibleAchor(Anchor::RightMid, small_kuang, Vec2(-10, 0)));
+				small_kuang->addChild(addbutton);
+				addbutton->addClickEventListener([=](Ref*){
+					PowerShop* layer = PowerShop::create();
+					addChild(layer);
+				});
+
 				powerNum = LabelAtlas::create(Value(GAMEDATA->getPowerNum()).asString(), "fonts/level_fonts.png", 30, 30, '0');
 				if (powerNum)
 				{
@@ -285,6 +286,7 @@ void  LevelLayer::setTimeUI() //
 			UserDefault::getInstance()->setIntegerForKey("MIN_TIME", 0);
 			//移除时间label
 			minutes->removeFromParent();
+			minutes = nullptr;
 			//关闭定时器
 			this->unscheduleUpdate();
 
@@ -350,6 +352,21 @@ void LevelLayer::refreshUI()
 	powerNum->setString(Value(GAMEDATA->getPowerNum()).asString());
 	loveNum->setString(Value(GAMEDATA->getLoveNum()).asString());
 	moneyNum->setString(Value(GAMEDATA->getMoneyNum()).asString());
+	if (GAMEDATA->getPowerNum() == 500)
+	{
+		UserDefault::getInstance()->setIntegerForKey("GAME_TIME", 0);//游戏开始按钮减体力的时间写入
+		UserDefault::getInstance()->setIntegerForKey("MIN_TIME", 0);//
+		UserDefault::getInstance()->setIntegerForKey("LEAVE_TIME", 0);//离开的时间记录
+		UserDefault::getInstance()->setIntegerForKey("LEAVE_POWER", 0);//推出场景的时间
+		//移除时间label
+		if (minutes)
+		{
+			minutes->removeFromParent();
+			minutes = nullptr;
+			//关闭定时器
+			this->unscheduleUpdate();
+		}
+	}
 }
 
 void LevelLayer::addCallBack()

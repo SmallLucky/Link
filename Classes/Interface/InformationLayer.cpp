@@ -80,7 +80,7 @@ void	InformationLayer::addUI()
 	levellabel->setAnchorPoint(Vec2(1,0.5));
 	levelbg->addChild(levellabel);
 
-	auto levelnum = LabelAtlas::create(Value(GAMEDATA->getCurLevel()).asString(), "fonts/game_levelnum.png",14,21,'0');
+	auto levelnum = LabelAtlas::create(Value(GAMEDATA->getCurLevel()+1).asString(), "fonts/game_levelnum.png",14,21,'0');
 	levelnum->setPosition(CommonFunction::getVisibleAchor(Anchor::RightMid,levellabel,Vec2(5,0)));
 	levelnum->setAnchorPoint(Vec2(0,0.5));
 	levellabel->addChild(levelnum);

@@ -49,6 +49,10 @@ void LinkState::onUpdate(float dt)
 	//	//gameOverFlag = true; //若时间用尽，则游戏结束
 	//	log("gameOverFlag");
 	//}
+	if (scene->getIsGameOver())
+	{
+		gameOverFlag = true; //若步数用尽，则游戏结束
+	}
 	refreshElement = scene->isRefreshElement();
 }
 

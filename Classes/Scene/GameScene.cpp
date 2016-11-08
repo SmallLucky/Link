@@ -8,8 +8,33 @@
 #include "Interface/StopLayer.h"
 #include "Interface/Interface.h"
 #include "LevelScene.h"
+#include "Interface/AddCount.h"
 
 int  GameScene::_power = 0;
+GameScene::GameScene()
+{
+	auto _listenerReresh = EventListenerCustom::create(REFRESHPROPS, [=](EventCustom*event){
+		refreshProps();
+	});
+	auto _listenerIsGameOverTrue = EventListenerCustom::create(ISGAMEOVERTRUE, [=](EventCustom*event){
+		setIsGameOver(true);
+	});
+	auto _listenerIsGameOverFaLse = EventListenerCustom::create(ISGAMEOVERFALSE, [=](EventCustom*event){
+		setIsGameOver(false);
+		showCount(5);
+		//_count += 5;
+	});
+	_eventDispatcher->addEventListenerWithFixedPriority(_listenerReresh, 1);
+	_eventDispatcher->addEventListenerWithFixedPriority(_listenerIsGameOverTrue, 1);
+	_eventDispatcher->addEventListenerWithFixedPriority(_listenerIsGameOverFaLse, 1);
+}
+
+GameScene::~GameScene()
+{
+	_eventDispatcher->removeCustomEventListeners(REFRESHPROPS);
+	_eventDispatcher->removeCustomEventListeners(ISGAMEOVERTRUE);
+	_eventDispatcher->removeCustomEventListeners(ISGAMEOVERFALSE);
+}
 bool GameScene::init()
 {
 #if(CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
@@ -22,7 +47,8 @@ bool GameScene::init()
 #endif
 		return false;
 	}
-	//addUI();
+	isGameOver = false;
+	addUI();
 	stateMachine = StateMachine::createWithGameScene(this); //创建状态机
 	stateMachine->changeState(StartState::create(this)); //进入准备开始游戏状态
 	this->scheduleUpdate();
@@ -35,23 +61,26 @@ bool GameScene::init()
 #endif
 	return true;
 }
+
+bool	GameScene:: getIsGameOver()
+{
+	return isGameOver;
+}
+void	GameScene::setIsGameOver(bool b)
+{
+	isGameOver = b;
+}
+
 void GameScene::addUI()
 {
-	//createQuitButton("button/QuitNormal.png", "button/QuitSelected.png"); //添加退出游戏按钮
+	auto bg = Sprite::create("infor/inforxiabg.png");
+	bg->setPosition(CommonFunction::getVisibleAchor(Anchor::MidButtom,Vec2(0,75)));  
+	addChild(bg,1);
 
-	auto leftYun = Sprite::create("bg/left_yun.png");
-	leftYun->setPosition(CommonFunction::getVisibleAchor(Anchor::LeftButtom,Vec2(0,0)));
-	leftYun->setAnchorPoint(Vec2(0,0));
-	addChild(leftYun,1);
 
-	auto rightYun = Sprite::create("bg/right_yun.png");
-	rightYun->setPosition(CommonFunction::getVisibleAchor(Anchor::RightButtom, Vec2(0, 0)));
-	rightYun->setAnchorPoint(Vec2(1, 0));
-	addChild(rightYun,1);
-
-	auto stopButton = Button::create("button/stop_button.png", "button/stop_button.png");
-	stopButton->setPosition(CommonFunction::getVisibleAchor(Anchor::Center,leftYun,Vec2(-30,-30)));
-	leftYun->addChild(stopButton);
+	auto stopButton = Button::create("button/stop_button2.png", "button/stop_button2.png");
+	stopButton->setPosition(CommonFunction::getVisibleAchor(Anchor::Center, bg, Vec2(-180, -30)));
+	bg->addChild(stopButton);
 	stopButton->addClickEventListener([=](Ref*){
 		if (matrix->isResponse())
 		{
@@ -62,51 +91,73 @@ void GameScene::addUI()
 		}
 	});
 
-	for (int i = 0; i < 3; i++)
+	for (int i = 0; i < 2; i++)
 	{
-		auto props_bg = Button::create("button/props_button.png");
-		props_bg->setPosition(CommonFunction::getVisibleAchor(Anchor::Center, rightYun,Vec2(i*120 -120 ,-30)));
-		/*props_bg->setTag(i);*/
-		rightYun->addChild(props_bg);
-		props_bg->addClickEventListener([=](Ref*){
-			if (UserDefault::getInstance()->getBoolForKey("IS_EFFECT", true))
-				CocosDenshion::SimpleAudioEngine::getInstance()->playEffect(CLICK_BUTTON);
-			if (matrix->isResponse())
-			{
-				if (i == 1)
-				{
-					//刷新颜色道具数量上做减法
-					refreshElement();
-				}
-				if (i == 2)
-				{
-					//刷新颜色道具数量上做减法
-					if (matrix->getIsBoom())
-					{
-						matrix->setIsBoom(false);
-					}
-					else
-					{
-						matrix->setIsBoom(true);
-					}
-				}
-				if (i == 0)
-				{
-					ShopLayer* shop = ShopLayer::create();
-					addChild(shop, 2);
-				}
-			}
-		});
+		auto props_bg = Sprite::create("infor/props_bg.png");
+		props_bg->setPosition(CommonFunction::getVisibleAchor(Anchor::Center,bg,Vec2(i*160-30,-30)));
+		bg->addChild(props_bg);
 
-		string str = StringUtils::format("popbox/props_%d.png",i+1);
-		auto props = Sprite::create(str);
+		auto numbg = Sprite::create("infor/props_numbg.png");
+		numbg->setPosition(CommonFunction::getVisibleAchor(Anchor::RightTop, props_bg, Vec2(0, 0)));
+		props_bg->addChild(numbg);
+
+		if (i==0)
+		{
+			refreshNum = LabelAtlas::create(Value(GAMEDATA->getRefresh()).asString(), "fonts/game_propsnum.png", 16, 20, '0');
+			refreshNum->setPosition(CommonFunction::getVisibleAchor(Anchor::Center, numbg, Vec2(0, 0)));
+			refreshNum->setAnchorPoint(Vec2(0.5, 0.5));
+			numbg->addChild(refreshNum);
+		}
+		if (i==1)
+		{
+			boombNum = LabelAtlas::create(Value(GAMEDATA->getBoomb()).asString(), "fonts/game_propsnum.png", 16, 20, '0');
+			boombNum->setPosition(CommonFunction::getVisibleAchor(Anchor::Center, numbg, Vec2(0, 0)));
+			boombNum->setAnchorPoint(Vec2(0.5, 0.5));
+			numbg->addChild(boombNum);
+		}
+
+		string str = StringUtils::format("infor/props_%d.png", i);
+		auto props = Button::create(str);
 		if (props)
 		{
-			props->setPosition(CommonFunction::getVisibleAchor(Anchor::Center, props_bg, Vec2(-10, 10)));
+			props->setPosition(CommonFunction::getVisibleAchor(Anchor::Center,props_bg,Vec2(0,0)));
 			props_bg->addChild(props);
+			props->addClickEventListener([=](Ref*){
+				if (UserDefault::getInstance()->getBoolForKey("IS_EFFECT", true))
+					CocosDenshion::SimpleAudioEngine::getInstance()->playEffect(CLICK_BUTTON);
+				if (i == 0)
+				{
+					if (GAMEDATA->getRefresh() > 0)
+					{
+						GAMEDATA->setrefresh(GAMEDATA->getRefresh() - 1);
+						refreshElement();
+						refreshNum->setString(Value(GAMEDATA->getRefresh()).asString());
+					}
+
+				}
+				if (i == 1)
+				{
+					if (GAMEDATA->getBoomb())
+					{
+						if (matrix->getIsBoom())
+						{
+							matrix->setIsBoom(false);
+						}
+						else
+						{
+							matrix->setIsBoom(true);
+						}
+					}
+				}
+			});
 		}
 	}
 
+}
+
+void GameScene::refreshProps()
+{
+	boombNum->setString(Value(GAMEDATA->getBoomb()).asString());
 }
 //初始化一局游戏
 void GameScene::initGame()
@@ -118,12 +169,6 @@ void GameScene::initGame()
 #endif
 	_count = GAMEDATA->getCount(GAMEDATA->getCurLevel());
 	showCount(_count);
-
-	////开始一局减少一点体力
-	//int _p = ROUND_POWER;
-	//
-	//showPower(_p - _power);
-	//_power++;
 
 }
 
@@ -201,6 +246,12 @@ void GameScene::initMaster()
 //	return 1;
 //}
 /************************************/
+void GameScene::addCountLayer()
+{
+	auto addcountLayer = AddCount::create();
+	addChild(addcountLayer);
+}
+
 //显示游戏剩余步数
 void GameScene::showCount(int c)
 {
@@ -260,6 +311,7 @@ bool GameScene::elementsFall()
 //	LOGD("GameScene::elementsFall()");
 //#endif
 	log(" GameScene::elementsFall()");
+
 	return matrix->elementsFall();
 }
 

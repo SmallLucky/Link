@@ -21,35 +21,30 @@ bool QuitLayer::init()
 
 void QuitLayer::addUI()
 {
-	auto bg = Sprite::create("popbox/popbox_bg.png");
-	bg->setPosition(CommonFunction::getVisibleAchor(Anchor::Center,Vec2(-40,10)));
+	auto bg = Sprite::create("popbox/mid_kuang.png");
+	bg->setPosition(CommonFunction::getVisibleAchor(Anchor::Center,Vec2(0,0)));
 	addChild(bg);
 
 	auto quitLabel = Sprite::create("popbox/quit_label.png");
-	quitLabel->setPosition(CommonFunction::getVisibleAchor(Anchor::Center,bg,Vec2(25,90)));
+	quitLabel->setPosition(CommonFunction::getVisibleAchor(Anchor::MidTop,bg,Vec2(0,-10)));
 	bg->addChild(quitLabel);
-	auto quitBG = Sprite::create("popbox/quit_bg.png");
-	quitBG->setPosition(CommonFunction::getVisibleAchor(Anchor::Center,bg,Vec2(20,-40)));
+
+	auto quitBG = Sprite::create("popbox/quick_cat.png");
+	quitBG->setPosition(CommonFunction::getVisibleAchor(Anchor::Center,bg,Vec2(0,30)));
 	bg->addChild(quitBG);
 
-	for (int i = 0; i < 3; i++)
-	{
-		auto star = Sprite::create("popbox/big_hart.png");
-		star->setPosition(CommonFunction::getVisibleAchor(Anchor::Center, quitBG, Vec2(i * 120 - 120, 10)));
-		quitBG->addChild(star);
-	}
+	auto goonbut = Button::create("button/gono_game.png");
+	goonbut->setPosition(CommonFunction::getVisibleAchor(Anchor::MidButtom, bg, Vec2(100, 60)));
+	bg->addChild(goonbut);
+	goonbut->addClickEventListener(CC_CALLBACK_0(QuitLayer::backGame, this));
 
-	auto lostLabel = Sprite::create("popbox/losthart_label.png");
-	lostLabel->setPosition(CommonFunction::getVisibleAchor(Anchor::MidButtom,quitBG,Vec2(0,20)));
-	quitBG->addChild(lostLabel);
-
-	auto quitButton = Button::create("popbox/quit_button.png");
-	quitButton->setPosition(CommonFunction::getVisibleAchor(Anchor::MidButtom, bg, Vec2(-80, 120)));
+	auto quitButton = Button::create("button/break_game.png");
+	quitButton->setPosition(CommonFunction::getVisibleAchor(Anchor::MidButtom, bg, Vec2(-100, 60)));
 	bg->addChild(quitButton);
 	quitButton->addClickEventListener(CC_CALLBACK_0(QuitLayer::QuitGame, this));
 
-	auto backButton = Button::create("popbox/leave_button.png");
-	backButton->setPosition(CommonFunction::getVisibleAchor(Anchor::MidButtom, bg, Vec2(120, 120)));
+	auto backButton = Button::create("popbox/cancel.png");
+	backButton->setPosition(CommonFunction::getVisibleAchor(Anchor::RightTop, bg, Vec2(-20, -20)));
 	bg->addChild(backButton);
 	backButton->addClickEventListener(CC_CALLBACK_0(QuitLayer::backGame, this));
 }

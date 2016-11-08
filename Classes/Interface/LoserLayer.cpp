@@ -23,75 +23,45 @@ bool LoserLayer:: init()
 
 void LoserLayer::addUI()
 {
-	auto cat = Sprite::create("popbox/cat_3.png");
-	cat->setPosition(CommonFunction::getVisibleAchor(Anchor::Center,Vec2(0,330)));
-	addChild(cat);
 
-	auto BG_kuang = Sprite::create("popbox/popbox_big_bg.png");
-	BG_kuang->setPosition(CommonFunction::getVisibleAchor(Anchor::Center, cat, Vec2(-30, -310)));
-	cat->addChild(BG_kuang);
+	auto BG_kuang = Sprite::create("popbox/dikuang.png");
+	BG_kuang->setPosition(CommonFunction::getVisibleAchor(Anchor::Center, Vec2(0, 0)));
+	addChild(BG_kuang);
 
-	auto hart1 = Sprite::create("popbox/hart_broken.png");
-	hart1->setPosition(CommonFunction::getVisibleAchor(Anchor::MidTop, cat, Vec2(-170, -20)));
-	cat->addChild(hart1);
-	auto hart2 = Sprite::create("popbox/hart_broken.png");
-	hart2->setPosition(CommonFunction::getVisibleAchor(Anchor::MidTop, cat, Vec2(-30, 30)));
-	hart2->setScale(0.5);
-	cat->addChild(hart2);
-	auto hart3 = Sprite::create("popbox/hart_broken.png");
-	hart3->setPosition(CommonFunction::getVisibleAchor(Anchor::MidTop, cat, Vec2(180, -5)));
-	hart3->setScale(0.7);
-	cat->addChild(hart3);
+	auto hong = Sprite::create("popbox/loser_hong.png");
+	hong->setPosition(CommonFunction::getVisibleAchor(Anchor::MidTop,BG_kuang,Vec2(0,-40)));
+	BG_kuang->addChild(hong);
 
-	auto failure = Sprite::create("popbox/failure.png");
-	failure->setPosition(CommonFunction::getVisibleAchor(Anchor::Center, BG_kuang, Vec2(30, 240)));
-	BG_kuang->addChild(failure);
+	auto pet = Sprite::create("popbox/pet_2.png");
+	pet->setPosition(CommonFunction::getVisibleAchor(Anchor::MidTop,hong,Vec2(0,110)));
+	hong->addChild(pet);
 
-	auto di = Sprite::create("popbox/failure_di.png");
-	di->setPosition(CommonFunction::getVisibleAchor(Anchor::MidButtom, failure, Vec2(-40, -10)));
-	failure->addChild(di);
+	auto label = Sprite::create("popbox/loser_label.png");
+	label->setPosition(CommonFunction::getVisibleAchor(Anchor::Center,BG_kuang,Vec2(0,-40)));
+	BG_kuang->addChild(label);
 
-	auto num = LabelAtlas::create(Value(GAMEDATA->getCurLevel() + 1).asString(), "fonts/loser_fonts.png", 19.5, 30, '0');
-	num->setPosition(CommonFunction::getVisibleAchor(Anchor::RightMid, di, Vec2(10, -5)));
-	num->setAnchorPoint(Vec2(0, 0.5));
-	di->addChild(num);
+	auto comonon = Sprite::create("popbox/commonCard.png");
+	comonon->setPosition(CommonFunction::getVisibleAchor(Anchor::MidTop,label,Vec2(0,50)));
+	label->addChild(comonon);
 
-	auto guan = Sprite::create("popbox/failure_guan.png");
-	guan->setPosition(CommonFunction::getVisibleAchor(Anchor::RightMid, num, Vec2(30, 5)));
-	num->addChild(guan);
+	auto levelnumbg = Sprite::create("popbox/loserlevel_kuang.png");
+	levelnumbg->setPosition(CommonFunction::getVisibleAchor(Anchor::MidButtom,hong,Vec2(0,0)));
+	hong->addChild(levelnumbg);
 
-	auto failure_bg = Sprite::create("popbox/loser_bg.png");
-	failure_bg->setPosition(CommonFunction::getVisibleAchor(Anchor::Center, BG_kuang, Vec2(30, -10)));
-	BG_kuang->addChild(failure_bg);
+	auto level = LabelAtlas::create(Value(GAMEDATA->getCurLevel()).asString(),"fonts/loser_num.png",17,27,'0');
+	level->setAnchorPoint(Vec2(0.5,0.5));
+	level->setPosition(CommonFunction::getVisibleAchor(Anchor::Center,levelnumbg,Vec2(0,0)));
+	levelnumbg->addChild(level);
 
-	auto onceAgain = Sprite::create("popbox/nextone_canbe.png");
-	onceAgain->setPosition(CommonFunction::getVisibleAchor(Anchor::Center,failure_bg,Vec2(0,0)));
-	failure_bg->addChild(onceAgain);
-
-	auto againButton = Button::create("popbox/once_again.png");
-	againButton->setPosition(CommonFunction::getVisibleAchor(Anchor::MidButtom, BG_kuang, Vec2(30, 180)));
+	auto againButton = Button::create("button/oneAgain.png");
+	againButton->setPosition(CommonFunction::getVisibleAchor(Anchor::MidButtom, BG_kuang, Vec2(0,80)));
 	BG_kuang->addChild(againButton);
 	againButton->addClickEventListener(CC_CALLBACK_0(LoserLayer::againCallBack, this));
 
-	auto quitButton = Button::create("popbox/button_cancel.png");
-	quitButton->setPosition(CommonFunction::getVisibleAchor(Anchor::MidButtom, BG_kuang, Vec2(30, -10)));
+	auto quitButton = Button::create("popbox/cancel.png");
+	quitButton->setPosition(CommonFunction::getVisibleAchor(Anchor::RightTop, BG_kuang, Vec2(-20, -20)));
 	BG_kuang->addChild(quitButton);
 	quitButton->addClickEventListener(CC_CALLBACK_0(LoserLayer::quitCallBack, this));
-
-
-	//auto score = Label::createWithTTF(Value(GAMEDATA->getTargetScore(GAMEDATA->getCurLevel()) - GAMEDATA->getCurSocre()).asString(), "fonts/Marker Felt.ttf", 60);
-	//score->setPosition(CommonFunction::getVisibleAchor(Anchor::Center,BG_kuang,Vec2(0,50)));
-	//BG_kuang->addChild(score);
-
-	//auto againButton = Button::create("button/set.png");
-	//againButton->setPosition(CommonFunction::getVisibleAchor(Anchor::MidButtom,BG_kuang,Vec2(0,0)));
-	//BG_kuang->addChild(againButton);
-	//againButton->addClickEventListener(CC_CALLBACK_0(LoserLayer::againCallBack,this));
-
-	//auto quitButton = Button::create("button/Cancel.png");
-	//quitButton->setPosition(CommonFunction::getVisibleAchor(Anchor::MidTop,BG_kuang,Vec2(0,0)));
-	//BG_kuang->addChild(quitButton);
-	//quitButton->addClickEventListener(CC_CALLBACK_0(LoserLayer::quitCallBack,this));
 }
 
 void LoserLayer::quitCallBack()

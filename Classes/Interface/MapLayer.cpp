@@ -5,6 +5,8 @@
 #include "Unit/ElementUnit.h"
 #include "Data/ElementData.h"
 #include "Data/Data.h"
+#include "DrawLine.h"
+#include "AddCount.h"
 
 
 using namespace cocos2d;
@@ -351,7 +353,18 @@ int MapLayer::removeMyCount()
 	}
 	else
 	{
-		return ++m_count;
+		log("addcount :%d",m_count);
+		if (m_count == GAMEDATA->getCount(GAMEDATA->getCurLevel())-1)
+		{
+			//
+			auto layer = AddCount::create();
+			addChild(layer,1);
+			m_count -= 4;
+		}
+		else
+		{
+			return ++m_count;
+		}
 	}
 }
 
@@ -872,7 +885,7 @@ void  MapLayer::initBlocks()
 		_tileMap->setAnchorPoint(Vec2(0.5, 0.5));
 		_tileMap->setPosition(mapPoint);
 		_tileMap->setScale(RATIO);
-		addChild(_tileMap, 0);
+		addChild(_tileMap, -1);
 
 		mapLayer = _tileMap->getLayer("map");
 		typeLayer = _tileMap->getLayer("type");
@@ -1159,9 +1172,12 @@ void MapLayer::onTouchEnded(Touch *touch, Event *unused_event) //触摸结束
 				if (blocksCenter[row][line].getDistance(touchPoint) < containsDis)
 				{ 
 					//炸弹数量减一
+					GAMEDATA->setBoomb(GAMEDATA->getBoomb() - 1);
 					showBoomEffect(blocksCenter[row][line]);
 					isBoomElement(row, line);
 					removeSignSpecial();
+					EventCustom _event(REFRESHPROPS);
+					_eventDispatcher->dispatchEvent(&_event);
 					isCount = true;
 					linkFinishFlag = true;
 				}
@@ -1569,10 +1585,13 @@ int		MapLayer::specialSttlement(int ele)//
 //绘制连接两个元素的线
 void MapLayer::drawLine(Coord from, Coord to)
 {
-	DrawNode* brush = DrawNode::create();
-	addChild(brush, -1);
-	brush->drawSegment(getMCenterByCoord(from), getMCenterByCoord(to), LINKLINE_WIDTH, LINKLINE_COLOR);
-	linkBrush.push_back(brush); //将该连接线添加到线序列中
+	auto line = DrawLine::create(getMCenterByCoord(from), getMCenterByCoord(to), "effect/lineLight.png");
+	addChild(line,-1);
+
+	//DrawNode* brush = DrawNode::create();
+	//addChild(brush, -1);
+	//brush->drawSegment(getMCenterByCoord(from), getMCenterByCoord(to), LINKLINE_WIDTH, LINKLINE_COLOR);
+	linkBrush.push_back(line); //将该连接线添加到线序列中
 }
 
 //删除最后一条连接线，返回是否删除成功
@@ -1582,7 +1601,7 @@ bool MapLayer::removeLatestLine()
 	{
 		return false;
 	}
-	DrawNode* brush = linkBrush.back();
+	DrawLine* brush = linkBrush.back();
 	removeChild(brush);
 	linkBrush.pop_back();//删除线序列中的最后一条
 	return true;
