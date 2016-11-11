@@ -80,7 +80,7 @@ void	InformationLayer::addUI()
 	levellabel->setAnchorPoint(Vec2(1,0.5));
 	levelbg->addChild(levellabel);
 
-	auto levelnum = LabelAtlas::create(Value(GAMEDATA->getCurLevel()+1).asString(), "fonts/game_levelnum.png",14,21,'0');
+	auto levelnum = LabelAtlas::create(Value(GAMEDATA->getCurLevel()+1).asString(), "fonts/game_levelnum.png",18,21,'0');
 	levelnum->setPosition(CommonFunction::getVisibleAchor(Anchor::RightMid,levellabel,Vec2(5,0)));
 	levelnum->setAnchorPoint(Vec2(0,0.5));
 	levellabel->addChild(levelnum);
@@ -101,7 +101,7 @@ void InformationLayer::createLabel(Label* &label, char* text, Color4B color, Poi
 
 void  InformationLayer::initTargetScore()
 {
-	targatLabel = LabelAtlas::create(Value(GAMEDATA->getTargetScore(GAMEDATA->getCurLevel())).asString(), "fonts/game_targetnum.png", 24, 34, '0');
+	targatLabel = LabelAtlas::create(Value(GAMEDATA->getTargetScore(GAMEDATA->getCurLevel())).asString(), "fonts/game_targetnum.png", 26, 35, '0');
 	targatLabel->setPosition(CommonFunction::getVisibleAchor(Anchor::Center,targetScore_bg,Vec2(0,0)));
 	targatLabel->setAnchorPoint(Vec2(0.5, 0.5));
 	targetScore_bg->addChild(targatLabel);
@@ -148,7 +148,7 @@ void InformationLayer::showTime(float t)
 //初始化得分标签
 void InformationLayer::initScoreLabel()
 {
-	scoreLabel = LabelAtlas::create(Value(GAMEDATA->getCurSocre()).asString(), "fonts/game_scorenum.png", 16, 19, '0');
+	scoreLabel = LabelAtlas::create(Value(GAMEDATA->getCurSocre()).asString(), "fonts/game_scorenum.png", 17, 19, '0');
 	scoreLabel->setPosition(CommonFunction::getVisibleAchor(Anchor::RightMid, score_bg, Vec2(10,0)));
 	//scoreLabel->setScale(1.2);
 	scoreLabel->setAnchorPoint(Vec2(0,0.5));
@@ -177,7 +177,7 @@ void InformationLayer::scoreUp(int delta, int time)
 //初始化步数标签
 void InformationLayer::initCountLabel()
 {
-	countLabel = LabelAtlas::create(Value(GAMEDATA->getCount(GAMEDATA->getCurLevel())).asString(), "fonts/game_countnum.png", 33, 48, '0');
+	countLabel = LabelAtlas::create(Value(GAMEDATA->getCount(GAMEDATA->getCurLevel())).asString(), "fonts/game_countnum.png", 38, 48, '0');
 	countLabel->setPosition(CommonFunction::getVisibleAchor(Anchor::Center, count_bg, Vec2(0, 0)));
 	//countLabel->setScale(1.2);
 	countLabel->setAnchorPoint(Vec2(0.5,0.5));

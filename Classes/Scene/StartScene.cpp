@@ -18,6 +18,7 @@
 #include "Interface/AddCount.h"
 
 
+
 bool StartScene::init()
 {
 		if (!Scene::init())
@@ -81,10 +82,17 @@ void StartScene::createMenu()
 	}
 
 
-	//auto setButton = Button::create("button/set_button.png");
-	//setButton->addClickEventListener(CC_CALLBACK_0(StartScene::SetButton, this));
-	//setButton->setPosition(CommonFunction::getVisibleAchor(Anchor::MidButtom,Vec2(0,150)));
-	//addChild(setButton);
+	auto ttbut = TTButton::createWithImage("button/stop_button.png");
+	if (ttbut)
+	{
+		log("ttbut = TTButton");
+		ttbut->setPosition(CommonFunction::getVisibleAchor(Anchor::Center, BG, Vec2(0, 0)));
+		ttbut->setAnchorPoint(Vec2(0.5,0.5));
+		ttbut->addTouchupInsideHandle(this, callfuncO_selector(StartScene::QuitGame));
+		
+		BG->addChild(ttbut,3);
+		//ttbut->initTag(this, SEL_MenuHandler, SEL_MenuHandler); 
+	}
 
 
 }
@@ -145,7 +153,7 @@ void StartScene::SetButton()
 }
 
 //ÍË³öÓÎÏ·
-void StartScene::QuitGame()
+void StartScene::QuitGame(Ref* ref)
 {
 //#if (CC_TARGET_PLATFORM == CC_PLATFORM_WP8) || (CC_TARGET_PLATFORM == CC_PLATFORM_WINRT)
 //	MessageBox("You pressed the close button. Windows Store Apps do not implement a close button.", "Alert");

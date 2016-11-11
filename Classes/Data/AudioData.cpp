@@ -9,10 +9,10 @@ const char* REMOVE_EFFECT = "sounds/remove.mp3 "; //消除时的音效dododod.wav remo
 const char* WRONG_REMOVE_EFFECT = "sounds/shopCahnge.mp3"; //错误消除时的音效wrong
 
 const char* GAME_OVER_EFFECT = "sounds/gameover.mp3"; //游戏结束的音效
-const char* NEW_RECORD_EFFECT = "sounds/button.wav"; //新纪录的音效
+const char* NEW_RECORD_EFFECT = "sounds/unBelive.mp3"; //新纪录的音效
 const char* CLICK_BUTTON = "sounds/button2.mp3"; //点击button音效
 
-const char* ELEMENT_BOOM = "sounds/Bomb.wav"; //元素爆炸音效
+const char* ELEMENT_BOOM = "sounds/unBelive.mp3"; //元素爆炸音效
 
 const char* ELEMENT_LINE = "sounds/unBelive.mp3"; //特殊元素元素音效
 const char* ELEMENT_ROW = "sounds/unBelive.mp3"; //元素音效

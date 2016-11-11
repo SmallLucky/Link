@@ -1,6 +1,6 @@
 ﻿#include "DrawLine.h"
 
-DrawLine::DrawLine() :m_drawNode(nullptr){
+DrawLine::DrawLine(){
 
 }
 
@@ -56,7 +56,7 @@ void DrawLine::addLine(Vec2 from, Vec2 to,  std::string img)
 		sp->setPosition(Vec2(pos_x, pos_y));
 		sp->setRotation(-angle);
 		addChild(sp);
-		m_LineVec.pushBack(sp);
+		//m_LineVec.pushBack(sp);
 	}
 }
 
@@ -74,10 +74,10 @@ float DrawLine::getAngle( Vec2 beginPoint,  Vec2 endPoint)
 
 void DrawLine::cleanLine()
 {
-	for (auto &line :m_LineVec){
+	/*for (auto &line :m_LineVec){
 		if (line&& line->getParent()){
 			line->removeFromParent();
 			break;
 		}
-	}
+	}*/
 }

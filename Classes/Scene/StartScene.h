@@ -13,7 +13,7 @@ protected:
 	void createMenu();		//创建菜单
 
 	void StartGame();		//开始游戏
-	void QuitGame();		//退出游戏
+	void QuitGame(Ref* ref);		//退出游戏
 	void SetButton();		//设置
 
 	static long millisecondNow();

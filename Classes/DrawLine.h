@@ -14,6 +14,6 @@ public:
 	float getAngle( Vec2 beginPoint,  Vec2 endPoint);
 	void cleanLine();
 private:
-	DrawNode* m_drawNode;
-	Vector <Sprite*> m_LineVec;
+	//DrawNode* m_drawNode;
+	//Vector <Sprite*> m_LineVec;
 };

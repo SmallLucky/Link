@@ -44,7 +44,7 @@ void TotalLayer::addUI()
 	levelnumbg->setPosition(CommonFunction::getVisibleAchor(Anchor::MidButtom, hong, Vec2(0, 0)));
 	hong->addChild(levelnumbg);
 
-	auto level = LabelAtlas::create(Value(GAMEDATA->getCurLevel()+1).asString(), "fonts/success_levelnum.png", 17, 24, '0');
+	auto level = LabelAtlas::create(Value(GAMEDATA->getCurLevel()+1).asString(), "fonts/success_levelnum.png", 19, 24, '0');
 	level->setAnchorPoint(Vec2(0.5, 0.5));
 	level->setPosition(CommonFunction::getVisibleAchor(Anchor::Center, levelnumbg, Vec2(0, 0)));
 	levelnumbg->addChild(level);
@@ -145,7 +145,7 @@ void TotalLayer::addUI()
 			}
 			else if(REWARDDATA->getLove(GAMEDATA->getCurLevel()) != 0 && islove)
 			{
-				auto love = Sprite::create("infor/big_hart.png");
+				auto love = Sprite::create("popbox/big_hart.png");
 				love->setPosition(CommonFunction::getVisibleAchor(Anchor::Center, giftBg, Vec2(0, 0)));
 				love->setScale(1.5);
 				giftBg->addChild(love);
@@ -193,6 +193,15 @@ void TotalLayer::GoOnCallBack()
 void TotalLayer::backCallBack()
 {
 	addReward();
+	int x = GAMEDATA->getCurLevel() + 1;
+	if (x < GAMEDATA->m_lock.size())
+	{
+		GAMEDATA->setCurLevel(x);
+		GAMEDATA->setLock(GAMEDATA->getCurLevel());
+		GAMEDATA->setPowerNum(min(GAMEDATA->getPowerNum() + 1, 500)); // ¹ý¹Ø½±Àø
+		LevelScene* levelScene = LevelScene::create();
+		Director::getInstance()->replaceScene(levelScene);
+	}
 	log("backCallBack");
 	this->removeFromParent();
 	LevelScene* levelScene = LevelScene::create();

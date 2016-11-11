@@ -1,6 +1,5 @@
 #include "AppDelegate.h"
 #include "Scene/StartScene.h"
-#include "Data/AudioData.h"
 #include "Data/Data.h"
 
 USING_NS_CC;
@@ -88,6 +87,9 @@ bool AppDelegate::applicationDidFinishLaunching() {
 
 	srand(time(NULL)); //设置随机数种子
 
+	//加载cocos studio导出的文件
+	FileUtils::getInstance()->addSearchPath("res");
+
 	////预加载音乐音效
 	auto audio = CocosDenshion::SimpleAudioEngine::getInstance();
 	audio->preloadBackgroundMusic(BGM);
@@ -105,18 +107,10 @@ bool AppDelegate::applicationDidFinishLaunching() {
 	audio->preloadEffect(ELEMENT_ROUND);
 	audio->preloadEffect(SHOP_MONEY);
 
-	//加载cocos studio导出的文件
-	FileUtils::getInstance()->addSearchPath("res");
-	
-	//UserDefault::getInstance()->getBoolForKey("IS_MUSIC",true);
-	//UserDefault::getInstance()->getBoolForKey("IS_EFFECT", true);
-	//UserDefault::getInstance()->getBoolForKey("IS_VIBRATE", true);
-
 	//GameData::getInstance()->praseJsonData();
 	//RewardData::getInstance()->praseJsonData();
-	//TextureCache::sharedTextureCache()->addImageAsync("bg/bg_1.png", this);//, callfuncO_selector(TextureCacheTest::loadingCallBack
-	//CCTextureCache::addImageAsync("bg/bg_1.png");
-	TextureCache::getInstance()->addImage("bg/bg_1.png");
+
+	//TextureCache::getInstance()->addImage("bg/bg_1.png");
 	//进入Start场景
 	auto scene = StartScene::create();
 	director->runWithScene(scene);

@@ -21,6 +21,7 @@ bool LinkState::checkStateChange() //状态改变返回true，状态未改变返回false，
 		//CHANGE_TO_STATE(GameOverState);
 		if (scene->isResponse())
 		{
+			log("need refresh!!!");//
 			scene->refreshElement();
 		}	
 	}
@@ -37,7 +38,7 @@ bool LinkState::entryState()
 
 	gameOverFlag = false;
 	refreshElement = false;
-	
+	log("LinkState!!!");//
  	return true;
 }
 

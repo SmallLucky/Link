@@ -1,55 +1,681 @@
-
 #include "TTButton.h"
 #include "CommonFunction.h"
+
 using namespace ui;
-bool TTButton::init()
+
+TTButton::TTButton()
 {
-	if (!Layer::init())
+	//让调用  registerWithTouchDispatcher 函数
+	m_bTouchEnabled = true;
+	m_bSelected = false;
+	m_bDisabled = false;
+	m_btnState = BTN_STATE_UNSET;
+	m_normalSprite = nullptr;
+	m_pressedSprite = nullptr;
+	m_disableSprite = nullptr;
+	m_normalScaleSprite = nullptr;
+	m_pressedScaleSprite = nullptr;
+	m_disableScaleSprite = nullptr;
+	m_saveObj = nullptr;
+	m_touchupInsideSelector = nullptr;
+}
+
+TTButton::~TTButton()
+{
+
+}
+
+void  TTButton::setSpriteGray(Node *pNode, bool isGray)
+{
+	if (!pNode){
+		return;
+	}
+	//变颜色
+	if (isGray)
 	{
-		return false;
+		pNode->setScale(1.20f);
+	}
+}
+
+void  TTButton::addAnimation(Node* pNode)
+{
+	if (!pNode){
+		return;
+	}
+	auto shakeAction = CommonFunction::GetShakeAction(ShakeMode::Intensity);
+	pNode->runAction(shakeAction);
+}
+
+bool  TTButton::initWithImages(std::string  strNormal, std::string strSel, std::string strDisable)
+{
+	if (strNormal.empty())
+	{
+		return  false;
+	}
+	//normal
+	SpriteFrame  *   normalFrame = SpriteFrameCache::getInstance()->spriteFrameByName(strNormal.c_str());
+	if (normalFrame)
+	{
+		m_normalSprite = Sprite::createWithSpriteFrame(normalFrame);
+	}
+	if (m_normalSprite == nullptr)
+	{
+		m_normalSprite = Sprite::create(strNormal.c_str());
 	}
 
-	auto l = LayerColor::create();
-	if (l)
+	if (m_normalSprite == nullptr)
 	{
-		l->setColor(Color3B::BLACK);
-		l->setPosition(CommonFunction::getVisibleAchor(Anchor::Center, Vec2(0, 0)));
-		addChild(l);
+		return  false;
+	}
+	else
+	{
+		m_normalSprite->setAnchorPoint(Vec2::ZERO);
+		m_normalSprite->setPosition(Vec2::ZERO);
+		this->addChild(m_normalSprite);
+		this->setContentSize(m_normalSprite->getContentSize());
 	}
 
-
-	 _tiled =  TMXTiledMap::create("tiledmap/map_15.tmx");
-	_tiled->setAnchorPoint(Vec2(0.5, 0.5));
-	_tiled->setPosition(CommonFunction::getVisibleAchor(Anchor::Center,Vec2(0,0)));
-	addChild(_tiled, 0);
-
-	mapLayer = _tiled->getLayer("map");
-	typeLayer = _tiled->getLayer("type");
-	//typeLayer->setVisible();
-
-	Button * but = Button::create("button/set.png");
-	if (but)
+	//sel
+	if (strSel.empty())
 	{
-		but->setPosition(CommonFunction::getVisibleAchor(Anchor::MidButtom, _tiled,Vec2(0, -100)));
-		_tiled->addChild(but);
-		but->addClickEventListener(CC_CALLBACK_0(TTButton::callFunc, this));
+		SpriteFrame  *   normalFrame = SpriteFrameCache::getInstance()->spriteFrameByName(strNormal.c_str());
+		if (normalFrame)
+		{
+			m_pressedSprite = Sprite::createWithSpriteFrame(normalFrame);
+		}
+		if (m_pressedSprite == nullptr)
+		{
+			m_pressedSprite = Sprite::create(strNormal.c_str());
+		}
 	}
+	else
+	{
+		SpriteFrame  *   selFrame = SpriteFrameCache::getInstance()->spriteFrameByName(strSel.c_str());
+		if (selFrame)
+		{
+			m_pressedSprite = Sprite::createWithSpriteFrame(selFrame);
+		}
+		if (m_pressedSprite == nullptr)
+		{
+			m_pressedSprite = Sprite::create(strSel.c_str());
+		}
+	}
+
+	if (m_pressedSprite)
+	{
+		m_pressedSprite->setAnchorPoint(Vec2::ZERO);
+		m_pressedSprite->setPosition(Vec2::ZERO);
+		this->addChild(m_pressedSprite);
+	}
+
+	//disabel
+	if (strDisable.empty())
+	{
+		SpriteFrame  *   normalFrame = SpriteFrameCache::getInstance()->spriteFrameByName(strNormal.c_str());
+		if (normalFrame)
+		{
+			m_disableSprite = Sprite::createWithSpriteFrame(normalFrame);
+		}
+		if (m_disableSprite == nullptr)
+		{
+			m_disableSprite = Sprite::create(strNormal.c_str());
+		}
+
+		//如果是用  normal处理的，那么灰化
+		if (m_disableSprite)
+		{
+			//setSpriteGray(m_disableSprite, true);
+		}
+	}
+	else
+	{
+		SpriteFrame  *   disableFrame = SpriteFrameCache::getInstance()->spriteFrameByName(strDisable.c_str());
+		if (disableFrame)
+		{
+			m_disableSprite = Sprite::createWithSpriteFrame(disableFrame);
+		}
+		if (m_disableSprite == nullptr)
+		{
+			m_disableSprite = Sprite::create(strDisable.c_str());
+		}
+	}
+
+	if (m_disableSprite)
+	{
+		m_disableSprite->setAnchorPoint(Vec2::ZERO);
+		m_disableSprite->setPosition(Vec2::ZERO);
+		this->addChild(m_disableSprite);
+	}
+	//显示正常状态
+	this->setUnSelected();
 	return true;
 }
 
-void  TTButton::callFunc()
+bool  TTButton::initWithImage(std::string  strNormal)
 {
-	unsigned int gidnum = typeLayer->getTileGIDAt(Vec2(0,0));
+	return  this->initWithImages(strNormal, "", "");
+}
 
-	unsigned int num1 = typeLayer->getTileGIDAt(Vec2(0, 5));
-	Value typevalue1 = _tiled->getPropertiesForGID(num1);
-	int type1 = typevalue1.asValueMap()["type"].asInt();
-	log("(0,5)type1:%d", type1);
+bool  TTButton::initWithImages(std::string  strNormal, std::string strSel, std::string strDisable, Size   rectSize)
+{
+	if (strNormal.empty())
+	{
+		return  false;
+	}
+	
+	//normal
+	SpriteFrame  *normalFrame = SpriteFrameCache::getInstance()->spriteFrameByName(strNormal.c_str());
+	if (normalFrame)
+	{
+		m_normalScaleSprite = Scale9Sprite::createWithSpriteFrame(normalFrame);
+	}
+	if (m_normalScaleSprite == nullptr)
+	{
+		m_normalScaleSprite = Scale9Sprite::create(strNormal.c_str());
+	}
 
-	typeLayer->setTileGID(gidnum,Vec2(0,5));
+	if (m_normalScaleSprite == nullptr)
+	{
+		return  false;
+	}
+	else
+	{
+		m_normalScaleSprite->setContentSize(rectSize);
+		m_normalScaleSprite->setAnchorPoint(Vec2::ZERO);
+		m_normalScaleSprite->setPosition(Vec2::ZERO);
+		this->addChild(m_normalScaleSprite);
+		//set  contentSize
+		this->setContentSize(rectSize);
+	}
+	//sel
+	if (strSel.empty())
+	{
+		SpriteFrame  *   normalFrame = SpriteFrameCache::getInstance()->spriteFrameByName(strNormal.c_str());
+		if (normalFrame)
+		{
+			m_pressedScaleSprite = Scale9Sprite::createWithSpriteFrame(normalFrame);
+		}
+		if (m_pressedScaleSprite == nullptr)
+		{
+			m_pressedScaleSprite = Scale9Sprite::create(strNormal.c_str());
+		}
+	}
+	else
+	{
+		SpriteFrame  *   selFrame = SpriteFrameCache::sharedSpriteFrameCache()->spriteFrameByName(strSel.c_str());
+		if (selFrame)
+		{
+			m_pressedScaleSprite = Scale9Sprite::createWithSpriteFrame(selFrame);
+		}
+		if (m_pressedScaleSprite == nullptr)
+		{
+			m_pressedScaleSprite = Scale9Sprite::create(strSel.c_str());
+		}
+	}
 
-	unsigned int num = typeLayer->getTileGIDAt(Vec2(0,5));
-	Value typevalue = _tiled->getPropertiesForGID(num);
-	int type = typevalue.asValueMap()["type"].asInt();
-	log("(0,5)type:%d",type);
+	if (m_pressedScaleSprite)
+	{
+		m_pressedScaleSprite->setContentSize(rectSize);
+		m_pressedScaleSprite->setAnchorPoint(Vec2::ZERO);
+		m_pressedScaleSprite->setPosition(Vec2::ZERO);
+		this->addChild(m_pressedScaleSprite);
+	}
+	//disabel
+	if (strDisable.empty())
+	{
+		SpriteFrame  *   normalFrame = SpriteFrameCache::getInstance()->spriteFrameByName(strNormal.c_str());
+		if (normalFrame)
+		{
+			m_disableScaleSprite = Scale9Sprite::createWithSpriteFrame(normalFrame);
+		}
+		if (m_disableScaleSprite == nullptr)
+		{
+			m_disableScaleSprite = Scale9Sprite::create(strNormal.c_str());
+		}
+		//如果是用  normal处理的，那么灰化
+		if (m_disableScaleSprite)
+		{
+			setSpriteGray(m_disableScaleSprite, true);
+		}
+	}
+	else
+	{
+		SpriteFrame  *   disableFrame = SpriteFrameCache::getInstance()->spriteFrameByName(strDisable.c_str());
+		if (disableFrame)
+		{
+			m_disableScaleSprite = Scale9Sprite::createWithSpriteFrame(disableFrame);
+		}
+		if (m_disableScaleSprite == nullptr)
+		{
+			m_disableScaleSprite = Scale9Sprite::create(strDisable.c_str());
+		}
+	}
+	if (m_disableScaleSprite)
+	{
+		m_disableScaleSprite->setContentSize(rectSize);
+		m_disableScaleSprite->setAnchorPoint(Vec2::ZERO);
+		m_disableScaleSprite->setPosition(Vec2::ZERO);
+		this->addChild(m_disableScaleSprite);
+	}
+	//显示正常状态
+	this->setUnSelected();
+	return true;
+}
+
+bool  TTButton::initWithImage(std::string  strNormal, Size  rectSize)
+{
+	return  this->initWithImages(strNormal, "", "", rectSize);
+}
+
+void  TTButton::upDateImageForState(BTN_STATE  btnState, Texture2D *texture)
+{
+	if (texture == nullptr)
+	{
+		return;
+	}
+
+	if (btnState == BTN_STATE_NORMAL)
+	{
+		if (m_normalSprite)
+		{
+			m_normalSprite->setTexture(texture);
+		}
+	}
+
+	if (btnState == BTN_STATE_PRESS)
+	{
+		if (m_pressedSprite)
+		{
+			m_pressedSprite->setTexture(texture);
+		}
+	}
+
+	if (btnState == BTN_STATE_DISABLE)
+	{
+		if (m_disableSprite)
+		{
+			m_disableSprite->setTexture(texture);
+		}
+	}
+}
+
+TTButton *TTButton::createWithImage(std::string  strNormal)
+{
+	TTButton *  pRet = new  TTButton();
+	if (pRet  &&  pRet->initWithImage(strNormal))
+	{
+		pRet->autorelease();
+	}
+	else
+	{
+		delete pRet;
+		pRet = nullptr;
+		return nullptr;
+	}
+	return  pRet;
+}
+
+TTButton *TTButton::createWithImages(std::string  strNormal, std::string strSel, std::string strDisable)
+{
+	TTButton *  pRet = new  TTButton();
+	if (pRet  &&  pRet->initWithImages(strNormal, strSel, strDisable))
+	{
+		pRet->autorelease();
+	}
+	else
+	{
+		delete  pRet;
+		pRet = nullptr;
+		return nullptr;
+	}
+	return  pRet;
+}
+
+TTButton *TTButton::createWithImage(std::string  strNormal, Size   rectSize)
+{
+	TTButton * pRet = new TTButton();
+	if (pRet && pRet->initWithImage(strNormal, rectSize))
+	{
+		pRet->autorelease();
+	}
+	else
+	{
+		CC_SAFE_DELETE(pRet);
+		return nullptr;
+	}
+	return pRet;
+}
+
+TTButton *TTButton::createWithImages(std::string  strNormal, std::string strSel, std::string strDisable, Size   rectSize)
+{
+	TTButton  * pRet = new  TTButton;
+	if (pRet && pRet->initWithImages(strNormal, strSel, strDisable, rectSize))
+	{
+		pRet->autorelease();
+	}
+	else
+	{
+		CC_SAFE_DELETE(pRet);
+		return nullptr;
+	}
+	return pRet;
+}
+
+void  TTButton::setColorForState(BTN_STATE btnState, Color3B  color)
+{
+	switch (btnState)
+	{
+	case BTN_STATE_NORMAL:
+	{
+		if (m_normalSprite)
+		{
+			m_normalSprite->setColor(color);
+		}
+
+		if (m_normalScaleSprite)
+		{
+			m_normalScaleSprite->setColor(color);
+		}
+	}
+	break;
+	case  BTN_STATE_PRESS:
+	{
+		if (m_pressedSprite)
+		{
+			m_pressedSprite->setColor(color);
+		}
+		if (m_pressedScaleSprite)
+		{
+			m_pressedScaleSprite->setColor(color);
+		}
+	}
+	break;
+	case   BTN_STATE_DISABLE:
+	{
+		if (m_disableSprite)
+		{
+			m_disableSprite->setColor(color);
+		}
+
+		if (m_disableScaleSprite)
+		{
+			m_disableScaleSprite->setColor(color);
+		}
+	}
+	break;
+
+	default:
+		break;
+	}
+}
+
+void  TTButton::upDateStatusUI()
+{
+	switch (m_btnState)
+	{
+	case BTN_STATE_PRESS:
+	{
+		if (m_normalSprite)
+		{
+			m_normalSprite->setVisible(false);
+		}
+		if (m_normalScaleSprite)
+		{
+			m_normalScaleSprite->setVisible(false);
+		}
+
+		if (m_disableSprite)
+		{
+			m_disableSprite->setVisible(false);
+		}
+		if (m_disableScaleSprite)
+		{
+			m_disableScaleSprite->setVisible(false);
+		}
+
+		if (m_pressedSprite)
+		{
+			m_pressedSprite->setVisible(true);
+		}
+		if (m_pressedScaleSprite)
+		{
+			m_pressedScaleSprite->setVisible(true);
+		}
+	}
+		break;
+
+	case  BTN_STATE_NORMAL:
+	{
+		if (m_normalSprite)
+		{
+			m_normalSprite->setVisible(true);
+		}
+		if (m_normalScaleSprite)
+		{
+			m_normalScaleSprite->setVisible(true);
+		}
+		if (m_disableSprite)
+		{
+			m_disableSprite->setVisible(false);
+		}
+		if (m_disableScaleSprite)
+		{
+			m_disableScaleSprite->setVisible(false);
+		}
+		if (m_pressedSprite)
+		{
+			m_pressedSprite->setVisible(false);
+		}
+		if (m_pressedScaleSprite)
+		{
+			m_pressedScaleSprite->setVisible(false);
+		}
+	}
+		break;
+
+	case  BTN_STATE_DISABLE:
+	{
+		if (m_normalSprite)
+							   {
+			m_normalSprite->setVisible(false);
+		}
+		if (m_normalScaleSprite)
+		{
+			m_normalScaleSprite->setVisible(false);
+		}
+		if (m_disableSprite)
+		{
+			m_disableSprite->setVisible(true);
+		}
+		if (m_disableScaleSprite)
+		{
+			m_disableScaleSprite->setVisible(true);
+		}
+		if (m_pressedSprite)
+		{
+			m_pressedSprite->setVisible(false);
+		}
+		if (m_disableScaleSprite)
+		{
+			m_disableScaleSprite->setVisible(false);
+		}
+	}
+		break;
+
+	default:
+		break;
+	}
+}
+
+void  TTButton::setSelected()
+{
+	m_bSelected = true;
+	m_btnState = BTN_STATE_NORMAL;
+	upDateStatusUI();
+}
+
+void  TTButton::setUnSelected()
+{
+	m_bSelected = false;
+	m_btnState = BTN_STATE_PRESS;
+	upDateStatusUI();
+}
+
+void  TTButton::setIsDisable(bool  bDisabel)
+{
+	m_bDisabled = bDisabel;
+	if (bDisabel)
+	{
+		m_btnState = BTN_STATE_DISABLE;
+	}
+	else
+	{
+		m_btnState = BTN_STATE_NORMAL;
+	}
+	upDateStatusUI();
+}
+
+BTN_STATE  TTButton::getCurState()
+{
+	return   m_btnState;
+}
+
+void TTButton::addTouchupInsideHandle(Node  * target, SEL_CallFuncO selector)
+{
+	m_target = target;
+	m_touchupInsideSelector = selector;
+}
+
+bool TTButton::isTouchInvalidated(Touch* touch)
+{
+	Vec2 touchLocation = touch->getLocation();
+	Vec2 localLocation = convertToNodeSpace(touchLocation);
+	Rect   rc = Rect(
+		0,
+		0,
+		getContentSize().width,
+		getContentSize().height
+		);
+	if (rc.containsPoint(localLocation))
+	{
+		return  true;
+	}
+	else
+	{
+		return  false;
+	}
+}
+
+void TTButton::onEnter()
+{
+	Layer::onEnter();
+	//touch event
+	auto listener = EventListenerTouchOneByOne::create();
+	listener->onTouchBegan = CC_CALLBACK_2(TTButton::onTouchBegan,this);
+	listener->onTouchMoved = CC_CALLBACK_2(TTButton::onTouchMoved, this);
+	listener->onTouchEnded = CC_CALLBACK_2(TTButton::onTouchEnded, this);
+	listener->onTouchCancelled = CC_CALLBACK_2(TTButton::onTouchCancelled, this);
+	_eventDispatcher->addEventListenerWithSceneGraphPriority(listener,this);
+}
+
+void TTButton::onExit()
+{
+	Layer::onExit();
+}
+
+bool TTButton::onTouchBegan(Touch *touch, Event *unused_event)
+{
+	//如果是disabled的状态，那么就返回false
+	if (m_btnState == BTN_STATE_DISABLE)
+	{
+		return  false;
+	}
+	//如果自己不可见，那么返回false
+	if (isVisible() == false)
+	{
+		return  false;
+	}
+	//如果有parent不可见，那么返回false
+	Node  * parent = nullptr;
+	for (parent = this->getParent(); parent != nullptr; parent = parent->getParent())
+	{
+		if (parent->isVisible() == false)
+		{
+			return  false;
+		}
+	}
+	//然后判断是否是在自己的范围内
+	if (isTouchInvalidated(touch))
+	{
+		if (m_bSelected)
+		{
+			m_btnState = BTN_STATE_NORMAL;
+		}
+		else
+		{
+			m_btnState = BTN_STATE_PRESS;
+			//todo 添加动画
+			addAnimation(m_pressedSprite);
+		}
+		upDateStatusUI();
+		return  true;
+	}
+
+	return  false;
+}
+void TTButton::onTouchMoved(Touch *touch, Event *unused_event)
+{
+	//如果是有效范围内，那么设置selected状态
+	if (isTouchInvalidated(touch))
+	{
+		if (m_bSelected)
+		{
+			m_btnState = BTN_STATE_NORMAL;
+		}
+		else
+		{
+			m_btnState = BTN_STATE_PRESS;
+		}
+		upDateStatusUI();
+	}
+	else
+	{
+		if (m_bSelected)
+		{
+			m_btnState = BTN_STATE_PRESS;
+		}
+		else
+		{
+			m_btnState = BTN_STATE_NORMAL;
+		}
+		upDateStatusUI();
+	}
+}
+
+void TTButton::onTouchEnded(Touch *touch, Event *unused_event)
+{
+	//然后判断是否是在自己的范围内
+	if (isTouchInvalidated(touch))
+	{
+		/*if (m_bSelected)
+		{
+			setUnSelected();
+		}
+		else
+		{
+			setSelected();
+		}*/
+		if (m_target  && m_touchupInsideSelector)
+		{
+			(m_target->*m_touchupInsideSelector)(this);
+		}
+	}
+}
+
+void TTButton::onTouchCancelled(Touch *touch, Event *unused_event)
+{
+	if (m_btnState != BTN_STATE_DISABLE)
+	{
+		//this->setUnSelected();
+	}
 }

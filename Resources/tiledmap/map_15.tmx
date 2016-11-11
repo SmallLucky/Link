@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <map version="1.0" orientation="orthogonal" renderorder="right-down" width="6" height="6" tilewidth="100" tileheight="100" nextobjectid="1">
- <tileset firstgid="1" name="bg_kuang" tilewidth="100" tileheight="100" tilecount="1" columns="1">
+ <tileset firstgid="1" name="bg_kuang" tilewidth="100" tileheight="100" tilecount="1">
   <image source="bg_kuang.png" width="100" height="100"/>
  </tileset>
- <tileset firstgid="2" name="type" tilewidth="100" tileheight="100" tilecount="2" columns="2">
-  <image source="type.png" width="200" height="100"/>
+ <tileset firstgid="2" name="type5" tilewidth="100" tileheight="100" tilecount="5">
+  <image source="type5.png" width="500" height="100"/>
   <tile id="0">
    <properties>
     <property name="type" value="1"/>
@@ -12,18 +12,23 @@
   </tile>
   <tile id="1">
    <properties>
-    <property name="type" value="2"/>
+    <property name="type" value="5"/>
+   </properties>
+  </tile>
+  <tile id="2">
+   <properties>
+    <property name="type" value="6"/>
    </properties>
   </tile>
  </tileset>
  <layer name="map" width="6" height="6">
-  <data encoding="base64" compression="gzip">
-   H4sIAAAAAAAAC2NkYGBgHEQYAK1I0PKQAAAA
+  <data encoding="base64" compression="zlib">
+   eJxjZGBgYBxEGAAK+AAl
   </data>
  </layer>
  <layer name="type" width="6" height="6">
-  <data encoding="base64" compression="gzip">
-   H4sIAAAAAAAAC2NiYGBgojFmxoGxqQUAn3qZz5AAAAA=
+  <data encoding="base64" compression="zlib">
+   eJxjYmBgYCIBs0AxNj66ODHmMUMxjA8AGSQAVw==
   </data>
  </layer>
 </map>

@@ -48,7 +48,7 @@ void LoserLayer::addUI()
 	levelnumbg->setPosition(CommonFunction::getVisibleAchor(Anchor::MidButtom,hong,Vec2(0,0)));
 	hong->addChild(levelnumbg);
 
-	auto level = LabelAtlas::create(Value(GAMEDATA->getCurLevel()).asString(),"fonts/loser_num.png",17,27,'0');
+	auto level = LabelAtlas::create(Value(GAMEDATA->getCurLevel()).asString(),"fonts/loser_num.png",19,27,'0');
 	level->setAnchorPoint(Vec2(0.5,0.5));
 	level->setPosition(CommonFunction::getVisibleAchor(Anchor::Center,levelnumbg,Vec2(0,0)));
 	levelnumbg->addChild(level);

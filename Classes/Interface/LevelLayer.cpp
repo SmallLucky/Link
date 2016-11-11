@@ -49,13 +49,13 @@ bool LevelLayer::init()
 	minutsNum = 0;
 	visibleSize = Director::getInstance()->getVisibleSize();
 
-	Sprite* bg1 = Sprite::create("bg/bg_1.png");
-	if (bg1)
-	{
-		bg1->setAnchorPoint(Vec2(0.5, 0));
-		bg1->setPosition(CommonFunction::getVisibleAchor(Anchor::MidButtom, Vec2(0, 0)));
-		addChild(bg1);
-	}
+	//Sprite* bg1 = Sprite::create("bg/bg_1.png");
+	//if (bg1)
+	//{
+	//	bg1->setAnchorPoint(Vec2(0.5, 0));
+	//	bg1->setPosition(CommonFunction::getVisibleAchor(Anchor::MidButtom, Vec2(0, 0)));
+	//	addChild(bg1);
+	//}
 
 	addScrollView();
 	addLevelButton();
@@ -109,13 +109,14 @@ bool LevelLayer::init()
 
 void	LevelLayer::addScrollView()
 {
+	Texture2D* t = TextureCache::getInstance()->getTextureForKey("bg/bg_1.png");
 
 	scrollview = ScrollView::create();
 	if (scrollview)
 	{
 		scrollview->setAnchorPoint(Vec2(0.5, 0));
 		scrollview->setContentSize(Director::getInstance()->getVisibleSize());
-		scrollview->setInnerContainerSize(Size(visibleSize.width, 10375));
+		scrollview->setInnerContainerSize(Size(visibleSize.width, 9*1136));
 		scrollview->setDirection(ScrollView::Direction::VERTICAL);
 		scrollview->setBackGroundColor(Color3B::GRAY);
 		scrollview->setBackGroundColorOpacity(0);
@@ -141,16 +142,28 @@ void	LevelLayer::addScrollView()
 		//scrollview->jumpToPercentVertical(p);
 		scrollview->scrollToPercentVertical(p, 5.0, true);
 		addChild(scrollview);
-		for (int i = 0; i < 3; i++)
+		for (int i = 0; i < 9; i++)
 		{
-			auto bg = Sprite::create("bg/bg_1.png");
+		log("big image **");
+		string str = StringUtils::format("bg/bg_0%d.png",i);
+			auto bg = Sprite::create(str);
+			//auto bg = Sprite::createWithTexture(t);
 			if (bg)
 			{
+				log("big image");
 				bg->setAnchorPoint(Vec2(0.5, 0));
-				bg->setPosition(CommonFunction::getVisibleAchor(Anchor::MidButtom, scrollview, Vec2(0, i*bg->getContentSize().height)));
+				bg->setPosition(CommonFunction::getVisibleAchor(Anchor::MidButtom, scrollview, Vec2(0, i*bg->getContentSize().height)));//i*bg->getContentSize().height
 				scrollview->addChild(bg);
 			}
 		}
+
+			//auto light = Sprite::create("popbox/");
+			//light->setPosition(CommonFunction::getVisibleAchor(Anchor::Center, scrollview, Vec2(GAMEDATA->getOffsetX(index), GAMEDATA->getOffsetY(index))));
+			//scrollview->addChild(light);
+		ParticleSystem * efft = ParticleSystemQuad::create("effect/particle_1.plist");
+		//ParticleSystem* m_emitter1 = ParticleSystemQuad::create("effect/particle_1.plist");
+		efft->setPosition(CommonFunction::getVisibleAchor(Anchor::MidButtom, scrollview, Vec2(GAMEDATA->getOffsetX(index), GAMEDATA->getOffsetY(index))));
+		scrollview->addChild(efft);
 	}
 
 }
@@ -181,7 +194,7 @@ void	LevelLayer::addUI()
 					addChild(layer);
 				});
 
-				powerNum = LabelAtlas::create(Value(GAMEDATA->getPowerNum()).asString(), "fonts/level_fonts.png", 30, 30, '0');
+				powerNum = LabelAtlas::create(Value(GAMEDATA->getPowerNum()).asString(), "fonts/power_shopnum.png", 26, 32, '0');
 				if (powerNum)
 				{
 					powerNum->setAnchorPoint(Vec2(0.5, 0.5));
@@ -199,7 +212,7 @@ void	LevelLayer::addUI()
 				small_kuang->addChild(addbutton);
 				addbutton->addClickEventListener(CC_CALLBACK_0(LevelLayer::addCallBack, this));
 
-				moneyNum = LabelAtlas::create(Value(GAMEDATA->getMoneyNum()).asString(), "fonts/level_fonts.png", 30, 30, '0');
+				moneyNum = LabelAtlas::create(Value(GAMEDATA->getMoneyNum()).asString(), "fonts/power_shopnum.png", 26, 32, '0');
 				moneyNum->setAnchorPoint(Vec2(0.5, 0.5));
 				moneyNum->setPosition(CommonFunction::getVisibleAchor(Anchor::Center, small_kuang, Vec2(10, 0)));
 				small_kuang->addChild(moneyNum);
@@ -214,7 +227,7 @@ void	LevelLayer::addUI()
 				small_kuang->addChild(addbutton);
 				addbutton->addClickEventListener(CC_CALLBACK_0(LevelLayer::addCallBack, this));
 
-				loveNum = LabelAtlas::create(Value(GAMEDATA->getLoveNum()).asString(), "fonts/level_fonts.png", 30, 30, '0');
+				loveNum = LabelAtlas::create(Value(GAMEDATA->getLoveNum()).asString(), "fonts/power_shopnum.png", 26, 32, '0');
 				loveNum->setAnchorPoint(Vec2(0.5, 0.5));
 				loveNum->setPosition(CommonFunction::getVisibleAchor(Anchor::Center, small_kuang, Vec2(10, 0)));
 				small_kuang->addChild(loveNum);
@@ -246,7 +259,7 @@ void  LevelLayer::timeUI() //
 	log("tt:%ld   %d:%d", tt,mt,st);
 	
 	minutsNum = mt - UserDefault::getInstance()->getIntegerForKey("MIN_TIME",0);
-	minutes = LabelAtlas::create(Value(9 - (minutsNum%10)).asString(), "fonts/level_fonts.png", 30, 30, '0');
+	minutes = LabelAtlas::create(Value(9 - (minutsNum%10)).asString(), "fonts/power_shopnum.png", 26, 32, '0');
 	minutes->setPosition(CommonFunction::getVisibleAchor(Anchor::MidButtom,powerNum,Vec2(0,-40)));
 	minutes->setAnchorPoint(Vec2(1,0.5));
 	powerNum->addChild(minutes);
@@ -254,7 +267,7 @@ void  LevelLayer::timeUI() //
 	f->setPosition(CommonFunction::getVisibleAchor(Anchor::RightMid, minutes, Vec2(5, 0)));
 	f->setAnchorPoint(Vec2(0.5, 0.5));
 	minutes->addChild(f);
-	seconds = LabelAtlas::create(Value(59 - (st%60)).asString(), "fonts/level_fonts.png", 30, 30, '0');
+	seconds = LabelAtlas::create(Value(59 - (st%60)).asString(), "fonts/power_shopnum.png", 26, 32, '0');
 	seconds->setPosition(CommonFunction::getVisibleAchor(Anchor::RightMid , minutes,Vec2(10,0)));
 	seconds->setAnchorPoint(Vec2(0, 0.5));
 	minutes->addChild(seconds);
@@ -285,11 +298,13 @@ void  LevelLayer::setTimeUI() //
 			UserDefault::getInstance()->setIntegerForKey("GAME_TIME", 0);
 			UserDefault::getInstance()->setIntegerForKey("MIN_TIME", 0);
 			//移除时间label
-			minutes->removeFromParent();
-			minutes = nullptr;
-			//关闭定时器
-			this->unscheduleUpdate();
-
+			if (minutes)
+			{
+				minutes->removeFromParent();
+				minutes = nullptr;
+				//关闭定时器
+				this->unscheduleUpdate();
+			}
 		}
 	}
 }
@@ -314,7 +329,7 @@ void LevelLayer::addLevelButton()
 		testButton->setPosition(CommonFunction::getVisibleAchor(Anchor::MidButtom, scrollview, Vec2(GAMEDATA->getOffsetX(i),  GAMEDATA->getOffsetY(i))));
 		scrollview->addChild(testButton);
 		testButton->setTag(i);
-		auto level_num = LabelAtlas::create(Value(i +1).asString(),"fonts/level_fonts.png",30,30,'0');
+		auto level_num = LabelAtlas::create(Value(i +1).asString(),"fonts/power_shopnum.png",26,32,'0');
 		level_num->setAnchorPoint(Vec2(0.5,0.5));
 		level_num->setPosition(CommonFunction::getVisibleAchor(Anchor::Center, testButton, Vec2(0,0)));
 		testButton->addChild(level_num);
@@ -334,6 +349,14 @@ void LevelLayer::addLevelButton()
 			ObjectiveLayer* layer = ObjectiveLayer::create();
 			addChild(layer);
 		});
+
+		//if (GameData::getInstance()->m_lock[i] == 1 && GameData::getInstance()->m_lock[i - 1] == 0)
+		//{
+		//	ParticleSystem * efft = ParticleSystemQuad::create("effect/particle_1.plist");
+		//	//ParticleSystem* m_emitter1 = ParticleSystemQuad::create("effect/particle_1.plist");
+		//	efft->setPosition(CommonFunction::getVisibleAchor(Anchor::MidButtom, scrollview, Vec2(GAMEDATA->getOffsetX(i - 1), GAMEDATA->getOffsetY(i - 1))));
+		//	scrollview->addChild(efft);
+		//}
 	}
 
 }

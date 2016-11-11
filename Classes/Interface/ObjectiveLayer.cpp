@@ -42,7 +42,7 @@ void ObjectiveLayer::addUI()
 	level->setPosition(CommonFunction::getVisibleAchor(Anchor::Center,hong,Vec2(-40,15)));
 	hong->addChild(level);
 
-	auto num = LabelAtlas::create(Value(GAMEDATA->getCurLevel()+1).asString(),"fonts/levelNumber.png",23,38,'0');
+	auto num = LabelAtlas::create(Value(GAMEDATA->getCurLevel()+1).asString(),"fonts/levelNumber.png",32,50,'0');
 	num->setPosition(CommonFunction::getVisibleAchor(Anchor::RightMid, level, Vec2(10, 0)));
 	num->setAnchorPoint(Vec2(0,0.5));
 	level->addChild(num);
@@ -55,7 +55,7 @@ void ObjectiveLayer::addUI()
 	target_bg->setPosition(CommonFunction::getVisibleAchor(Anchor::Center, di_kuang, Vec2(-80, 50)));
 	di_kuang->addChild(target_bg);
 
-	auto targetNum = LabelAtlas::create(Value(GAMEDATA->getTargetScore(GAMEDATA->getCurLevel())).asString(),"fonts/targetNumber.png",30,48,'0');
+	auto targetNum = LabelAtlas::create(Value(GAMEDATA->getTargetScore(GAMEDATA->getCurLevel())).asString(),"fonts/targetNumber.png",36,50,'0');
 	targetNum->setPosition(CommonFunction::getVisibleAchor(Anchor::MidButtom,target_bg,Vec2(0,-20)));
 	targetNum->setAnchorPoint(Vec2(0.5,1));
 	target_bg->addChild(targetNum);
@@ -64,7 +64,7 @@ void ObjectiveLayer::addUI()
 	count_bg->setPosition(CommonFunction::getVisibleAchor(Anchor::Center,di_kuang,Vec2(100,50)));
 	di_kuang->addChild(count_bg);
 
-	auto countNum = LabelAtlas::create(Value(GAMEDATA->getCount(GAMEDATA->getCurLevel())).asString(), "fonts/countNumber.png", 30, 48, '0');
+	auto countNum = LabelAtlas::create(Value(GAMEDATA->getCount(GAMEDATA->getCurLevel())).asString(), "fonts/countNumber.png", 36, 50, '0');
 	countNum->setPosition(CommonFunction::getVisibleAchor(Anchor::MidButtom,count_bg,Vec2(0,-20)));
 	countNum->setAnchorPoint(Vec2(0.5, 1));
 	count_bg->addChild(countNum);

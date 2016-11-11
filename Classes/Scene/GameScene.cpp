@@ -103,16 +103,18 @@ void GameScene::addUI()
 
 		if (i==0)
 		{
-			refreshNum = LabelAtlas::create(Value(GAMEDATA->getRefresh()).asString(), "fonts/game_propsnum.png", 16, 20, '0');
+			refreshNum = LabelAtlas::create(Value(GAMEDATA->getRefresh()).asString(), "fonts/game_propsnum.png", 20, 24, '0');
 			refreshNum->setPosition(CommonFunction::getVisibleAchor(Anchor::Center, numbg, Vec2(0, 0)));
 			refreshNum->setAnchorPoint(Vec2(0.5, 0.5));
+			refreshNum->setScale(0.6);
 			numbg->addChild(refreshNum);
 		}
 		if (i==1)
 		{
-			boombNum = LabelAtlas::create(Value(GAMEDATA->getBoomb()).asString(), "fonts/game_propsnum.png", 16, 20, '0');
+			boombNum = LabelAtlas::create(Value(GAMEDATA->getBoomb()).asString(), "fonts/game_propsnum.png", 20, 24, '0');
 			boombNum->setPosition(CommonFunction::getVisibleAchor(Anchor::Center, numbg, Vec2(0, 0)));
 			boombNum->setAnchorPoint(Vec2(0.5, 0.5));
+			boombNum->setScale(0.6);
 			numbg->addChild(boombNum);
 		}
 

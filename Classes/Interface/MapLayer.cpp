@@ -123,7 +123,7 @@ bool  MapLayer::checkIsNeedRefresh()
 		{
 			for (int j = max(line - 1, 0); j <= min(line + 1, MATRIX_MLINE - 1); j++) //0,2
 			{
-				if (getElement({i,j}) == 5)
+				if (getElement({ i, j }) == 5 || getElement({ i, j }) == 6)
 				{
 					continue;
 				}
@@ -190,6 +190,10 @@ void MapLayer::removeLink()
 	}
 	else //如果连接的元素个数未达到要求
 	{
+		if (!temp_elementPos.empty())
+		{
+			undoChangeElement();
+		}
 		signClear(); //取消对元素的标记
 		removeAllLine(); //删除连接线
 		if (UserDefault::getInstance()->getBoolForKey("IS_EFFECT",true))
@@ -878,8 +882,8 @@ void  MapLayer::initBlocks()
 //	LOGD(" MapLayer::initBlocks()");
 //#endif
 	string str = StringUtils::format("tiledmap/map_%d.tmx", GAMEDATA->getCurLevel());
-	//_tileMap = TMXTiledMap::create(str);//("TileMaps/hexa-test.tmx");
-	_tileMap = TMXTiledMap::create("tiledmap/map_18.tmx");//("TileMaps/hexa-test.tmx");
+	_tileMap = TMXTiledMap::create(str);//("TileMaps/hexa-test.tmx");
+	//_tileMap = TMXTiledMap::create("tiledmap/map_25.tmx");//("TileMaps/hexa-test.tmx");
 	if (_tileMap)
 	{
 		_tileMap->setAnchorPoint(Vec2(0.5, 0.5));
