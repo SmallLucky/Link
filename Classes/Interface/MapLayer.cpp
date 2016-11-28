@@ -15,7 +15,7 @@ using namespace std;
 #define RATIO   1.0
 
 MapLayer::MapLayer() :isLine(false), green(0), red(0), yellor(0), blue(0), purple(0), elementType(5), line(0), row(0), lastPoint({0,0}),
-isBoom(false), isCount(false), specialScore(0)
+isBoom(false), isCount(false), specialScore(0), containsDis(0.0)
 {
 	//·ÖÅä¸ñ×ÓÔªËØ¿Õ¼ä
 	elements = new ElementUnit* *[MATRIX_ROW];
@@ -44,12 +44,13 @@ isBoom(false), isCount(false), specialScore(0)
 		blocksCenter[i] = new Point[MATRIX_MLINE];
 	}
 	////·ÖÅä¸÷ÔªËØÊıÁ¿¿Õ¼ä
-	elementCount = new int[40]; //×¢ÒâÍòÄÜÔªËØ¿Õ¼ä
+	//--elementCount = new int[40]; //×¢ÒâÍòÄÜÔªËØ¿Õ¼ä
 
 	////·ÖÅäÏû³ı¸öÔªËØµÄÊıÁ¿¿Õ¼ä
-	removeCount = new int[40]; //×¢ÒâÍòÄÜÔªËØ¿Õ¼ä
+	//--removeCount = new int[40]; //×¢ÒâÍòÄÜÔªËØ¿Õ¼ä
 
 	linkBrush.clear();
+	m_effects.clear();
 }
 MapLayer::~MapLayer()
 {
@@ -76,16 +77,18 @@ MapLayer::~MapLayer()
 
 	//»ØÊÕ¸÷ÔªËØÊıÁ¿¿Õ¼ä
 
-	CC_SAFE_DELETE_ARRAY(elementCount);
+	//--CC_SAFE_DELETE_ARRAY(elementCount);
 
 	/*delete[] elementCount;
 	elementCount = nullptr;*/
-	CC_SAFE_DELETE_ARRAY(removeCount);
+	//--CC_SAFE_DELETE_ARRAY(removeCount);
 	//»ØÊÕÏû³ı¸÷ÔªËØµÄÊıÁ¿¿Õ¼ä
 	//delete[] removeCount;
 	//removeCount = nullptr;
 
 	//linkFinishFlag = false;
+	linkBrush.clear();
+	m_effects.clear();
 
 }
 
@@ -95,6 +98,17 @@ bool MapLayer::init()
 	{
 		return false;
 	}
+
+	bool flag = UserDefault::getInstance()->getBoolForKey("IS_MUSIC", true);
+	if (flag)
+	{
+		AudioData::getInstance()->addBgMusic(3);
+	}
+	else
+	{
+		AudioData::getInstance()->stopBgMusic();
+	}
+
 	Size visibleSize = Director::getInstance()->getVisibleSize();
 	mapPoint = { visibleSize.width / 2, visibleSize.height/2 - 80 };
 
@@ -156,7 +170,7 @@ void  MapLayer::refreshAllElement()
 				auto s = ElementUnit::create();
 				if (s)
 				{
-					s->createElement(randElement(), blocksCenter[row][line]);
+					s->createElement(abs(rand() % 5), blocksCenter[row][line]);//randElement()
 					elements[row][line] = s;
 					addChild(elements[row][line]);
 				}
@@ -171,6 +185,7 @@ void MapLayer::removeLink()
 {
 	if (linkIndex.size() >= MIN_ROMOVE_COUNT) //Èç¹ûÁ¬½ÓµÄÔªËØ¸öÊı´ïµ½ÒªÇó
 	{
+		removeTargetECount = 0;
 		removeSignedElement(); //Ïû³ı±»Á¬½ÓµÄÔªËØ
 		removeAllLine(); //É¾³ıÁ¬½ÓÏß	
 		if (getIsLine())
@@ -178,15 +193,18 @@ void MapLayer::removeLink()
 			removeSignSpecial();
 			isLine = false;
 		}
+		else
+		{
+			if (UserDefault::getInstance()->getBoolForKey("IS_EFFECT", true))
+				AudioData::getInstance()->addSpecialEffect(5);
+		}
 		signClear();  
 		linkFinishFlag = true; //Íê³ÉÒ»´ÎÏû³ı
-		if (UserDefault::getInstance()->getBoolForKey("IS_EFFECT",true))
-			SimpleAudioEngine::getInstance()->playEffect(REMOVE_EFFECT); //²¥·ÅÒôĞ§
-		if (UserDefault::getInstance()->getBoolForKey("IS_VIBRATE",true))
-			Vibrator::vibrate(REMOVE_VIBRATOR_TIME); //Õğ¶¯ 
+		//if (UserDefault::getInstance()->getBoolForKey("IS_VIBRATE",true))
+		//	Vibrator::vibrate(REMOVE_VIBRATOR_TIME); //Õğ¶¯ 
 
 		//³É¹¦Ïû³ıÒ»´Î£¬²½Êı¼õÉÙÒ»´Î
-		//removeMyCount();
+		//removeMyCount(); 
 	}
 	else //Èç¹ûÁ¬½ÓµÄÔªËØ¸öÊıÎ´´ïµ½ÒªÇó
 	{
@@ -196,22 +214,20 @@ void MapLayer::removeLink()
 		}
 		signClear(); //È¡Ïû¶ÔÔªËØµÄ±ê¼Ç
 		removeAllLine(); //É¾³ıÁ¬½ÓÏß
-		if (UserDefault::getInstance()->getBoolForKey("IS_EFFECT",true))
-			SimpleAudioEngine::getInstance()->playEffect(WRONG_REMOVE_EFFECT); //²¥·ÅÒôĞ§
-		if (UserDefault::getInstance()->getBoolForKey("IS_VIBRATE",true))
-			Vibrator::vibrate(WRONG_REMOVE_VIBRATOR_TIME); //Õğ¶¯
+		if (UserDefault::getInstance()->getBoolForKey("IS_EFFECT", true))
+			AudioData::getInstance()->addOtherEffect(3);
+		//if (UserDefault::getInstance()->getBoolForKey("IS_VIBRATE",true))
+		//	Vibrator::vibrate(WRONG_REMOVE_VIBRATOR_TIME); //Õğ¶¯
 	}
 
 	linkIndex.clear(); //Çå¿ÕÁ¬ÏßĞòÁĞ
-	//log("removeLink()");
+	m_effects.clear();
+	linkBrush.clear();
 }
 
 //Ïû³ı±»±ê¼ÇµÄÔªËØ£¬·µ»ØÏû³ı¸öÊı
 int		MapLayer::removeSignedElement()
 {
-//#if(CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
-//	LOGD("MapLayer::removeSignedElement()");
-//#endif
 	removeAllCount = 0;
 	ERGODIC_MBLOCK(row,line)
 	{
@@ -224,74 +240,163 @@ int		MapLayer::removeSignedElement()
 					isLine = true;
 					specialSignElement(elements[row][line]->getElement(), { row, line });
 				}
+				int ele = removeElement(row, line);
+				//--removeCount[ele]++; //Ïû³ı±ê¼ÇµÄÔªËØ
+				removeAllCount++;
+				if (ele >= 10 && ele < 20)
+				{
+					showLineEffect(blocksCenter[row][line]);
+				}
+				if (ele >= 20 && ele < 30)
+				{
+					showRowEffect(blocksCenter[row][line]);
+				}
+				if (ele >= 30 && ele < 40)
+				{
+					//showBoomEffect(blocksCenter[row][line]);
+				}
+				removeBeEliminate(row, line);//
 			}
-			int ele = removeElement(row, line);
-			removeCount[ele]++; //Ïû³ı±ê¼ÇµÄÔªËØ
-			removeAllCount++;
-			if (ele >= 10 && ele < 20)
-			{
-				showLineEffect(blocksCenter[row][line]);
-			}
-			if (ele >= 20 && ele < 30)
-			{
-				showRowEffect(blocksCenter[row][line]);
-			}
-			if (ele >= 30 && ele < 40)
-			{
-				//showBoomEffect(blocksCenter[row][line]);
-			}
-			removeBeEliminate(row,line);//
 		}
 	}
 	//signClear();
-	log("getElementType()=%d", getElementType());
-	if (getElementType() == 2)
+	if (getElementType()%10 == 2)
 	{
 		green += removeAllCount;
-		log("green:%d",green);
+		//log("green:%d",green);
+		eventTargetElement(2, removeAllCount);
 	}
-	if (getElementType() == 0)
+	if (getElementType() % 10 == 0)
 	{
 		blue += removeAllCount;
-		log("blue:%d",blue);
+		eventTargetElement(0, removeAllCount);
 	}
-	if (getElementType() == 1)
+	if (getElementType() % 10 == 1)
 	{
 		purple += removeAllCount;
-		log("purple:%d",purple);
+		eventTargetElement(1, removeAllCount);
 	}
-	if (getElementType() == 3)
+	if (getElementType() % 10 == 3)
 	{
 		red += removeAllCount;
-		log("red:%d",red);
+		eventTargetElement(3, removeAllCount);
 	}
-	if (getElementType() == 4)
+	if (getElementType() % 10 == 4)
 	{
 		yellor += removeAllCount;
-		log("yellor:%d",yellor);
+		eventTargetElement(4, removeAllCount);
 	}
+	log("removeTargetECount:%d",removeTargetECount);
+#if(CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
+	LOGD("removeSignedElement");
+#endif
+
 	return removeAllCount;
 }
 
 //¼ì²â²¢Ïû³ı¿ÉÒÔ±»Ïû³ıµÄÔªËØ£¬¸Ä±ätypeÖµ
 void MapLayer::removeBeEliminate(int r, int l)
 {
-	for (int i = max(r - 1, 0); i <= min(r + 1, MATRIX_ROW - 1); i++) // 0,2
-	{
-		for (int j = max(l - 1, 0); j <= min(l + 1, MATRIX_MLINE - 1); j++) //0,2
-		{
-			if (elements[i][j])
-			{
-				if (elements[i][j]->getElement() == 6)
-				{
-					removeElement(i, j); // ÒÆ³ı¾«Áé
-					//ĞŞ¸ÄÍßÆ¬ÊôĞÔ
-					changeTiledType(i, j);
+	log("removeBeEliminate1:%d,%d", r, l);
+	//for (int i = max(r - 1, 0); i <= min(r + 1, MATRIX_ROW - 1); i++) // 0,2
+	//{
+	//	for (int j = max(l - 1, 0); j <= min(l + 1, MATRIX_MLINE - 1); j++) //0,2
+	//	{
+	//		log("removeBeEliminate2:%d,%d", i, j);
+	//		if (elements[i][j])
+	//		{
+	//			log("removeBeEliminate3:%d,%d",i,j);
+	//			if (elements[i][j]->getElement() == 6)
+	//			{
+	//				removeElement(i, j); // ÒÆ³ı¾«Áé
+	//				//ĞŞ¸ÄÍßÆ¬ÊôĞÔ
+	//				changeTiledType(i, j);
 
-				}
+	//			}
+	//		}
+	//	}
+
+	//}
+	//ÉÏÏÂ×óÓÒ
+	if (elements[r][max(l - 1, 0)] && !signFlag[r][max(l - 1, 0)])
+	{
+		if (elements[r][max(l - 1, 0)]->getElement() == 6) //±»Ïû³ıÀàĞÍ	
+		{
+			elements[r][max(l - 1, 0)]->removeFromParent();
+			auto s = ElementUnit::create();
+			if (s)
+			{
+				s->createElement(7, getMCenterByCoord(r, max(l - 1, 0)));
+				elements[r][max(l - 1, 0)] = s;
+				addChild(elements[r][max(l - 1, 0)], 1);
 			}
 		}
-
+		else if (elements[r][max(l - 1, 0)]->getElement() == 7)
+		{
+			removeElement(r, max(l - 1, 0)); // ÒÆ³ı¾«Áé
+			//ĞŞ¸ÄÍßÆ¬ÊôĞÔ
+			changeTiledType(r, max(l - 1, 0));
+		}
+	}
+	if (elements[r][min(l + 1, 5)] && !signFlag[r][min(l+1,5)])
+	{
+		if (elements[r][min(l+1,5)]->getElement() == 6)
+		{
+			elements[r][min(l + 1, 5)]->removeFromParent();
+			auto s = ElementUnit::create();
+			if (s)
+			{
+				s->createElement(7, getMCenterByCoord(r, min(l + 1, 5)));
+				elements[r][min(l + 1, 5)] = s;
+				addChild(elements[r][min(l + 1, 5)], 1);
+			}
+		}
+		else if (elements[r][min(l + 1, 5)]->getElement() == 7)
+		{
+			removeElement(r, min(l + 1, 5)); // ÒÆ³ı¾«Áé
+			//ĞŞ¸ÄÍßÆ¬ÊôĞÔ
+			changeTiledType(r, min(l + 1, 5));
+		}
+	}
+	if (elements[max(r - 1, 0)][l] && !signFlag[max(r - 1, 0)][l])
+	{
+		if (elements[max(r - 1, 0)][l]->getElement() == 6)
+		{
+			elements[max(r - 1, 0)][l]->removeFromParent();
+			auto s = ElementUnit::create();
+			if (s)
+			{
+				s->createElement(7, getMCenterByCoord(max(r - 1, 0), l));
+				elements[max(r - 1, 0)][l] = s;
+				addChild(elements[max(r - 1, 0)][l], 1);
+			}
+		}
+		else if (elements[max(r - 1, 0)][l]->getElement() == 7)
+		{
+			removeElement(max(r - 1, 0), l); // ÒÆ³ı¾«Áé
+			//ĞŞ¸ÄÍßÆ¬ÊôĞÔ
+			changeTiledType(max(r - 1, 0), l);
+		}
+	}
+	if (elements[min(r + 1, 5)][l] && !signFlag[min(r + 1, 5)][l])
+	{
+		if (elements[min(r + 1, 5)][l]->getElement() == 6)
+		{
+			elements[min(r + 1, 5)][l]->removeFromParent();
+			auto s = ElementUnit::create();
+			if (s)
+			{
+				s->createElement(7, getMCenterByCoord(min(r + 1, 5), l));
+				elements[min(r + 1, 5)][l] = s;
+				addChild(elements[min(r + 1, 5)][l], 1);
+			}
+		}
+		else if (elements[min(r + 1, 5)][l]->getElement() == 7)
+		{
+			removeElement(min(r + 1, 5), l); // ÒÆ³ı¾«Áé
+			//ĞŞ¸ÄÍßÆ¬ÊôĞÔ
+			changeTiledType(min(r + 1, 5), l);
+		}
 	}
 }
 // ĞŞ¸ÄÖ¸¶¨Î»ÖÃÉÏÍßÆ¬µÄÊôĞÔÖµ
@@ -311,7 +416,6 @@ void	MapLayer::changeTiledType(int r, int l)
 	unsigned int num = typeLayer->getTileGIDAt(Vec2(r, l));
 	Value typevalue = _tileMap->getPropertiesForGID(num);
 	int type = typevalue.asValueMap()["type"].asInt();
-	log("(0,5)type1:%d", type);
 	if (type == 6 || type == 5)
 	{
 		typeLayer->setTileGID(gidnum, Vec2(r, l));
@@ -322,6 +426,7 @@ void	MapLayer::changeTiledType(int r, int l)
 void MapLayer::removeAllLine()
 {
 	while (removeLatestLine());  //²»¶ÏÉ¾³ıÏßĞòÁĞÖĞ×îºóÒ»ÌõÁ¬½ÓÏß£¬Ö±ÖÁÎª¿Õ
+	while (removeEffect());
 }
 
 //Ïû³ıÖ¸¶¨Î»ÖÃµÄÔªËØ£¬·µ»ØÔªËØÀàĞÍ
@@ -332,12 +437,17 @@ int MapLayer::removeElement(int row,int line)
 	{
 		return -1; //Ö¸¶¨Î»ÖÃÎåÔªËØ£¬Ôò²»²Ù×÷
 	}
-
 	int ele = temp->getElement(); //»ñµÃÔªËØÀàĞÍ
-	//elementType = ele;//»ñµÃÔªËØÀàĞÍ
-	elementCount[ele]--; //¶ÔÓ¦ÔªËØÀàĞÍ¼ÆÊı×ÔÔö
-	temp->disappear(FALL_TIME);//ÔªËØËõĞ¡ÖÁÏûÊ§
-	temp = nullptr;
+
+	ParticleSystem * efft = ParticleSystemQuad::create("effect/bomb_4.plist");
+	efft->setPosition(blocksCenter[row][line]);
+	efft->setScale(0.15);
+	addChild(efft,-1);
+
+	temp->disappear(FALL_TIME);//ÔªËØËõĞ¡ÖÁÏûÊ§FALL_TIME
+
+	temp = nullptr; 
+	elements[row][line] = nullptr;
 	signFlag[row][line] = false;
 	return ele;
 }
@@ -350,7 +460,7 @@ int MapLayer::getElementType()
 int MapLayer::removeMyCount()
 {
 	if (isCount)
-	{
+	{//±¬Õ¨µÀ¾ß²»¼õ²½Êı
 		isCount = false;
 		return m_count;
 		
@@ -360,10 +470,11 @@ int MapLayer::removeMyCount()
 		log("addcount :%d",m_count);
 		if (m_count == GAMEDATA->getCount(GAMEDATA->getCurLevel())-1)
 		{
-			//
+			//Èç¹û¹ı¹ØÁË¾Í²»µ¯³öÕâ¸ö´°¿Ú£¬¿ÉÒÔ·¢ÏûÏ¢µ½gamescene
 			auto layer = AddCount::create();
 			addChild(layer,1);
 			m_count -= 4;
+			return GAMEDATA->getCount(GAMEDATA->getCurLevel());
 		}
 		else
 		{
@@ -383,10 +494,10 @@ int MapLayer::getRemoveCount()
 //ÔªËØÏÂÂä£¬Ìî²¹±»Ïû³ıµÄÔªËØ¡£·µ»ØÊÇ·ñÌî²¹ÁË¿ÕÎ»£¬Ã¿ÁĞÌî²¹×îÏÂÒ»¸ö¿ÕÎ»
 bool MapLayer::elementsFall()
 {
-//#if(CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
-//	LOGD("MapLayer::elementsFall()");
-//#endif
-	log("elementsFall()");
+#if(CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
+	LOGD("MapLayer::elementsFall()");
+#endif
+	//log("elementsFall()");
 	bool flag = false; //ÊÇ·ñÌî²¹ÁË¿ÕÎ»
 	for (int j = MATRIX_LINE; j >= 0; --j)//5
 	{
@@ -412,15 +523,15 @@ bool	MapLayer::checkIsDrop(int r, int l) // ¼ì²âµÄ¿Õ¸ñ×Ó
 	//¼ì²âËüµÄÉÏÒ»¸ö£¬ÉÏ×ó£¬ÉÏÓÒÊÇ·ñ¿ÉÒÔÓĞ¾«ÁéÂäÏÂÀ´
 	if (elements[r][l-1]) //ÉÏyou 
 	{
-		if (checkIsNull(r,max(l-1,0))) //ÉÏÒ»¸öÊÇÊ¯Í·
+		if (checkIsnullptr(r,max(l-1,0))) //ÉÏÒ»¸öÊÇÊ¯Í·
 		{ //¿´×óÓÒ
 			if (elements[max(r - 1, 0)][max(l - 1, 0)]) //×ó±ßÓĞ
 			{
-				if (checkIsNull(max(r - 1, 0), max(l - 1, 0))) //shitou //×ó±ßÊÇ·ñÓĞÊ¯Í· ¡¢
+				if (checkIsnullptr(max(r - 1, 0), max(l - 1, 0))) //shitou //×ó±ßÊÇ·ñÓĞÊ¯Í· ¡¢
 				{
 					if (elements[min(r + 1, 5)][max(l - 1, 0)]) //ÓÒ±ßÓĞ
 					{
-						if (checkIsNull(min(r + 1, 5), max(l - 1, 0))) //×ó±ßÊÇÊ¯Í·£¬ÅĞ¶ÏÓÒ±ß
+						if (checkIsnullptr(min(r + 1, 5), max(l - 1, 0))) //×ó±ßÊÇÊ¯Í·£¬ÅĞ¶ÏÓÒ±ß
 						{
 							//ÉÏ×óÓÒ¶¼ÊÇÊ¯Í·
 							return false;
@@ -459,7 +570,7 @@ bool	MapLayer::checkIsDrop(int r, int l) // ¼ì²âµÄ¿Õ¸ñ×Ó
 				{
 					if (elements[min(r + 1, 5)][max(l - 1, 0)]) //ÓÒ±ßÓĞ
 					{
-						if (checkIsNull(min(r + 1, 5), max(l - 1, 0))) //×ó±ßÊÇÊ¯Í·£¬ÅĞ¶ÏÓÒ±ß
+						if (checkIsnullptr(min(r + 1, 5), max(l - 1, 0))) //×ó±ßÊÇÊ¯Í·£¬ÅĞ¶ÏÓÒ±ß
 						{
 							//ÉÏ×óÓÒ¶¼ÊÇÊ¯Í·
 							return false;
@@ -500,11 +611,11 @@ bool	MapLayer::checkIsDrop(int r, int l) // ¼ì²âµÄ¿Õ¸ñ×Ó
 		{
 			if (elements[max(r - 1, 0)][max(l - 1, 0)]) //×ó±ßÓĞ
 			{
-				if (checkIsNull(max(r - 1, 0), max(l - 1, 0))) //shitou //×ó±ßÊÇ·ñÓĞÊ¯Í· ¡¢
+				if (checkIsnullptr(max(r - 1, 0), max(l - 1, 0))) //shitou //×ó±ßÊÇ·ñÓĞÊ¯Í· ¡¢
 				{
 					if (elements[min(r + 1, 5)][max(l - 1, 0)]) //ÓÒ±ßÓĞ
 					{
-						if (checkIsNull(min(r + 1, 5), max(l - 1, 0))) //×ó±ßÊÇÊ¯Í·£¬ÅĞ¶ÏÓÒ±ß
+						if (checkIsnullptr(min(r + 1, 5), max(l - 1, 0))) //×ó±ßÊÇÊ¯Í·£¬ÅĞ¶ÏÓÒ±ß
 						{
 							//ÉÏ×óÓÒ¶¼ÊÇÊ¯Í·
 							return false;
@@ -543,7 +654,7 @@ bool	MapLayer::checkIsDrop(int r, int l) // ¼ì²âµÄ¿Õ¸ñ×Ó
 				{
 					if (elements[min(r + 1, 5)][max(l - 1, 0)]) //ÓÒ±ßÓĞ
 					{
-						if (checkIsNull(min(r + 1, 5), max(l - 1, 0))) //×ó±ßÊÇÊ¯Í·£¬ÅĞ¶ÏÓÒ±ß
+						if (checkIsnullptr(min(r + 1, 5), max(l - 1, 0))) //×ó±ßÊÇÊ¯Í·£¬ÅĞ¶ÏÓÒ±ß
 						{
 							//ÉÏ×óÓÒ¶¼ÊÇÊ¯Í·
 							return false;
@@ -571,7 +682,7 @@ bool	MapLayer::checkIsDrop(int r, int l) // ¼ì²âµÄ¿Õ¸ñ×Ó
 	}
 }
 
-bool MapLayer::checkIsNull(int _row, int _line)
+bool MapLayer::checkIsnullptr(int _row, int _line)
 { 
 	unsigned int num;
 	num = typeLayer->getTileGIDAt(Vec2(_row, _line));
@@ -606,7 +717,7 @@ void	MapLayer::rowMyFall(int _row, int bottom) // 15 //Ç°Ìá¾ÍÅĞ¶ÏÁËÕâ¸ö¸ñ×ÓÊÇÂú×
 	{//ÓÅÏÈÆ¥ÅäÉÏ£¬ÔÙÊÇ×ó£¬ÓÒ
 		if (elements[_row][j]) //ÉÏÓĞ
 		{
-			if (checkIsNull(_row,j)) //ÉÏÊÇÌØÊâÔªËØ²»ÄÜÏÂÂä·µ»ØµÄÊÇtrue
+			if (checkIsnullptr(_row,j)) //ÉÏÊÇÌØÊâÔªËØ²»ÄÜÏÂÂä·µ»ØµÄÊÇtrue
 			{ //¼ì²â×ó±ß
 				rightAndLeft(_row,bottom);
 			}
@@ -650,11 +761,11 @@ void MapLayer::rightAndLeft(int _row, int bottom)
 	int	j = bottom - 1;
 	if (elements[max(_row - 1, 0)][j]) //ÉÏ×óÓĞ
 	{
-		if (checkIsNull(max(_row - 1, 0), j)) //ÊÇÊ¯Í·
+		if (checkIsnullptr(max(_row - 1, 0), j)) //ÊÇÊ¯Í·
 		{ //ÄÇ¾ÍÅĞ¶ÏÓÒ±ß£¬ÒòÎªÊÇ¿ÉÒÔÏÂÂäµÄ£¬ËùÒÔÓĞÒ»¸ö¿ÉÒÔÂú×ãÌõ¼ş
 			if (elements[min(_row + 1, 5)][j]) //ÉÏÓÒÓĞ
 			{
-				if (checkIsNull(min(_row + 1, 5), j))
+				if (checkIsnullptr(min(_row + 1, 5), j))
 				{
 					log("dou shi shi tou ,zou dao zhe bu ke xue!!!!");
 				}
@@ -715,7 +826,7 @@ void MapLayer::rightAndLeft(int _row, int bottom)
 		{
 			if (elements[min(_row + 1, 5)][j]) //you
 			{
-				if (checkIsNull(min(_row + 1, 5), j))
+				if (checkIsnullptr(min(_row + 1, 5), j))
 				{
 					log("zhe ge zhen de bu ke xue!!!!");
 				}
@@ -730,7 +841,7 @@ void MapLayer::rightAndLeft(int _row, int bottom)
 					}
 				}
 			}
-			else //null
+			else //nullptr
 			{
 				if (checkIsDrop(min(_row + 1, 5), j))//Ö±½Ó¼ì²âÓÒ±ßÊÇ²»ÊÇ¿ÉÒÔµôÂä£¬ÊÇµÄ»°Ö±½ÓµôÂä ***ÆäÊµĞèÒª¼ì²âÊÇ²»ÊÇÓĞ
 				{
@@ -767,22 +878,21 @@ void MapLayer::rowFall(int _row, int bottom)//0,5/1.2 5 5
 		 j = i - 1;//6
 		if (elements[r][i] == nullptr)
 		{
-			if (checkIsNull(r, i))
+			if (checkIsnullptr(r, i))
 			{
 				//--i;
 				isapp = false;
 				continue;
 				//break;
 			}
-			//while (checkIsNull(_row, j))//06
 			if (j >= 0 )
 			{
-				if (checkIsNull(r, j))
+				if (checkIsnullptr(r, j))
 				{
-					//log("while (checkSpriteNull({ _row, j })):%i",j);
+					//log("while (checkSpritenullptr({ _row, j })):%i",j);
 					//j--;
 					isapp = false;
-					if (!checkIsNull(max(r - 1, 0), j) )
+					if (!checkIsnullptr(max(r - 1, 0), j) )
 					{
 						if (max(r - 1, 0) != r)
 						{
@@ -801,7 +911,7 @@ void MapLayer::rowFall(int _row, int bottom)//0,5/1.2 5 5
 						}
 						else
 						{
-							if (!checkIsNull(min(r + 1, 5), j))
+							if (!checkIsnullptr(min(r + 1, 5), j))
 							{
 								elements[r][i] = elements[min(r + 1, 5)][j];
 								if (elements[r][i])
@@ -819,7 +929,7 @@ void MapLayer::rowFall(int _row, int bottom)//0,5/1.2 5 5
 						}
 
 					}
-					else if (!checkIsNull(min(r + 1, 5), j))
+					else if (!checkIsnullptr(min(r + 1, 5), j))
 					{
 						if (min(r + 1, 5) != r)
 						{
@@ -838,7 +948,7 @@ void MapLayer::rowFall(int _row, int bottom)//0,5/1.2 5 5
 						}
 						else
 						{
-							if (!checkIsNull(max(r - 1, 0), j))
+							if (!checkIsnullptr(max(r - 1, 0), j))
 							{
 								elements[r][i] = elements[max(r - 1, 0)][j];
 								if (elements[r][i])
@@ -855,7 +965,7 @@ void MapLayer::rowFall(int _row, int bottom)//0,5/1.2 5 5
 				}
 				else
 				{
-					elements[r][i] = elements[r][j]; //null
+					elements[r][i] = elements[r][j]; //nullptr
 					if (elements[r][i])
 					{
 						Point pop = getMCenterByCoord(r, i);
@@ -893,29 +1003,30 @@ void  MapLayer::initBlocks()
 
 		mapLayer = _tileMap->getLayer("map");
 		typeLayer = _tileMap->getLayer("type");
-		//typeLayer->setVisible(false);
+		typeLayer->setVisible(false);
 
-		line = _tileMap->getMapSize().height; // 10
-		row = _tileMap->getMapSize().width; // 8
-
+		//line = _tileMap->getMapSize().height; // 
+		//row = _tileMap->getMapSize().width; // 
+		//log("%d,%d", row,line);
 		////mei shi xian
 		containsDis = (typeLayer->getMapTileSize().width*RATIO) / 2 - 5;
-		log("%f", containsDis);
+		
 	}
 	//³õÊ¼»¯ÊıÁ¿
-	for (int i = 0; i < 40; ++i) //0-5
-	{
-		elementCount[i] = 0;
-		removeCount[i] = 0;
-	}
+	//for (int i = 0; i < 40; ++i) //0-5
+	//{
+	//	//--elementCount[i] = 0;
+	//	//--removeCount[i] = 0;
+	//}
 
 	ERGODIC_MBLOCK(row,line)
 	{
+		//log("ERGODIC_MBLOCK :row:%d,line:%d",row,line);
 		blocksCenter[row][line] = getMCenterByCoord(row, line); //È·¶¨¸ñ×ÓÖĞĞÄÎ»ÖÃ
 			/*	int  num = (uint32_t)typeLayer->getTileGIDAt(Vec2(i, j));*/
 				//getType = _tileMap->getPropertiesForGID(num);
 				//int _type = getType.asValueMap()["type"].asInt();
-		if (checkIsNull(row, line))
+		if (checkIsnullptr(row, line))
 		{
 			unsigned int num;
 			num = typeLayer->getTileGIDAt(Vec2(row, line));
@@ -924,10 +1035,10 @@ void  MapLayer::initBlocks()
 			auto s = ElementUnit::create();
 			if (s)
 			{
-				s->setElementType(ElementType::cannotEliminate); // ²»¿ÉÒ»Ïû³ıµÄÔªËØ
+				//s->setElementType(ElementType::cannotEliminate); // ²»¿ÉÒ»Ïû³ıµÄÔªËØ
 				s->createElement(_type, getMCenterByCoord(row, line));
 				elements[row][line] = s;
-				elementCount[_type]++;
+				//--elementCount[_type]++;
 				addChild(elements[row][line], 1);
 				//elements[row][line]->setVisible(false);
 			}
@@ -937,17 +1048,22 @@ void  MapLayer::initBlocks()
 			auto s = ElementUnit::create();
 			if (s)
 			{
-				s->setElementType(ElementType::basisEliminate); // »ù´¡Ïû³ıÔªËØ
+				//s->setElementType(ElementType::basisEliminate); // »ù´¡Ïû³ıÔªËØ
 				int color = abs(rand() % 5);
 				s->createElement(color, getMCenterByCoord(row, line));
 				elements[row][line] = s;
-				elementCount[color]++;
+				//--elementCount[color]++;
 				addChild(elements[row][line], 1);
 			}		
 		}
 	}
 	removeAllCount = 0;
 
+	while (checkIsNeedRefresh())
+	{
+		//log("refresh!"); //±£Ö¤´´½¨µÄµÚÒ»¸öµØÍ¼ÊÇÓĞ¿ÉÒÔÁ¬ÏßµÄµØÍ¼
+		refreshAllElement();
+	}
 }
 
 // tile×ø±ê×ª³ÉÍßÆ¬¸ñ×ÓÖĞĞÄµÄOpenGL×ø±ê  //»ñµÃÍßÆ¬ÃªµãµÄ×ø±ê
@@ -1141,7 +1257,7 @@ void MapLayer::onTouchMoved(Touch *touch, Event *unused_event) //´¥ÃşµãÒÆ¶¯
 									showEffect(blocksCenter[i][j]);
 									//ÌØÊâÔªËØ30ÒÔÉÏ½«ÖÜÎ§3*3±äÉ«
 
-									if (elements[i][j]->getElement() > 10)
+									if (elements[i][j]->getElement() >= 10)
 									{ 
 										elementType = elements[i][j]->getElement() % 10;//»ñµÃÔªËØÀàĞÍ
 										if (elements[i][j]->getElement() >= 30)
@@ -1152,7 +1268,6 @@ void MapLayer::onTouchMoved(Touch *touch, Event *unused_event) //´¥ÃşµãÒÆ¶¯
 									else
 									{
 										elementType = elements[i][j]->getElement();//»ñµÃÔªËØÀàĞÍ
-										log("elementType£º%d", elementType);
 									}
 								}
 							}
@@ -1193,22 +1308,19 @@ void MapLayer::onTouchEnded(Touch *touch, Event *unused_event) //´¥Ãş½áÊø
 		}
 		else
 		{
-			
 			removeLink();//½øĞĞÒ»´ÎÏû³ı£¬ÅĞ¶Ï·ûºÏÌõ¼şºóÏû³ıÁ¬ÏßµÄÔªËØ
-			while (removeEffect());
-
+			
+			temp_element.clear();
+			temp_elementPos.clear();
 		}
-
-
 	}
 
 	touchedFlag = false;  //´¥Ãş½áÊø
-//#if(CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
-//	LOGD("onTouchEnded");
-//#endif
-	if (UserDefault::getInstance()->getBoolForKey("IS_VIBRATE",true))
-	Vibrator::cancelVibrate();
-	log("onTouchEnded");
+#if(CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
+	LOGD("onTouchEnded");
+#endif
+	//if (UserDefault::getInstance()->getBoolForKey("IS_VIBRATE",true))
+	//	Custom::Vibrator::cancelVibrate();
 }
 
 //ĞŞ¸ÄÖÜÎ§Èı³ËÈıµÄÔªËØ
@@ -1227,14 +1339,14 @@ void	MapLayer::changeElement(int ele, int r, int l)
 				{
 					temp_element.push_back(typeElement); // °´Ë³Ğò´æÈëÀàĞÍ
 					temp_elementPos.push_back({i,j}); //´æÈë×ø±ê
-					elementCount[typeElement]--;
+					//--elementCount[typeElement]--;
 					elements[i][j]->removeFromParent();
 					auto s = ElementUnit::create();
 					if (s)
 					{
 						s->createElement(ele, blocksCenter[i][j]);
 						elements[i][j] = s;
-						elementCount[ele]++;
+						//--elementCount[ele]++;
 						addChild(elements[i][j],1);
 
 					}
@@ -1253,14 +1365,14 @@ void	MapLayer::undoChangeElement()
 		if (elements[temp_elementPos[i].row][temp_elementPos[i].line])
 		{
 			int te = elements[temp_elementPos[i].row][temp_elementPos[i].line]->getElement();
-			elementCount[te]--;
+			//--elementCount[te]--;
 			elements[temp_elementPos[i].row][temp_elementPos[i].line]->removeFromParent();
 			auto s = ElementUnit::create();
 			if (s)
 			{
 				s->createElement(temp_element[i], blocksCenter[temp_elementPos[i].row][temp_elementPos[i].line]);
 				elements[temp_elementPos[i].row][temp_elementPos[i].line] = s;
-				elementCount[temp_element[i]]++;
+				//--elementCount[temp_element[i]]++;
 				addChild(elements[temp_elementPos[i].row][temp_elementPos[i].line], 1);
 			}
 		}
@@ -1278,7 +1390,6 @@ void	MapLayer::undoChangeElement()
 void MapLayer::showEffect(Point p)
 {
 	ParticleSystem * efft = ParticleSystemQuad::create("effect/particle_1.plist");
-	//ParticleSystem* m_emitter1 = ParticleSystemQuad::create("effect/particle_1.plist");
 	efft->setPosition(p);
 	m_effects.pushBack(efft);
 	addChild(efft, 1);
@@ -1298,12 +1409,10 @@ bool MapLayer::removeEffect()
 
 void MapLayer::showLineEffect(Point p)
 {
-	if (UserDefault::getInstance()->getBoolForKey("IS_EFFECT", true))
-		SimpleAudioEngine::getInstance()->playEffect(ELEMENT_LINE); //²¥·ÅÒôĞ§
-
 	SpriteFrameCache *frameCache = SpriteFrameCache::sharedSpriteFrameCache();
 	frameCache->addSpriteFramesWithFile("effect/Line.plist");
-
+	if (UserDefault::getInstance()->getBoolForKey("IS_EFFECT", true))
+		AudioData::getInstance()->addSpecialEffect(3);
 	auto s = Sprite::createWithSpriteFrameName("line_0.png");
 	if (s)
 	{
@@ -1327,10 +1436,10 @@ void MapLayer::showLineEffect(Point p)
 }
 void MapLayer::showRowEffect(Point p)
 {
-	if (UserDefault::getInstance()->getBoolForKey("IS_EFFECT", true))
-		SimpleAudioEngine::getInstance()->playEffect(ELEMENT_ROW); //²¥·ÅÒôĞ§
 	SpriteFrameCache *frameCache = SpriteFrameCache::sharedSpriteFrameCache();
 	frameCache->addSpriteFramesWithFile("effect/Line.plist");
+	if (UserDefault::getInstance()->getBoolForKey("IS_EFFECT", true))
+		AudioData::getInstance()->addSpecialEffect(2);
 
 	auto s = Sprite::createWithSpriteFrameName("line_0.png");
 	if (s)
@@ -1355,9 +1464,9 @@ void MapLayer::showRowEffect(Point p)
 }
 void MapLayer::showBoomEffect(Point p)
 {
-	if (UserDefault::getInstance()->getBoolForKey("IS_EFFECT", true))
-		SimpleAudioEngine::getInstance()->playEffect(ELEMENT_BOOM); //²¥·ÅÒôĞ§
 	ParticleSystem * efft = ParticleSystemQuad::create("effect/particle_6.plist");
+	if (UserDefault::getInstance()->getBoolForKey("IS_EFFECT", true))
+		AudioData::getInstance()->addSpecialEffect(1);
 	efft->setPosition(p);
 	efft->setAutoRemoveOnFinish(true);
 	efft->setDuration(0.1f);
@@ -1395,7 +1504,7 @@ void	 MapLayer::specialSignElement(int ele, Coord c)
 //#if(CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
 //	LOGD("MapLayer::specialSignElement(int ele, Coord c) : %d",ele);
 //#endif
-	log("MapLayer::specialSignElement(int ele, Coord c)");
+	//log("MapLayer::specialSignElement(int ele, Coord c)");
 	if (ele >= 10 && ele < 20) // hengxiang
 	{
 		log("ele :%d",ele);
@@ -1420,7 +1529,8 @@ void	 MapLayer::specialSignElement(int ele, Coord c)
 					}
 					else
 					{
-						log("specialSignElement(elements[i][c.line]->getElement(), {i,c.line})");
+						/*
+						log("specialSignElement(elements[i][c.line]->getElement(), {i,c.line})");*/
 						signFlagSpecial[i][c.line] = true; // ÊÇÌØÊâÔªËØ£¬¸ø×Ô¼º¼ÓÉÏ±ê¼Ç£¬ÏÂ´Î¼ì²âµÄÊ±ºò¾Í²»ÔÚ¼ì²âÁË£¬·ñÔò»á½øÈëËÀÑ­»·Ò»Ö±µİ¹éÏÂÈ¥
 						specialSignElement(elements[i][c.line]->getElement(), {i,c.line});//µ÷ÓÃ×Ô¼º£¬µİ¹éµÄÓÃ·¨¡£
 					}
@@ -1432,7 +1542,7 @@ void	 MapLayer::specialSignElement(int ele, Coord c)
 	}
 	if (ele >= 20 && ele < 30) //shuaxiang
 	{
-		log("ele :%d", ele);
+		//log("ele :%d", ele);
 		for (int i = 0; i < 6; i++)
 		{
 			if (elements[c.row][i])
@@ -1459,7 +1569,7 @@ void	 MapLayer::specialSignElement(int ele, Coord c)
 		}
 	}if (ele >= 30 && ele < 40 )
 	{
-		log("ele :%d", ele);
+		//log("ele :%d", ele);
 		for (int i = max(c.row - 1, 0); i <= min(c.row + 1, MATRIX_ROW - 1); i++) // 0,2
 		{
 			for (int j = max(c.line - 1, 0); j <= min(c.line + 1, MATRIX_MLINE - 1); j++) //0,2
@@ -1498,10 +1608,19 @@ void MapLayer::undoLink()
 	removeLatestLine(); //É¾³ı×îºóÒ»ÌõÁ¬½ÓÏß
 	removeEffect(); // É¾³ı×îºóÒ»¸öÔªËØµÄÌØĞ§
 	unsignElement(latest); //È¡Ïû×îºóÒ»¸öÔªËØµÄ±ê¼Ç
-	if (UserDefault::getInstance()->getBoolForKey("IS_EFFECT",true))
-		SimpleAudioEngine::getInstance()->playEffect(UNDO_EFFECT); //²¥·ÅÒôĞ§
-	if (UserDefault::getInstance()->getBoolForKey("IS_VIBRATE",true))
-		Vibrator::vibrate(UNDO_VIBRATOR_TIME); //Õğ¶¯
+	int number = linkIndex.size();
+	if (number > 14)
+	{
+		if (UserDefault::getInstance()->getBoolForKey("IS_EFFECT", true))
+			AudioData::getInstance()->addLinkEffect(15);
+	}
+	else
+	{
+		if (UserDefault::getInstance()->getBoolForKey("IS_EFFECT", true))
+			AudioData::getInstance()->addLinkEffect(number);
+	}
+	//if (UserDefault::getInstance()->getBoolForKey("IS_VIBRATE",true))
+	//	Custom::Vibrator::vibrate(UNDO_VIBRATOR_TIME); //Õğ¶¯
 }
 
 //È¡Ïû³·Ïú¹ØÓÚÕâÌØÊâÔªËØÉæ¼°µÄËùÓĞ±êÊ¶
@@ -1517,7 +1636,7 @@ void	MapLayer::removeSignSpecial()
 			{
 				//log("*******");
 				int ele = removeElement(row, line);
-				removeCount[ele]++; //Ïû³ı±ê¼ÇµÄÔªËØ
+				//--removeCount[ele]++; //Ïû³ı±ê¼ÇµÄÔªËØ
 				specialScore += specialSttlement(ele);
 				if (ele >= 10 && ele < 20)
 				{
@@ -1546,20 +1665,24 @@ int		MapLayer::specialSttlement(int ele)//
 {
 	switch (ele)
 	{
-	case 0:
-		//count * 50 * 1;
+	case 0:	
+		eventTargetElement(0,1);
 		return 50;
 		break;
 	case 1:
+		eventTargetElement(1, 1);
 		return 55;
 		break;
 	case 2:
+		eventTargetElement(2, 1);
 		return 60;
 		break;
 	case 3:
+		eventTargetElement(3, 1);
 		return 65;
 		break;
 	case 4:
+		eventTargetElement(4, 1);
 		return 70;
 		break;
 	case 5 :
@@ -1570,6 +1693,60 @@ int		MapLayer::specialSttlement(int ele)//
 	}
 }
 
+void MapLayer:: eventTargetElement(int ele, int count)
+{
+	int index = GAMEDATA->getCurLevel();
+	if (ele == 0)
+	{
+		if (REWARDDATA->getBlue(index) != 0)
+		{
+			removeTargetECount = count;
+			EventCustom _event(BLUE);
+			_eventDispatcher->dispatchEvent(&_event);
+		}
+	}
+	if (ele == 1)
+	{
+		if (REWARDDATA->getPurple(index) != 0)
+		{
+			removeTargetECount = count;
+			EventCustom _event(PURPLE);
+			_eventDispatcher->dispatchEvent(&_event);
+		}
+
+	}
+	if (ele == 2)
+	{
+		if (REWARDDATA->getGreen(index) != 0)
+		{
+			removeTargetECount = count;
+			EventCustom _event(GREEN);
+			_eventDispatcher->dispatchEvent(&_event);
+		}
+
+	}
+	if (ele == 3)
+	{
+		if (REWARDDATA->getRad(index) != 0)
+		{
+			removeTargetECount = count;
+			EventCustom _event(RAD);
+			_eventDispatcher->dispatchEvent(&_event);
+		}
+
+	}
+	if (ele == 4)
+	{
+		if (REWARDDATA->getYellor(index) != 0)
+		{
+			removeTargetECount = count;
+			EventCustom _event(YELLOR);
+			_eventDispatcher->dispatchEvent(&_event);
+		}
+
+	}
+
+}
 
 ////»æÖÆ¾ØĞÎ¸¨ÖúÏß
 //void MapLayer::drawGuideLine(Point leftBottom, Point rightTop)
@@ -1592,9 +1769,6 @@ void MapLayer::drawLine(Coord from, Coord to)
 	auto line = DrawLine::create(getMCenterByCoord(from), getMCenterByCoord(to), "effect/lineLight.png");
 	addChild(line,-1);
 
-	//DrawNode* brush = DrawNode::create();
-	//addChild(brush, -1);
-	//brush->drawSegment(getMCenterByCoord(from), getMCenterByCoord(to), LINKLINE_WIDTH, LINKLINE_COLOR);
 	linkBrush.push_back(line); //½«¸ÃÁ¬½ÓÏßÌí¼Óµ½ÏßĞòÁĞÖĞ
 }
 
@@ -1650,44 +1824,43 @@ void  MapLayer::appear(int row)
 //#if(CC_TARGET_PLATFORM==CC_PLATFORM_ANDROID)
 //	LOGD("MapLayer::appear(int row)");
 //#endif
-	//log("appear(int row : %d)",row);
+	int number = GAMEDATA->getSpecialNum(GAMEDATA->getCurLevel());
+	//log("appear()=%d", number);
 	int top = 0;
 	int ele = abs(rand() % 5);// randElement(); // 0 1 2 3 4 
-	if (green >= 5)
+	if (green >= number)
 	{
 		//srand((int)time(0));
-		ele = 12 + ((rand() % 3 )* 10); //12 22 32 12+0,12+10,12+20
+		ele = 12 + (abs(rand() % 3) * 10); //12 22 32 12+0,12+10,12+20
 		green = 0;
 	}
-	if (blue >= 5)
+	if (blue >= number)
 	{
-		ele = 10 + ((rand() % 3) * 10); //12 22 32 12+0,12+10,12+20
+		ele = 10 + (abs(rand() % 3) * 10); //12 22 32 12+0,12+10,12+20
 		blue = 0;
 	}
-	if (red >= 5)
+	if (red >= number)
 	{
-		ele = 13 + ((rand() % 3) * 10); //12 22 32 12+0,12+10,12+20
+		ele = 13 + (abs(rand() % 3) * 10); //12 22 32 12+0,12+10,12+20
 		red = 0;
 	}
-	if (yellor >= 5)
+	if (yellor >= number)
 	{
-		ele = 14 + ((rand() % 3) * 10); //12 22 32 12+0,12+10,12+20
+		ele = 14 + (abs(rand() % 3) * 10); //12 22 32 12+0,12+10,12+20
 		yellor = 0;
 	}
-	if (purple >= 5)
+	if (purple >= number)
 	{
-		ele = 11 + ((rand() % 3) * 10); //12 22 32 12+0,12+10,12+20
+		ele = 11 + (abs(rand() % 3) * 10); //12 22 32 12+0,12+10,12+20
 		purple = 0;
 	}
 	createElement(ele, row, top);
 	if (elements[row][top])
 	{
 		this->addChild(elements[row][top]);
-	}
-	if (elements[row][top])
-	{
 		elements[row][top]->appear(FALL_TIME);
 	}
+
 }
 
 //Í¨¹ıÏÖÓĞÔªËØÀàĞÍ·Ö²¼£¬Ëæ»ú»ñµÃÒ»¸öÔªËØÀàĞÍ
@@ -1699,35 +1872,36 @@ int MapLayer::randElement()
 	//	return WILD_NUM; //³éÖĞÔò³öÏÖÍòÄÜÔªËØ
 	//}
 
-	int *num = new int[ELEMENT_COUNT];//ÓÃÓÚ´æ·Å¸÷ÖÖÔªËØ³öÏÖµÄ¸ÅÂÊ
+	//int *num = new int[ELEMENT_COUNT];//ÓÃÓÚ´æ·Å¸÷ÖÖÔªËØ³öÏÖµÄ¸ÅÂÊ
 
-	//»ñÈ¡ÔªËØÀàĞÍÊıÁ¿µÄ×î´ó×îĞ¡Öµ
-	int max = 0;
-	int min = 0x7FFFFFFF;
-	for (int i = 0; i < ELEMENT_COUNT; ++i)
-	{
-		int temp = elementCount[i];
-		if (temp >max)
-		{
-			max = temp;
-		}
-		if (temp < min)
-		{
-			min = temp;
-		}
-	}
-	if (max - min <= MAX_GAP)
-	{
-		max++;//Èç¹û×î¶àÔªËØÓë×îÉÙÔªËØ²î¾àÃ»ÓĞ¹ı´ó£¬Ôò×î¶àÔªËØÈÔÓĞ¿ÉÄÜ³öÏÖ
-	}
-	for (int i = 0; i < ELEMENT_COUNT; ++i)
-	{
-		num[i] = max - elementCount[i];//¸ù¾İÔªËØÀàĞÍÊıÁ¿È·¶¨¸ÅÂÊ£¬ÒÑ´æÔÚÊıÁ¿Ô½¶à£¬¸ÅÂÊÔ½Ğ¡
-	}
+	////»ñÈ¡ÔªËØÀàĞÍÊıÁ¿µÄ×î´ó×îĞ¡Öµ
+	//int max = 0;
+	//int min = 0x7FFFFFFF;
+	//for (int i = 0; i < ELEMENT_COUNT; ++i)
+	//{
+	//	int temp = elementCount[i];
+	//	if (temp >max)
+	//	{
+	//		max = temp;
+	//	}
+	//	if (temp < min)
+	//	{
+	//		min = temp;
+	//	}
+	//}
+	//if (max - min <= MAX_GAP)
+	//{
+	//	max++;//Èç¹û×î¶àÔªËØÓë×îÉÙÔªËØ²î¾àÃ»ÓĞ¹ı´ó£¬Ôò×î¶àÔªËØÈÔÓĞ¿ÉÄÜ³öÏÖ
+	//}
+	//for (int i = 0; i < ELEMENT_COUNT; ++i)
+	//{
+	//	num[i] = max - elementCount[i];//¸ù¾İÔªËØÀàĞÍÊıÁ¿È·¶¨¸ÅÂÊ£¬ÒÑ´æÔÚÊıÁ¿Ô½¶à£¬¸ÅÂÊÔ½Ğ¡
+	//}
 
-	int re = randNum(ELEMENT_COUNT, num);//¸ù¾İ¸ÅÂÊËæ»ú»ñµÃÒ»¸ö½á¹û
-	delete[] num;
-	return re;
+	//int re = randNum(ELEMENT_COUNT, num);//¸ù¾İ¸ÅÂÊËæ»ú»ñµÃÒ»¸ö½á¹û
+	//delete[] num;
+	//return re;
+	return 1;
 }
 
 
@@ -1739,24 +1913,31 @@ void MapLayer::linkStart(int row, int line)
 	signOnlyBlock(row, line); //±ê¼ÇÎ¨Ò»ÔªËØ
 	linkIndex.push_back({ row, line });//Ìí¼Óµ½Á¬ÏßĞòÁĞ
 	//ÒôĞ§£¬Õğ¶¯
-	if (UserDefault::getInstance()->getBoolForKey("IS_EFFECT",true))
-	SimpleAudioEngine::getInstance()->playEffect(START_LINK_EFFECT); //²¥·ÅÒôĞ§
-	if (UserDefault::getInstance()->getBoolForKey("IS_VIBRATE",true))
-	Vibrator::vibrate(3); //Õğ¶¯
+	if (UserDefault::getInstance()->getBoolForKey("IS_EFFECT", true))
+		AudioData::getInstance()->addLinkEffect(1);
+	//if (UserDefault::getInstance()->getBoolForKey("IS_VIBRATE",true))
+	//	Custom::Vibrator::vibrate(3); //Õğ¶¯
 }
 
 //Á¬½ÓÁ½¸öÔªËØ
 void MapLayer::linkElement(Coord from, Coord to)
 {
-	///log("linkElement");
 	signElement(to);  //±ê¼ÇÔªËØ
 	drawLine(from, to); //»æÖÆÁ¬Ïß
 	linkIndex.push_back(to); //Ìí¼Óµ½Á¬ÏßĞòÁĞ
-	if (UserDefault::getInstance()->getBoolForKey("IS_EFFECT",true))
-		SimpleAudioEngine::getInstance()->playEffect(LINK_EFFECT); //²¥·ÅÒôĞ§
-	if (UserDefault::getInstance()->getBoolForKey("IS_VIBRATE",true))
-		Vibrator::vibrate(LINK_VIBRATOR_TIME); //Õğ¶¯
-
+	int number = linkIndex.size();
+	if (number > 14)
+	{
+		if (UserDefault::getInstance()->getBoolForKey("IS_EFFECT", true))
+			AudioData::getInstance()->addLinkEffect(15);
+	}
+	else
+	{
+		if (UserDefault::getInstance()->getBoolForKey("IS_EFFECT", true))
+			AudioData::getInstance()->addLinkEffect(number);
+	}
+	//if (UserDefault::getInstance()->getBoolForKey("IS_VIBRATE",true))
+	//	Custom::Vibrator::vibrate(LINK_VIBRATOR_TIME); //Õğ¶¯
 }
 
 //Çå¿Õ¾ØÕóÔªËØ
@@ -1765,27 +1946,27 @@ void MapLayer::clearElement()
 	//mei shi xian
 	ERGODIC_MBLOCK(row,line)
 	{
-		removeElement(row, line); //Çå³ıÃ¿¸ö¸ñ×ÓµÄÔªËØ
+		if (elements[row][line])
+		{
+			removeElement(row, line); //Çå³ıÃ¿¸ö¸ñ×ÓµÄÔªËØ
+		}	
 	}
-	for (int i = 0; i < 40; ++i)
-	{
-		elementCount[i] = 0;
-		//elementCount[i+10] = 0;
-		//elementCount[i+20] = 0;
-		//elementCount[i+30] = 0;
-	}
+	//for (int i = 0; i < 40; ++i)
+	//{
+	//	//--elementCount[i] = 0;
+	//}
 }
 
 //ÔÚÖ¸¶¨Î»ÖÃ´´½¨¸ø¶¨ÀàĞÍµÄÔªËØ
 int  MapLayer::createElement(int element, int row, int line) //22
 {
-		ElementUnit* &temp = elements[row][line]; //¶¨ÒåÁÙÊ±±äÁ¿£¬¼ò»¯´úÂë
-		temp = ElementUnit::create();
-		elementCount[element]++; // ¶ÔÓ¦ÔªËØÀàĞÍ»ùÊı×ÔÔö
-		if (temp)
+		//ElementUnit* &temp = elements[row][line]; //¶¨ÒåÁÙÊ±±äÁ¿£¬¼ò»¯´úÂë
+		elements[row][line] = ElementUnit::create();
+		//--elementCount[element]++; // ¶ÔÓ¦ÔªËØÀàĞÍ»ùÊı×ÔÔö
+		if (elements[row][line])
 		{
-			temp->setElementType(ElementType::basisEliminate);//ÉèÖÃÎª»ù±¾Ïû³ıÊôĞÔ
-			temp->createElement(element, getMCenterByCoord(row, line));//´´½¨Ò»¸öÔªËØ²¢Ìí¼Óµ½ÆÁÄ»ÉÏ
+			//elements[row][line]->setElementType(ElementType::basisEliminate);//ÉèÖÃÎª»ù±¾Ïû³ıÊôĞÔ
+			elements[row][line]->createElement(element, getMCenterByCoord(row, line));//´´½¨Ò»¸öÔªËØ²¢Ìí¼Óµ½ÆÁÄ»ÉÏ
 		}
 		return element;
 }
@@ -1815,12 +1996,9 @@ Point  MapLayer::getMCenterByCoord(Coord c)
 //Çå¿ÕÏû³ı¸öÊı
 void MapLayer::removeCountCleaar()
 {
-	for (int i = 0; i < 6; ++i)
+	for (int i = 0; i < 40; ++i)
 	{
-		removeCount[i] = 0;
-		removeCount[i + 10] = 0;
-		removeCount[i + 20] = 0;
-		removeCount[i + 30] = 0;
+		//--removeCount[i] = 0;
 	}
 }
 
@@ -1830,110 +2008,3 @@ void MapLayer::signOnlyBlock(int row, int line)
 	signClear();
 	signElement(row, line);
 }
-
-
-/*
-if (elements[max(_row - 1, 0)][j]) //ÉÏ×óÓĞ
-{
-	if (checkIsNull(max(_row - 1, 0), j)) //ÊÇÊ¯Í·
-	{ //ÄÇ¾ÍÅĞ¶ÏÓÒ±ß£¬ÒòÎªÊÇ¿ÉÒÔÏÂÂäµÄ£¬ËùÒÔÓĞÒ»¸ö¿ÉÒÔÂú×ãÌõ¼ş
-		if (elements[min(_row + 1, 5)][j]) //ÉÏÓÒÓĞ
-		{
-			if (checkIsNull(min(_row + 1, 5), j))
-			{
-				log("dou shi shi tou ,zou dao zhe bu ke xue!!!!");
-			}
-			//ÉÏÓÒÓĞÇÒÊÇ¿ÉÒÔµôÂäµÄ»ù±¾ÔªËØ
-			elements[_row][bottom] = elements[min(_row + 1, 5)][j];
-			if (elements[_row][bottom])
-			{
-				Point pop = getMCenterByCoord(_row, bottom);
-				elements[min(_row + 1, 5)][j]->moveToPosition(pop, FALL_TIME);//ÉÏ·½ÔªËØµôÂäÒ»¸ö
-				elements[min(_row + 1, 5)][j] = nullptr;
-			}
-		}
-		else //ÉÏÓÒ ÊÇ¿Õ
-		{
-			//ÄÇ¾ÍÅĞ¶ÏÏÂÕâ¸öÊÇ¿ÉÒÔµôÂäµÄ¿Õ¸ñ×Ó²»
-			if (checkIsDrop(min(_row + 1, 5), j)) //ÊÇ¿ÉÒÔµôÂäµÄ
-			{
-				elements[_row][bottom] = elements[min(_row + 1, 5)][j];
-				if (elements[_row][bottom])
-				{
-					Point pop = getMCenterByCoord(_row, bottom);
-					elements[min(_row + 1, 5)][j]->moveToPosition(pop, FALL_TIME);//ÉÏ·½ÔªËØµôÂäÒ»¸ö
-					elements[min(_row + 1, 5)][j] = nullptr;
-				}
-			}
-			else
-			{
-				log("te me zou dao zhe ye shi bu ke xue de ba !!!!");
-			}
-
-		}
-	}
-	else//ÉÏ×óÓĞÇÒ²»ÊÇÊ¯Í·
-	{//ÄÇ¾ÍÊÇ»ù±¾ÔªËØà¶
-		elements[_row][bottom] = elements[max(_row - 1, 0)][j]; ////ÉÏ×ó
-		if (elements[_row][bottom])
-		{
-			Point pop = getMCenterByCoord(_row, bottom);
-			elements[max(_row - 1, 0)][j]->moveToPosition(pop, FALL_TIME);
-			elements[max(_row - 1, 0)][j] = nullptr;
-		}
-	}
-}
-else//ÉÏ×óÊÇ¿Õ
-{
-	//ÄÇ¾ÍÅĞ¶ÏÏÂÕâ¸öÊÇ¿ÉÒÔµôÂäµÄ¿Õ¸ñ×Ó²»
-	if (checkIsDrop(max(_row - 1, 0), j)) //ÊÇ¿ÉÒÔµôÂäµÄ
-	{
-		elements[_row][bottom] = elements[max(_row - 1, 0)][j]; ////ÉÏ×ó
-		if (elements[_row][bottom])
-		{
-			Point pop = getMCenterByCoord(_row, bottom);
-			elements[max(_row - 1, 0)][j]->moveToPosition(pop, FALL_TIME);
-			elements[max(_row - 1, 0)][j] = nullptr;
-		}
-	}
-	else //ÊÇ¿Õ£¬µ«ÊÇ²»¿ÉÒÔµôÂä /ÄÇÃ´ÒâÎ¶×Å£¬ÒªÈ¥¼ì²âÉÏÓÒ
-	{
-		if (elements[min(_row + 1, 5)][j]) //you
-		{
-			if (checkIsNull(min(_row + 1, 5), j))
-			{
-				log("zhe ge zhen de bu ke xue!!!!");
-			}
-			else //ÓĞÇÒ²»ÊÇÊ¯Í·¿ÉÒÔÏÂÂä
-			{
-				elements[_row][bottom] = elements[min(_row + 1, 5)][j];
-				if (elements[_row][bottom])
-				{
-					Point pop = getMCenterByCoord(_row, bottom);
-					elements[min(_row + 1, 5)][j]->moveToPosition(pop, FALL_TIME);//ÉÏ·½ÔªËØµôÂäÒ»¸ö
-					elements[min(_row + 1, 5)][j] = nullptr;
-				}
-			}
-		}
-		else //null
-		{
-			if (checkIsDrop(min(_row + 1, 5), j))//Ö±½Ó¼ì²âÓÒ±ßÊÇ²»ÊÇ¿ÉÒÔµôÂä£¬ÊÇµÄ»°Ö±½ÓµôÂä ***ÆäÊµĞèÒª¼ì²âÊÇ²»ÊÇÓĞ
-			{
-				elements[_row][bottom] = elements[min(_row + 1, 5)][j];
-				if (elements[_row][bottom])
-				{
-					Point pop = getMCenterByCoord(_row, bottom);
-					elements[min(_row + 1, 5)][j]->moveToPosition(pop, FALL_TIME);//ÉÏ·½ÔªËØµôÂäÒ»¸ö
-					elements[min(_row + 1, 5)][j] = nullptr;
-				}
-			}
-			else
-			{
-				log("wo ca zhe ye shi bu ke xue de !!");
-			}
-		}
-
-	}
-
-}
-*/

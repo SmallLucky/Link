@@ -14,13 +14,13 @@ using namespace cocostudio;
 
 bool SetLayer:: init()
 {
-	if (!Layer::init())
+	if (!EasePop::init())
 	{
 		return false;
 	}
 
-	_swallowLayer = TouchSwallowLayer::create();
-	addChild(_swallowLayer);
+	//_swallowLayer = TouchSwallowLayer::create();
+	//addChild(_swallowLayer);
 	
 	addUI();
 	 
@@ -29,15 +29,11 @@ bool SetLayer:: init()
 
 void	SetLayer::addUI()
 {
-	//auto cat = Sprite::create("popbox/cat_1.png");
-	//cat->setAnchorPoint(Vec2(0.5,0.5));
-	//cat->setPosition(CommonFunction::getVisibleAchor(Anchor::Center,Vec2(0,200)));
-	//addChild(cat);
-
+	
 	Sprite* bg = Sprite::create("popbox/mid_kuang.png");
 	bg->setAnchorPoint(Vec2(0.5, 0.5));
-	bg->setPosition(CommonFunction::getVisibleAchor(Anchor::Center,Vec2(0,0)));
-	addChild(bg);
+	bg->setPosition(CommonFunction::getVisibleAchor(Anchor::Center,this,Vec2(0,0)));
+	m_popNode->addChild(bg);
 
 	auto hong = Sprite::create("popbox/mid_hong.png");
 	hong->setPosition(CommonFunction::getVisibleAchor(Anchor::MidTop,bg,Vec2(0,-30)));
@@ -113,7 +109,10 @@ void	SetLayer::addUI()
 
 void	SetLayer::musicCBoxCallBack(Ref* pSender, cocos2d::ui::CheckBox::EventType  type)
 {
-	log("music");
+	if (UserDefault::getInstance()->getBoolForKey("IS_EFFECT", true))
+	{
+		AudioData::getInstance()->addButtonEffect(1);
+	}
 	switch (type)
 	{
 	case cocos2d::ui::CheckBox::EventType::SELECTED:
@@ -124,7 +123,7 @@ void	SetLayer::musicCBoxCallBack(Ref* pSender, cocos2d::ui::CheckBox::EventType 
 	case cocos2d::ui::CheckBox::EventType::UNSELECTED:
 		log("PLIST");
 		UserDefault::getInstance()->setBoolForKey("IS_MUSIC", true);
-		SimpleAudioEngine::getInstance()->playBackgroundMusic(BGM, true);
+		AudioData::getInstance()->addBgMusic(2);
 		break;
 	default:
 		break;
@@ -133,7 +132,10 @@ void	SetLayer::musicCBoxCallBack(Ref* pSender, cocos2d::ui::CheckBox::EventType 
 
 void	SetLayer::soundCBoxCallBack(Ref* pSender, cocos2d::ui::CheckBox::EventType  type)
 {
-	log("sound");
+	if (UserDefault::getInstance()->getBoolForKey("IS_EFFECT", true))
+	{
+		AudioData::getInstance()->addButtonEffect(1);
+	}
 	switch (type)
 	{
 	case cocos2d::ui::CheckBox::EventType::SELECTED:
@@ -153,7 +155,10 @@ void	SetLayer::soundCBoxCallBack(Ref* pSender, cocos2d::ui::CheckBox::EventType 
 
 void	SetLayer::vibrationCBoxCallBack(Ref* pSender, cocos2d::ui::CheckBox::EventType  type)
 {
-	log("vibration");
+	if (UserDefault::getInstance()->getBoolForKey("IS_EFFECT", true))
+	{
+		AudioData::getInstance()->addButtonEffect(1);
+	}
 	switch (type)
 	{
 	case cocos2d::ui::CheckBox::EventType::SELECTED:
@@ -171,10 +176,11 @@ void	SetLayer::vibrationCBoxCallBack(Ref* pSender, cocos2d::ui::CheckBox::EventT
 
 void	SetLayer::backButtonCallBack()
 {
-	if (UserDefault::getInstance()->getBoolForKey("IS_EFFECT"))
+	if (UserDefault::getInstance()->getBoolForKey("IS_EFFECT", true))
 	{
-		CocosDenshion::SimpleAudioEngine::getInstance()->playEffect(CLICK_BUTTON);
+		AudioData::getInstance()->addButtonEffect(1);
 	}
-	this->removeFromParent();
+	//this->removeFromParent();
+	close();
 }
 

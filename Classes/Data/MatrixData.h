@@ -37,6 +37,6 @@ Point getCenterByCoord(Coord c); //通过坐标获得格子中心
 
 //遍历所有的格子
 
-#define ERGODIC_BLOCK(line,row)			for(int (line)=0 ; (line)<MATRIX_LINE; ++(line)) for(int (row) = 0; (row)<MATRIX_ROW;++(row))
+//#define ERGODIC_BLOCK(line,row)			for(int (line)=0 ; (line)<MATRIX_LINE; ++(line)) for(int (row) = 0; (row)<MATRIX_ROW;++(row))
 
 #define ERGODIC_MBLOCK(row,line)  for(int (row) = 0; (row)<MATRIX_ROW; (row)++ )  for(int (line) = MATRIX_LINE ; (line) >= 0 ;--(line))  //line -- row ++

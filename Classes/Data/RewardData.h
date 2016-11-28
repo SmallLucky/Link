@@ -38,6 +38,12 @@ public:
 	int getRefresh(int index);
 	int getBoom(int index);
 
+	int getBlue(int index);
+	int getPurple(int index);
+	int getGreen(int index);
+	int getRad(int index);
+	int getYellor(int index);
+
 private:
 	string path;
 
@@ -48,5 +54,10 @@ private:
 	vector <int> m_offsetY;
 	vector <int> m_refresh;
 	vector <int> m_boom;
-
+	//
+	vector <int> m_blue;
+	vector <int> m_purple;
+	vector <int> m_green;
+	vector <int> m_rad;
+	vector <int> m_yellor;
 };

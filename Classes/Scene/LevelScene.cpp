@@ -1,7 +1,6 @@
 #include "LevelScene.h" //¹Ø¿¨²ã
 #include "Interface/LevelLayer.h"
 //test
-#include "Interface/MapLayer.h"
 #include "Interface/Interface.h"
 #include "StartScene.h"
 
@@ -12,6 +11,8 @@ bool LevelScene::init()
 	{
 		return false;
 	}
+
+
 	addLevelLayer();
 
 	auto listenerkeyPad = EventListenerKeyboard::create();
@@ -30,8 +31,6 @@ void  LevelScene::addLevelLayer()
 	{
 		addChild(levelLayer);
 	}
-	//MapLayer* mapLayer = MapLayer::create();
-	//addChild(mapLayer);
 }
 
 void LevelScene::onKeyReleased(EventKeyboard::KeyCode keycode, Event* event)

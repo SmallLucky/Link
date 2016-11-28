@@ -1,8 +1,9 @@
 #pragma once
 
 #include "Global.h"
+#include "LayerEffect/LayerEffect.h"
 
-class PowerShop : public Layer
+class PowerShop : public TopDownLayer
 {
 public:
 	CREATE_FUNC(PowerShop);

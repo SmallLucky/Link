@@ -20,6 +20,7 @@ GameData::~GameData()
 	m_offsetY.clear();
 	m_count.clear();
 	m_coins.clear();
+	m_special.clear();
 }
 
 GameData* GameData::getInstance()
@@ -60,7 +61,7 @@ rapidjson::Document GameData::preparePrase()
 
 	if (docment.HasParseError()) {
 		log("GetParaseErro %s\n", docment.GetParseError());
-		return NULL;
+		return nullptr;
 	}
 
 	return docment;
@@ -117,6 +118,7 @@ void GameData::praseJsonData()
 	m_offsetY.clear();
 	m_count.clear();
 	m_coins.clear();
+	m_special.clear();
 
 	rapidjson::Value & json_array = doc["Tollgate"];
 
@@ -139,6 +141,26 @@ void GameData::praseJsonData()
 		rapidjson::Value & refresh = chapter["refresh"];
 		rapidjson::Value & boom = chapter["boom"];
 		rapidjson::Value & shopcoins = chapter["shopcoins"];
+		rapidjson::Value & special = chapter["special"];
+		rapidjson::Value & shoplove = chapter["shoplove"];
+		rapidjson::Value & shopcoinsM = chapter["shopcoinsM"];
+		rapidjson::Value & shoploveM = chapter["shoploveM"];
+
+		for (unsigned int a = 0; a < shoplove.Size(); a++)
+		{
+			rapidjson::Value & value = shoplove[a];
+			m_loves.push_back(value.GetInt());
+		}
+		for (unsigned int b = 0; b < shopcoinsM.Size(); b++)
+		{
+			rapidjson::Value & value = shopcoinsM[b];
+			m_coinsmoney.push_back(value.GetInt());
+		}
+		for (unsigned int d = 0; d < shoploveM.Size(); d++)
+		{
+			rapidjson::Value & value = shoploveM[d];
+			m_lovesmoney.push_back(value.GetInt());
+		}
 
 		for (unsigned int c = 0; c < shopcoins.Size(); c++)
 		{
@@ -171,6 +193,12 @@ void GameData::praseJsonData()
 			rapidjson::Value & value = count[l];
 			m_count.push_back(value.GetInt());
 		}
+		for (int m = 0; m < special.Size(); m++)
+		{
+			rapidjson::Value & value = special[m];
+			m_special.push_back(value.GetInt());
+		}
+
 		cur_level = level.GetInt();
 		cur_score = currScore.GetInt();
 		diamond_num = diamond.GetInt();	//×êÊ¯ÊýÁ¿
@@ -179,17 +207,17 @@ void GameData::praseJsonData()
 		power_num = power.GetInt();
 		refresh_num = refresh.GetInt();
 		boom_num = boom.GetInt();
-		cout << "---------------------------" << endl;
-		printf("level = %d\n", level.GetInt());
-		for (int w = 0; w < m_lock.size(); w++)
-		{
-			printf("lock:%i \n",m_lock[w]);
-		}
-		for (int n = 0; n < m_targetScore.size(); n++)
-		{
-			printf("targetScore:%i \n",m_targetScore[n]);
-		}
-		cout << "---------------------------" << endl;
+		//cout << "---------------------------" << endl;
+		//printf("level = %d\n", level.GetInt());
+		//for (int w = 0; w < m_lock.size(); w++)
+		//{
+		//	printf("lock:%i \n",m_lock[w]);
+		//}
+		//for (int n = 0; n < m_targetScore.size(); n++)
+		//{
+		//	printf("targetScore:%i \n",m_targetScore[n]);
+		//}
+		//cout << "---------------------------" << endl;
 	}
 
 	praseFinish(doc);
@@ -221,6 +249,31 @@ int  GameData::getLock(int level)
 	return m_lock[level];
 }
 
+int  GameData::getCoinsMoney(int index)
+{
+	if (index < 0)
+	{
+		return -1;
+	}
+	return m_coinsmoney[index];
+}
+int  GameData::getLovesNum(int index)
+{
+	if (index < 0)
+	{
+		return -1;
+	}
+	return m_loves[index];
+}
+int  GameData::getLovesMoney(int index)
+{
+	if (index < 0)
+	{
+		return -1;
+	}
+	return m_lovesmoney[index];
+}
+
 int GameData:: getTargetScore(int level)
 {
 	if (level < 0)
@@ -233,6 +286,15 @@ int GameData:: getTargetScore(int level)
 int GameData::getShopCoins(int index)
 {
 	return m_coins[index];
+}
+
+int GameData::getSpecialNum(int level)
+{
+	if (level < 0 )
+	{
+		return -1;
+	}
+	return m_special[level];
 }
 
 int GameData::getCount(int level)
@@ -349,7 +411,7 @@ void GameData::setPowerNum(int _num)
 	praseFinish(doc);
 }
 
-void GameData::setrefresh(int num)
+void GameData::setRefresh(int num)
 {
 	auto doc = preparePrase();
 	refresh_num = num;

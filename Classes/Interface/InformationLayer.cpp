@@ -18,6 +18,7 @@ bool InformationLayer::init()
 	{
 		return false;
 	}
+	REWARDDATA->praseJsonData();
 
 	addUI();
 	initCountLabel(); //初始化时间标签
@@ -25,6 +26,7 @@ bool InformationLayer::init()
 
 
 	initTargetScore();
+	addTargetElement(); //目标元素
 	return true;
 	
 }
@@ -170,7 +172,7 @@ void InformationLayer::scoreUp(int delta, int time)
 	addscore->setScale(2.5);
 	addChild(addscore);
 
-	Action* a = Sequence::create(FadeOut::create(time), RemoveSelf::create(), NULL); //设置动画，标签在一定时间内淡出，然后消失
+	Action* a = Sequence::create(FadeOut::create(time), RemoveSelf::create(), nullptr); //设置动画，标签在一定时间内淡出，然后消失
 	addscore->runAction(a);
 } 
 
@@ -196,16 +198,149 @@ void InformationLayer::showCount(int c)
 
 }
 
-////初始化体力标签
-//void InformationLayer::initPowerLabel()
-//{
-//	targatLabel = LabelAtlas::create(Value(GAMEDATA->getTargetScore(GAMEDATA->getCurLevel())).asString(),"",20,30,'0');
-//	targatLabel->setPosition(CommonFunction::getVisibleAchor(Anchor::Center,targetScore_bg,Vec2(0,0)));
-//	targetScore_bg->addChild(targatLabel);
-//}
-//
-////显示体力
-//void InformationLayer::showPower(int p)
-//{
-//	
-//}
+void	InformationLayer::addTargetElement()
+{
+	int index = GAMEDATA->getCurLevel();
+	int offY = 0;
+	if (REWARDDATA->getBlue(index) != 0)
+	{
+		auto ele = Sprite::create("element/element_0.png");
+		ele->setPosition(CommonFunction::getVisibleAchor(Anchor::LeftButtom, info_bg, Vec2(30 + (offY * 40),0)));
+		ele->setScale(0.3);
+		info_bg->addChild(ele);
+		offY++;
+
+		targetElementBNum = LabelAtlas::create(Value(REWARDDATA->getBlue(index)).asString(), "fonts/game_scorenum.png", 17, 19, '0');
+		targetElementBNum->setPosition(CommonFunction::getVisibleAchor(Anchor::MidButtom,ele,Vec2(0,-25)));
+		targetElementBNum->setAnchorPoint(Vec2(0.5,0.5));
+		targetElementBNum->setScale(2.5);
+		ele->addChild(targetElementBNum);
+	}
+	if (REWARDDATA->getPurple(index) != 0)
+	{
+		auto ele = Sprite::create("element/element_1.png");
+		ele->setPosition(CommonFunction::getVisibleAchor(Anchor::LeftButtom, info_bg, Vec2(30 + (offY * 40), 0)));
+		ele->setScale(0.3);
+		info_bg->addChild(ele);
+		offY++;
+
+		targetElementPNum = LabelAtlas::create(Value(REWARDDATA->getPurple(index)).asString(), "fonts/game_scorenum.png", 17, 19, '0');
+		targetElementPNum->setPosition(CommonFunction::getVisibleAchor(Anchor::MidButtom, ele, Vec2(0, -25)));
+		targetElementPNum->setAnchorPoint(Vec2(0.5, 0.5));
+		targetElementPNum->setScale(2.5);
+		ele->addChild(targetElementPNum);
+	}
+	if (REWARDDATA->getGreen(index) != 0)
+	{
+		auto ele = Sprite::create("element/element_2.png");
+		ele->setPosition(CommonFunction::getVisibleAchor(Anchor::LeftButtom, info_bg, Vec2(30 + (offY * 40), 0)));
+		ele->setScale(0.3);
+		info_bg->addChild(ele);
+		offY++;
+
+		targetElementGNum = LabelAtlas::create(Value(REWARDDATA->getGreen(index)).asString(), "fonts/game_scorenum.png", 17, 19, '0');
+		targetElementGNum->setPosition(CommonFunction::getVisibleAchor(Anchor::MidButtom, ele, Vec2(0, -25)));
+		targetElementGNum->setAnchorPoint(Vec2(0.5, 0.5));
+		targetElementGNum->setScale(2.5);
+		ele->addChild(targetElementGNum);
+	}
+	if (REWARDDATA->getRad(index) != 0)
+	{
+		auto ele = Sprite::create("element/element_3.png");
+		ele->setPosition(CommonFunction::getVisibleAchor(Anchor::LeftButtom, info_bg, Vec2(30 + (offY * 40), 0)));
+		ele->setScale(0.3);
+		info_bg->addChild(ele);
+		offY++;
+
+		targetElementRNum = LabelAtlas::create(Value(REWARDDATA->getRad(index)).asString(), "fonts/game_scorenum.png", 17, 19, '0');
+		targetElementRNum->setPosition(CommonFunction::getVisibleAchor(Anchor::MidButtom, ele, Vec2(0, -25)));
+		targetElementRNum->setAnchorPoint(Vec2(0.5, 0.5));
+		targetElementRNum->setScale(2.5);
+		ele->addChild(targetElementRNum);
+	}
+	if (REWARDDATA->getYellor(index) != 0)
+	{
+		auto ele = Sprite::create("element/element_4.png");
+		ele->setPosition(CommonFunction::getVisibleAchor(Anchor::LeftButtom, info_bg, Vec2(30 + (offY * 40), 0)));
+		ele->setScale(0.3);
+		info_bg->addChild(ele);
+		offY++;
+
+		targetElementYNum = LabelAtlas::create(Value(REWARDDATA->getYellor(index)).asString(), "fonts/game_scorenum.png", 17, 19, '0');
+		targetElementYNum->setPosition(CommonFunction::getVisibleAchor(Anchor::MidButtom, ele, Vec2(0, -25)));
+		targetElementYNum->setAnchorPoint(Vec2(0.5, 0.5));
+		targetElementYNum->setScale(2.5);
+		ele->addChild(targetElementYNum);
+	}
+}
+void	InformationLayer::showTargetElementNum(int ele, int n)
+{
+	int index = GAMEDATA->getCurLevel();
+	switch (ele)
+	{
+	case 0:
+		if (n > 0 )// REWARDDATA->getBlue(index)
+		{
+			if (targetElementBNum)
+				targetElementBNum->setString(Value(n).asString());
+		}
+		else
+		{
+			//
+			if (targetElementBNum)
+				targetElementBNum->setString(Value(0).asString());
+		}
+		break;
+	case 1:
+		if (n > 0) // REWARDDATA->getPurple(index)
+		{
+			if (targetElementPNum)
+				targetElementPNum->setString(Value(n).asString());
+		}
+		else
+		{
+			if (targetElementPNum)
+				targetElementPNum->setString(Value(0).asString());
+		}
+		break;
+	case 2:
+		if (n > 0 ) //REWARDDATA->getGreen(index)
+		{
+			if (targetElementGNum)
+				targetElementGNum->setString(Value(n).asString());
+		}
+		else
+		{
+			if (targetElementGNum)
+				targetElementGNum->setString(Value(0).asString());
+		}
+		break;
+	case 3:
+		if (n > 0 ) //REWARDDATA->getRad(index)
+		{
+			if (targetElementRNum)
+				targetElementRNum->setString(Value(n).asString());
+		}
+		else
+		{
+			if (targetElementRNum)
+				targetElementRNum->setString(Value(0).asString());
+		}
+		break;
+	case 4:
+		if (n > 0 ) //REWARDDATA->getYellor(index)
+		{
+			if (targetElementYNum)
+				targetElementYNum->setString(Value(n).asString());
+		}
+		else
+		{
+			if (targetElementYNum)
+				targetElementYNum->setString(Value(0).asString());
+		}
+		break;
+	default:
+		break;
+	}
+}
+

@@ -26,6 +26,8 @@ protected:
 	int m_count = 1;
 	void showCount(int c); //显示游戏剩余步数
 
+	int m_blue, m_purple,m_green,m_rad,m_yellor;
+	void showTargetElementNum(int ele,int n); //显示游戏剩余步数
 	//体力
 	 static int _power;
 
@@ -49,6 +51,12 @@ public:
 	void addCountLayer();
 	bool getIsGameOver();
 	void setIsGameOver(bool b);
+
+	void addRefreshPropsCallBarck(); //道具按钮旁边添加道具回调方法
+	void addBoomPropsCallBarck();
+
+	bool  enoughTargetElement();
+
 public:
 	GameScene();
 	~GameScene();

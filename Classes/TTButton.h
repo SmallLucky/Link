@@ -22,7 +22,7 @@ typedef   enum  _BTN_STATE
 
 } BTN_STATE;
 
-class   TTButton :public  Layer
+class   TTButton :public  Node
 {
 public:
 	TTButton();

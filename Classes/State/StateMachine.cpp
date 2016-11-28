@@ -5,7 +5,7 @@
 //初始化状态机，创建时自动调用
 bool StateMachine::initWithGameScene(GameScene* scene)
 {
-	this->state = NULL;
+	this->state = nullptr;
 	this->scene = scene;
 	CC_SAFE_RETAIN(scene);
 
@@ -25,8 +25,8 @@ StateMachine* StateMachine::createWithGameScene(GameScene* scene)
 	else
 	{
 		delete pRet;
-		pRet = NULL;
-		return NULL;
+		pRet = nullptr;
+		return nullptr;
 	}
 }
 

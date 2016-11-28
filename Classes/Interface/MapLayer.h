@@ -2,7 +2,7 @@
 
 #include "Global.h"
 #include "CommonFunction.h"
-//#include "MatrixTLayer.h"
+#include "InformationLayer.h"
 
 #include "Expand/TouchableLayer.h"
 #include "Unit/ElementUnit.h"
@@ -27,7 +27,7 @@ public:
 	Point getMCenterByCoord(int row, int line); //通过坐标获得格子中心
 	Point getMCenterByCoord(Coord c);//通过坐标获得格子中心
 
-	bool checkIsNull(int _row,int _line);
+	bool checkIsnullptr(int _row,int _line);
 
 	int getElementType();
 	void setElementType(int ele);
@@ -77,10 +77,12 @@ private:
 	void showLineEffect(Point p);
 	void showRowEffect(Point p);
 	void showBoomEffect(Point p);
+
+	void eventTargetElement(int ele,int count);
 private:
 
 	TMXTiledMap* _tileMap;
-	//MatrixTLayer* matrixTL;
+	
 	TMXLayer* mapLayer;
 	TMXLayer* typeLayer;
 	Value getType;
@@ -92,8 +94,7 @@ private:
 	int line; //行
 	int row; //列
 	
-	
-	vector<Coord> spriteNull;
+	vector<Coord> spritenullptr;
 	
 private:
 	ElementUnit* **elements; //格子元素
@@ -104,14 +105,14 @@ private:
 
 	float containsDis;		//触点包含于格子内的最大距离
 
-	int *elementCount;		//矩阵中各元素的数量
-	int *removeCount;		//消除各元素的数量
+	//--int *elementCount;		//矩阵中各元素的数量
+	//--int *removeCount;		//消除各元素的数量
 
 	vector<Coord> linkIndex; //一次连线中的连线顺序
 	vector<DrawLine*> linkBrush;	//连接两个元素的线
 
 	int removeAllCount; //一次连线消除总数
-
+	
 	bool touchedFlag;	//是否已经有效的触摸
 	bool linkFinishFlag;	//是否有有效的连接结束
 public:
@@ -122,6 +123,7 @@ public:
 
 	int getRemoveCount();	//获取上次连接中消除个数，并清零为下次准备
 
+
 	bool elementsFall();	//元素下落，填补被消除的元素。返回是否填补了空位，每列填补最下一个空位
 	bool isLinkFinish();	//是否有效的连接结束
 	void prepareLink();		//准备下一次连接
@@ -129,7 +131,7 @@ public:
 public:
 	int m_count = 0;
 	int removeMyCount();
-
+	int removeTargetECount;
 public:
 	//void drawGuideLine(Point leftBottom, Point rightTop);		//绘制矩形辅助线
 	void drawLine(Coord from, Coord to);			//绘制连接两个元素的线

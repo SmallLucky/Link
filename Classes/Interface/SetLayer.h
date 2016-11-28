@@ -3,8 +3,9 @@
 #include "Global.h"
 
 #include "TouchSwallowLayer.h"
+#include "LayerEffect/LayerEffect.h"
 
-class SetLayer : public Layer
+class SetLayer : public EasePop
 {
 public:
 	bool init();

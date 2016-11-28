@@ -24,6 +24,8 @@ using namespace CocosDenshion;
 const int WIDTH = 640; //屏幕宽度720
 const int HEIGHT = 1136; //屏幕高度1280
 
+const int MAXPOWER = 20; //最高体力
+
 const Size visibleSize = Size(WIDTH, HEIGHT);  //屏幕尺寸
 
 const float DATUM = HEIGHT;	//长度基准
@@ -51,6 +53,14 @@ void addSprite(Sprite* & s, string img, Point pos, float size, Node* n, int zOrd
 #define REFRESHPROPS "refreshProps"		//
 #define ISGAMEOVERTRUE "isGameOverTrue"		//
 #define ISGAMEOVERFALSE "isGameOverFalse"		//
+#define BYICONS "byIcons"
+#define BYLOVES	"byLoves"
+
+#define BLUE "blue"
+#define PURPLE "purple"
+#define GREEN  "green"
+#define RAD		"rad"
+#define YELLOR	"yellor"
 
 //坐标结构体
 //坐标结构体

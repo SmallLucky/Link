@@ -1,8 +1,9 @@
 #pragma once
 
 #include "Global.h"
+#include "LayerEffect/LayerEffect.h"
 
-class LoserLayer : public Layer
+class LoserLayer : public EasePop
 {
 public:
 	bool init();

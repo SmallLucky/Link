@@ -74,7 +74,7 @@ class CommonFunction
 public:
 	// 基于屏幕坐标系得到对应锚点的偏移位置
 	static Vec2 getVisibleAchor(Anchor anchor, Vec2 deltaPos = Vec2::ZERO);
-	static Vec2 getVisibleAchor(Anchor anchor, Node * node = NULL, Vec2 deltaPos = Vec2::ZERO);
+	static Vec2 getVisibleAchor(Anchor anchor, Node * node = nullptr, Vec2 deltaPos = Vec2::ZERO);
 	static Vec2 getVisibleAchor(float pointx, float pointy, Vec2 deltaPos = Vec2::ZERO);
 	static Vec2 getVisibleAchor(float pointx, float pointy, Node * node, Vec2 deltaPos = Vec2::ZERO);
 	//static Widget * createWidgetButton(Node* childNode, float touchSizeScale = 1);

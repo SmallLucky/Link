@@ -2,6 +2,7 @@
 
 #include "Global.h"
 
+
 //信息层
 
 class InformationLayer : public Layer
@@ -11,6 +12,11 @@ protected:
 	LabelAtlas* scoreLabel; //分数标签
 	LabelAtlas* countLabel; //步数标签
 	LabelAtlas* targatLabel; //体力标签
+	LabelAtlas* targetElementBNum; //目标数标签
+	LabelAtlas* targetElementPNum; //目标数标签
+	LabelAtlas* targetElementGNum; //目标数标签
+	LabelAtlas* targetElementRNum; //目标数标签
+	LabelAtlas* targetElementYNum; //目标数标签
 
 	Sprite* info_bg;
 	Sprite* count_bg;
@@ -41,4 +47,6 @@ public:
 
 	void initTargetScore();
 	void	addUI();
+	void	addTargetElement();
+	void	showTargetElementNum(int ele ,int n);
 };

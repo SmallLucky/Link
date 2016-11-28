@@ -1,8 +1,9 @@
 #pragma once 
 
+#include "LayerEffect/LayerEffect.h"
 #include "Global.h"
 
-class TotalLayer : public Layer
+class TotalLayer : public EasePop
 {
 public:
 	bool init();
@@ -12,4 +13,6 @@ public:
 	void GoOnCallBack();
 	void backCallBack();
 	void addReward();
+
+	void addGift(Sprite* s);
 };

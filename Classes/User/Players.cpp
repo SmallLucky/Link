@@ -6,7 +6,7 @@ bool Players::init()
 	{
 		return false;
 	}
-	master = NULL;
+	master = nullptr;
 	return	true;
 }
 
@@ -48,7 +48,7 @@ PlayerUnit* Players::findPlayer(int id)
 		p = enemies.at(id);
 
 	if (!p)
-		return NULL;
+		return nullptr;
 
 	return p;
 }

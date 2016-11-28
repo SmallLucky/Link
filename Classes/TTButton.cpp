@@ -1,5 +1,6 @@
 #include "TTButton.h"
 #include "CommonFunction.h"
+#include "Shake.h"
 
 using namespace ui;
 
@@ -37,13 +38,25 @@ void  TTButton::setSpriteGray(Node *pNode, bool isGray)
 	}
 }
 
+//添加的动画效果
 void  TTButton::addAnimation(Node* pNode)
 {
 	if (!pNode){
 		return;
 	}
-	auto shakeAction = CommonFunction::GetShakeAction(ShakeMode::Intensity);
-	pNode->runAction(shakeAction);
+
+	if (pNode)
+	{
+		Size size = pNode->getContentSize();
+		this->setContentSize(size);
+		this->ignoreAnchorPointForPosition(true);
+		this->setAnchorPoint(Vec2(0.5,0.5));
+	}
+
+	auto seq1 = Sequence::create(ScaleTo::create(0.1, 1.3, 0.7), ScaleTo::create(0.05, 1, 1), nullptr);
+	auto seq2 = Sequence::create(ScaleTo::create(0.1, 1.4, 0.6), ScaleTo::create(0.05, 1, 1), nullptr);
+	this->runAction(Sequence::create(seq1, seq2, nullptr));
+
 }
 
 bool  TTButton::initWithImages(std::string  strNormal, std::string strSel, std::string strDisable)
@@ -568,7 +581,7 @@ bool TTButton::isTouchInvalidated(Touch* touch)
 
 void TTButton::onEnter()
 {
-	Layer::onEnter();
+	Node::onEnter();
 	//touch event
 	auto listener = EventListenerTouchOneByOne::create();
 	listener->onTouchBegan = CC_CALLBACK_2(TTButton::onTouchBegan,this);
@@ -580,7 +593,7 @@ void TTButton::onEnter()
 
 void TTButton::onExit()
 {
-	Layer::onExit();
+	Node::onExit();
 }
 
 bool TTButton::onTouchBegan(Touch *touch, Event *unused_event)
@@ -616,6 +629,7 @@ bool TTButton::onTouchBegan(Touch *touch, Event *unused_event)
 			m_btnState = BTN_STATE_PRESS;
 			//todo 添加动画
 			addAnimation(m_pressedSprite);
+
 		}
 		upDateStatusUI();
 		return  true;

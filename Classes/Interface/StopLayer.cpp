@@ -7,12 +7,12 @@
 
 bool StopLayer::init()
 {
-	if (!Layer::init())
+	if (!EasePop::init())
 	{
 		return false;
 	}
-	TouchSwallowLayer* swallLayer = TouchSwallowLayer::create();
-	addChild(swallLayer);
+	//TouchSwallowLayer* swallLayer = TouchSwallowLayer::create();
+	//addChild(swallLayer);
 	addUI();
 	return true;
 }
@@ -20,8 +20,8 @@ bool StopLayer::init()
 void StopLayer::addUI()
 {
 	auto bg = Sprite::create("popbox/stop_kuang.png");
-	bg->setPosition(CommonFunction::getVisibleAchor(Anchor::Center,Vec2(0,0)));
-	addChild(bg);
+	bg->setPosition(CommonFunction::getVisibleAchor(Anchor::Center,this,Vec2(0,0)));
+	m_popNode->addChild(bg);
 
 	auto hong = Sprite::create("popbox/mid_hong.png");
 	hong->setPosition(CommonFunction::getVisibleAchor(Anchor::MidTop, bg, Vec2(0, -30)));
@@ -35,12 +35,10 @@ void StopLayer::addUI()
 	if (UserDefault::getInstance()->getBoolForKey("IS_MUSIC", true))
 	{
 		//创建,参数：未选中图片名，选中图片名，文字，状态（0-未选中，1-选中）
-		log("false");
 		musicCBox->setSelectedState(false);
 	}
 	else
 	{
-		log("true");
 		musicCBox->setSelectedState(true);
 	}
 
@@ -50,7 +48,6 @@ void StopLayer::addUI()
 	auto soundCBox = CheckBox::create("popbox/sound_on.png", "popbox/sound_off.png", TextureResType::LOCAL);//创建,参数：未选中图片名，选中图片名，文字，状态（0-未选中，1-选中）
 	if (UserDefault::getInstance()->getBoolForKey("IS_EFFECT", true))
 	{
-		log("false");
 		soundCBox->setSelectedState(false);
 	}
 	else
@@ -81,16 +78,13 @@ void StopLayer::addUI()
 	newGame->setPosition(CommonFunction::getVisibleAchor(Anchor::MidButtom, bg, Vec2(-100, 70)));
 	bg->addChild(newGame);
 	newGame->addClickEventListener([=](Ref*){
-		if (UserDefault::getInstance()->getBoolForKey("IS_EFFECT"))
-		{
-			CocosDenshion::SimpleAudioEngine::getInstance()->playEffect(CLICK_BUTTON);
-		}
 		GameScene* newgame = GameScene::create();
 		Director::getInstance()->replaceScene(newgame);
 	});
 	auto brackButton = Button::create("popbox/cancel.png");
 	brackButton->addClickEventListener([=](Ref*){
-		this->removeFromParent();
+		//this->removeFromParent();
+		close();
 	});
 	brackButton->setPosition(CommonFunction::getVisibleAchor(Anchor::RightTop, bg, Vec2(-20, -20)));
 	bg->addChild(brackButton);
@@ -115,7 +109,7 @@ void	StopLayer::musicCBoxCallBack(Ref* pSender, cocos2d::ui::CheckBox::EventType
 	case cocos2d::ui::CheckBox::EventType::UNSELECTED:
 		log("PLIST");
 		UserDefault::getInstance()->setBoolForKey("IS_MUSIC", true);
-		SimpleAudioEngine::getInstance()->playBackgroundMusic(BGM, true);
+		AudioData::getInstance()->addBgMusic(3);
 		break;
 	default:
 		break;
@@ -166,10 +160,6 @@ void	StopLayer::newGameCallBack()
 #if(CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
 	LOGD("StopLayer::newGameCallBack()");
 #endif
-	if (UserDefault::getInstance()->getBoolForKey("IS_EFFECT"))
-	{
-		CocosDenshion::SimpleAudioEngine::getInstance()->playEffect(CLICK_BUTTON);
-	}
 	LevelScene* levelScene = LevelScene::create();
 	Director::getInstance()->replaceScene(levelScene);  //跳转
 }

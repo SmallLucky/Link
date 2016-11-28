@@ -85,37 +85,63 @@ bool AppDelegate::applicationDidFinishLaunching() {
 	director->setDisplayStats(true); //不显示FPS
 	director->setAnimationInterval(1.0 / 40); //设置FPS
 
-	srand(time(NULL)); //设置随机数种子
+	srand(time(nullptr)); //设置随机数种子
 
 	//加载cocos studio导出的文件
 	FileUtils::getInstance()->addSearchPath("res");
-
-	////预加载音乐音效
-	auto audio = CocosDenshion::SimpleAudioEngine::getInstance();
-	audio->preloadBackgroundMusic(BGM);
-	audio->preloadEffect(START_LINK_EFFECT);
-	audio->preloadEffect(LINK_EFFECT);
-	audio->preloadEffect(UNDO_EFFECT);
-	audio->preloadEffect(REMOVE_EFFECT);
-	audio->preloadEffect(WRONG_REMOVE_EFFECT);
-	audio->preloadEffect(GAME_OVER_EFFECT);
-	audio->preloadEffect(NEW_RECORD_EFFECT);
-	audio->preloadEffect(CLICK_BUTTON);
-	audio->preloadEffect(ELEMENT_BOOM);
-	audio->preloadEffect(ELEMENT_LINE);
-	audio->preloadEffect(ELEMENT_ROW);
-	audio->preloadEffect(ELEMENT_ROUND);
-	audio->preloadEffect(SHOP_MONEY);
 
 	//GameData::getInstance()->praseJsonData();
 	//RewardData::getInstance()->praseJsonData();
 
 	//TextureCache::getInstance()->addImage("bg/bg_1.png");
+
+	//addMusic();
+
 	//进入Start场景
 	auto scene = StartScene::create();
 	director->runWithScene(scene);
 
 	return true;
+}
+
+void AppDelegate::addMusic()
+{
+	//预加载音效
+	CocosDenshion::SimpleAudioEngine::getInstance()->preloadBackgroundMusic("Audio/bgmusic/battle_failed.mp3");
+	CocosDenshion::SimpleAudioEngine::getInstance()->preloadBackgroundMusic("Audio/bgmusic/battle_win.mp3");
+	CocosDenshion::SimpleAudioEngine::getInstance()->preloadBackgroundMusic("Audio/bgmusic/BGM_2.mp3");
+	CocosDenshion::SimpleAudioEngine::getInstance()->preloadBackgroundMusic("Audio/bgmusic/BGM_bat_2.mp3");
+	CocosDenshion::SimpleAudioEngine::getInstance()->preloadBackgroundMusic("Audio/bgmusic/fight_bgMusic.mp3");
+
+	CocosDenshion::SimpleAudioEngine::getInstance()->preloadEffect("Audio/button/button_pressed.ogg");
+	CocosDenshion::SimpleAudioEngine::getInstance()->preloadEffect("Audio/button/buyKey.ogg");
+	CocosDenshion::SimpleAudioEngine::getInstance()->preloadEffect("Audio/button/shopMoney.ogg");
+
+	CocosDenshion::SimpleAudioEngine::getInstance()->preloadEffect("Audio/link/1.ogg");
+	CocosDenshion::SimpleAudioEngine::getInstance()->preloadEffect("Audio/link/2.ogg");
+	CocosDenshion::SimpleAudioEngine::getInstance()->preloadEffect("Audio/link/3.ogg");
+	CocosDenshion::SimpleAudioEngine::getInstance()->preloadEffect("Audio/link/4.ogg");
+	CocosDenshion::SimpleAudioEngine::getInstance()->preloadEffect("Audio/link/5.ogg");
+	CocosDenshion::SimpleAudioEngine::getInstance()->preloadEffect("Audio/link/6.ogg");
+	CocosDenshion::SimpleAudioEngine::getInstance()->preloadEffect("Audio/link/7.ogg");
+	CocosDenshion::SimpleAudioEngine::getInstance()->preloadEffect("Audio/link/8.ogg");
+	CocosDenshion::SimpleAudioEngine::getInstance()->preloadEffect("Audio/link/9.ogg");
+	CocosDenshion::SimpleAudioEngine::getInstance()->preloadEffect("Audio/link/10.ogg");
+	CocosDenshion::SimpleAudioEngine::getInstance()->preloadEffect("Audio/link/11.ogg");
+	CocosDenshion::SimpleAudioEngine::getInstance()->preloadEffect("Audio/link/12.ogg");
+	CocosDenshion::SimpleAudioEngine::getInstance()->preloadEffect("Audio/link/13.ogg");
+	CocosDenshion::SimpleAudioEngine::getInstance()->preloadEffect("Audio/link/14.ogg");
+	CocosDenshion::SimpleAudioEngine::getInstance()->preloadEffect("Audio/link/15.ogg");
+
+	CocosDenshion::SimpleAudioEngine::getInstance()->preloadEffect("Audio/other/chest_main.ogg");
+	CocosDenshion::SimpleAudioEngine::getInstance()->preloadEffect("Audio/other/go.ogg");
+	CocosDenshion::SimpleAudioEngine::getInstance()->preloadEffect("Audio/other/hammer.ogg");
+
+	CocosDenshion::SimpleAudioEngine::getInstance()->preloadEffect("Audio/special/bomb.ogg");
+	CocosDenshion::SimpleAudioEngine::getInstance()->preloadEffect("Audio/special/good.ogg");
+	CocosDenshion::SimpleAudioEngine::getInstance()->preloadEffect("Audio/special/great.ogg");
+	CocosDenshion::SimpleAudioEngine::getInstance()->preloadEffect("Audio/special/refresh.ogg");
+	CocosDenshion::SimpleAudioEngine::getInstance()->preloadEffect("Audio/special/sword.ogg");
 }
 
 // This function will be called when the app is inactive. When comes a phone call,it's be invoked too

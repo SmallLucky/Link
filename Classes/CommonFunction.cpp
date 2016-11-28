@@ -2,13 +2,13 @@
 
 Vec2 CommonFunction::getVisibleAchor(Anchor anchor, Vec2 deltaPos)
 {
-	return getVisibleAchor(anchor, NULL, deltaPos);
+	return getVisibleAchor(anchor, nullptr, deltaPos);
 }
 
 Vec2 CommonFunction::getVisibleAchor(Anchor anchor, Node * node, Vec2 deltaPos)
 {
 	Size winSize;
-	if (node == NULL)
+	if (node == nullptr)
 		winSize = Director::getInstance()->getVisibleSize();
 	else
 		winSize = node->getContentSize();
@@ -159,7 +159,7 @@ cocos2d::ui::RichText * CommonFunction::getRichtext(std::string textStr, float r
 	_richText->ignoreContentAdaptWithSize(false);
 	_richText->setSize(Size(richWight, richHight));
 
-	RichElementText*  re = NULL;
+	RichElementText*  re = nullptr;
 	int i = 100;
 	Color3B fontcolor;
 	int fontsize;
@@ -192,7 +192,7 @@ cocos2d::ui::RichText * CommonFunction::getRichtext(std::string textStr, float r
 
 CCActionInterval * CommonFunction::setScaleto(float time, float scalNum, EaseElasticOutType type)
 {
-	CCActionInterval * elasticin = NULL;
+	CCActionInterval * elasticin = nullptr;
 	switch (type)
 	{
 	case Out:
@@ -275,16 +275,16 @@ void CommonFunction::nodeVisit(Node * node)
 
 Node* CommonFunction::getNodeChildByTag(Node * node, int childTag)
 {
-	Node * m_node = NULL;
+	Node * m_node = nullptr;
 
 	m_node = node->getChildByTag(childTag);
-	if (m_node == NULL)
+	if (m_node == nullptr)
 	{
 		Vector<Node *> m_nodeChildren = node->getChildren();
 		for (int i = 0; i < m_nodeChildren.size(); i++)
 		{
 			Node* subNode = getNodeChildByTag(m_nodeChildren.at(i), childTag);
-			if (subNode != NULL)
+			if (subNode != nullptr)
 			{
 				return subNode;
 			}
@@ -294,7 +294,7 @@ Node* CommonFunction::getNodeChildByTag(Node * node, int childTag)
 	{
 		return m_node;
 	}
-	return NULL;
+	return nullptr;
 }
 
 //精灵变灰
@@ -400,7 +400,7 @@ CCActionInterval * CommonFunction::GetShakeAction(ShakeMode mode)
 			CCMoveTo::create(WM_TIME_NUMBER, Vec2(-5, 15)),
 			CCMoveTo::create(WM_TIME_NUMBER, Vec2(-4, 5)),
 			CCMoveTo::create(WM_TIME_NUMBER, Vec2(0, 0)),
-			NULL
+			nullptr
 			);
 	}
 	else if (mode == Moderation)
@@ -420,7 +420,7 @@ CCActionInterval * CommonFunction::GetShakeAction(ShakeMode mode)
 			CCMoveTo::create(WM_TIME_NUMBER, Vec2(0, 2)),
 			CCMoveTo::create(WM_TIME_NUMBER, Vec2(-3, -2)),
 			CCMoveTo::create(WM_TIME_NUMBER, Vec2(0, 0)),
-			NULL
+			nullptr
 			);
 	}
 	else if (mode == Slight)
@@ -435,7 +435,7 @@ CCActionInterval * CommonFunction::GetShakeAction(ShakeMode mode)
 			CCMoveTo::create(WM_TIME_NUMBER, Vec2(2, -2)),
 			CCMoveTo::create(WM_TIME_NUMBER, Vec2(0, 2)),
 			CCMoveTo::create(WM_TIME_NUMBER, Vec2(0, 0)),
-			NULL
+			nullptr
 			);
 	}
 	else if (mode == SlightNormal)
@@ -445,7 +445,7 @@ CCActionInterval * CommonFunction::GetShakeAction(ShakeMode mode)
 			CCMoveTo::create(WM_TIME_NUMBER, Vec2(1, -1)),
 			CCMoveTo::create(WM_TIME_NUMBER, Vec2(-3, 6)),
 			CCMoveTo::create(WM_TIME_NUMBER, Vec2(0, 0)),
-			NULL
+			nullptr
 			);
 	}
 	action->setTag(1000);
@@ -489,13 +489,13 @@ void CommonFunction::nodeFadeOut(Node * node, float time)
 void CommonFunction::nodeFadeIn(Node * node, float time)
 {
 	node->setOpacity(0);
-	node->runAction(CCSequence::create(CCFadeIn::create(time), NULL));
+	node->runAction(CCSequence::create(CCFadeIn::create(time), nullptr));
 
 	Vector<Node *> m_nodeChildren = node->getChildren();
 	for (int i = 0; i < m_nodeChildren.size(); i++)
 	{
 		m_nodeChildren.at(i)->setOpacity(0);
-		m_nodeChildren.at(i)->runAction(CCSequence::create(CCFadeIn::create(time), NULL));
+		m_nodeChildren.at(i)->runAction(CCSequence::create(CCFadeIn::create(time), nullptr));
 		nodeFadeIn(m_nodeChildren.at(i), time);
 	}
 }
@@ -548,7 +548,7 @@ Animate* CommonFunction::getCCAnimate(std::string imageName, Size &spriteSize, f
 	{
 		sprintf(path, "%s%d.png", imageName.c_str(), index);
 		spriteFrame = SpriteFrameCache::sharedSpriteFrameCache()->spriteFrameByName(path);
-		if (spriteFrame == NULL)
+		if (spriteFrame == nullptr)
 			break;
 
 		spriteSize = spriteFrame->getOriginalSize();
@@ -566,7 +566,7 @@ Animate* CommonFunction::getCCAnimate(std::string imageName, Size &spriteSize, f
 		return termpAnimate;
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 
@@ -833,7 +833,7 @@ Animation* CommonFunction::createWithFrameNameAndNum(const char* name, int iNum,
 int CommonFunction::getCurDay()
 {
 	struct timeval tv;
-	gettimeofday(&tv, NULL);
+	gettimeofday(&tv, nullptr);
 
 	time_t lt = time(0);
 	tm* t = localtime(&lt);

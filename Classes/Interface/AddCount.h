@@ -1,8 +1,9 @@
 #pragma once
 
 #include "Global.h"
+#include "LayerEffect/LayerEffect.h"
 
-class AddCount : public Layer
+class AddCount : public TopDownLayer
 {
 public:
 	CREATE_FUNC(AddCount);

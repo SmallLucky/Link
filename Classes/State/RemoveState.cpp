@@ -13,7 +13,7 @@ bool RemoveState::checkStateChange() //状态改变返回true，状态未改变返回false，
 	{
 		//CHANGE_TO_STATE(LineBoomState);
 	}
-	if (matrixFinishFlag)
+	if (matrixFinishFlag && !scene->enoughTargetElement()) // && scene->showScoreUp() < GameData::getInstance()->getTargetScore(GameData::getInstance()->getCurLevel())
 		CHANGE_TO_STATE(LinkState); //若元素已下落完成，则进入等待连线状态
 	if (gameStartFlag)
 	{
@@ -49,13 +49,14 @@ void RemoveState::onUpdate(float dt)
 	//	//gameOverFlag = true; //若时间用尽，则游戏结束
 	//	log("gameOverFlag");
 	//}
-	if (scene->showScoreUp() >=GameData::getInstance()->getTargetScore(GameData::getInstance()->getCurLevel()))
+	if (matrixFinishFlag)
+	if (scene->showScoreUp() >= GAMEDATA->getTargetScore(GAMEDATA->getCurLevel()) )
 	{
 		log("score");
-		//GAMEDATA->setCurLevel(GAMEDATA->getCurLevel()+1);
-		//gameStartFlag = true;
-		scene->gameNextLevel();
-		
+		if (scene->enoughTargetElement() && matrixFinishFlag)
+		{
+			scene->gameNextLevel();
+		}
 	}
 	if (scene->getIsGameOver())
 	{

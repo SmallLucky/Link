@@ -26,6 +26,9 @@ public:
 	void setTimeUI(); //
 	void update(float dt); // 
 	long millisecondNow();
+
+	void addEffectYun();
+
 private:
 	ScrollView* scrollview;
 	Point oldPoint;

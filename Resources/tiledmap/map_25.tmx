@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <map version="1.0" orientation="orthogonal" renderorder="right-down" width="6" height="6" tilewidth="100" tileheight="100" nextobjectid="1">
- <tileset firstgid="1" name="bg_kuang" tilewidth="100" tileheight="100" tilecount="1">
+ <tileset firstgid="1" name="bg_kuang" tilewidth="100" tileheight="100" tilecount="1" columns="1">
   <image source="bg_kuang.png" width="100" height="100"/>
  </tileset>
- <tileset firstgid="2" name="type5" tilewidth="100" tileheight="100" tilecount="5">
+ <tileset firstgid="2" name="type5" tilewidth="100" tileheight="100" tilecount="5" columns="5">
   <image source="type5.png" width="500" height="100"/>
   <tile id="0">
    <properties>
@@ -28,7 +28,7 @@
  </layer>
  <layer name="type" width="6" height="6">
   <data encoding="base64" compression="zlib">
-   eJxjYWBgYELDLGg0MpsZi3pmLHLMWPTiMhtZDgAbKABd
+   eJxjYWBgYMKBWdD4zFCMSw0zDjY2jE0eJAYAGWQAVQ==
   </data>
  </layer>
 </map>

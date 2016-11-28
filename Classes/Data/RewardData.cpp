@@ -17,6 +17,12 @@ RewardData::~RewardData()
 	m_offsetY.clear();
 	m_refresh.clear();
 	m_boom.clear();
+
+	m_blue.clear();
+	m_purple.clear();
+	m_green.clear();
+	m_rad.clear();
+	m_yellor.clear();
 }
 
 RewardData* RewardData:: getInstance()
@@ -56,7 +62,7 @@ rapidjson::Document RewardData::preparePrase()
 
 	if (docment.HasParseError()) {
 		log("GetParaseErro %s\n", docment.GetParseError());
-		return NULL;
+		return nullptr;
 	}
 
 	return docment;
@@ -112,6 +118,12 @@ void	RewardData::praseJsonData()
 	m_refresh.clear();
 	m_boom.clear();
 
+	m_blue.clear();
+	m_purple.clear();
+	m_green.clear();
+	m_rad.clear();
+	m_yellor.clear();
+
 	rapidjson::Value & json_array = doc["Tollgate"];
 
 	for (unsigned int i = 0; i < json_array.Size(); i++)
@@ -126,6 +138,39 @@ void	RewardData::praseJsonData()
 		rapidjson::Value & offsetY = chapter["offsetY"];
 		rapidjson::Value & refresh = chapter["refresh"];
 		rapidjson::Value & boom = chapter["boom"]; 
+
+		rapidjson::Value & blue = chapter["blue"];
+		rapidjson::Value & purple = chapter["purple"];
+		rapidjson::Value & green = chapter["green"];
+		rapidjson::Value & rad = chapter["rad"];
+		rapidjson::Value & yellor = chapter["yellor"];
+
+		for (unsigned int a = 0; a < blue.Size(); a++)
+		{
+			rapidjson::Value & value = blue[a];
+			m_blue.push_back(value.GetInt());
+		}
+
+		for (unsigned int b = 0; b < purple.Size(); b++)
+		{
+			rapidjson::Value & value = purple[b];
+			m_purple.push_back(value.GetInt());
+		}
+		for (unsigned int c = 0; c < green.Size(); c++)
+		{
+			rapidjson::Value & value = green[c];
+			m_green.push_back(value.GetInt());
+		}
+		for (unsigned int d = 0; d < rad.Size(); d++)
+		{
+			rapidjson::Value & value = rad[d];
+			m_rad.push_back(value.GetInt());
+		}
+		for (unsigned int e = 0; e < yellor.Size(); e++)
+		{
+			rapidjson::Value & value = yellor[e];
+			m_yellor.push_back(value.GetInt());
+		}
 
 		for (unsigned int l = 0; l < power.Size(); l++)
 		{
@@ -221,4 +266,45 @@ int		RewardData::getBoom(int index)
 		return 0;
 	}
 	return m_boom[index];
+}
+
+int RewardData::getBlue(int index)
+{
+	if (index < 0)
+	{
+		return 0;
+	}
+	return m_blue[index];
+}
+int RewardData::getPurple(int index)
+{
+	if (index < 0)
+	{
+		return 0;
+	}
+	return m_purple[index];
+}
+int RewardData::getGreen(int index)
+{
+	if (index < 0)
+	{
+		return 0;
+	}
+	return m_green[index];
+}
+int RewardData::getRad(int index)
+{
+	if (index < 0)
+	{
+		return 0;
+	}
+	return m_rad[index];
+}
+int RewardData::getYellor(int index)
+{
+	if (index < 0)
+	{
+		return 0;
+	}
+	return m_yellor[index];
 }

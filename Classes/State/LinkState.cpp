@@ -17,12 +17,12 @@ bool LinkState::checkStateChange() //状态改变返回true，状态未改变返回false，
 	}
 	else if (refreshElement)
 	{
-		log("need refresh!!!");//调刷新方法，或者创建一个刷新状态
+		//调刷新方法，或者创建一个刷新状态
 		//CHANGE_TO_STATE(GameOverState);
 		if (scene->isResponse())
 		{
-			log("need refresh!!!");//
-			scene->refreshElement();
+			//log("need refresh!!!");//
+			/*scene->refreshElement();*/
 		}	
 	}
 	return false;
@@ -38,7 +38,6 @@ bool LinkState::entryState()
 
 	gameOverFlag = false;
 	refreshElement = false;
-	log("LinkState!!!");//
  	return true;
 }
 

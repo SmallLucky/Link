@@ -1,9 +1,9 @@
 #pragma once 
 
 #include "Global.h"
+#include "LayerEffect/LayerEffect.h"
 
-
-class StopLayer :public Layer
+class StopLayer :public EasePop
 {
 public:
 	CREATE_FUNC(StopLayer);

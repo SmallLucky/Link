@@ -69,9 +69,8 @@ void ElementUnit::disappear(float time)
 		{
 			this->removeFromParent();
 		}
-
 	});
-	Action* scale = Sequence::create(ScaleTo::create(time, 0), fun, NULL);// RemoveSelf::create()
+	Action* scale = Sequence::create(ScaleTo::create(time, 0), fun, nullptr);// RemoveSelf::create()
 	this->runAction(scale);
 }
  

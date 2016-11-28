@@ -11,7 +11,9 @@
 #include "Interface/AddCount.h"
 
 int  GameScene::_power = 0;
-GameScene::GameScene()
+GameScene::GameScene() : m_blue(REWARDDATA->getBlue(GAMEDATA->getCurLevel())), m_purple(REWARDDATA->getPurple(GAMEDATA->getCurLevel())),
+m_green(REWARDDATA->getGreen(GAMEDATA->getCurLevel())), m_rad(REWARDDATA->getRad(GAMEDATA->getCurLevel())), 
+m_yellor(REWARDDATA->getYellor(GAMEDATA->getCurLevel()))
 {
 	auto _listenerReresh = EventListenerCustom::create(REFRESHPROPS, [=](EventCustom*event){
 		refreshProps();
@@ -27,6 +29,53 @@ GameScene::GameScene()
 	_eventDispatcher->addEventListenerWithFixedPriority(_listenerReresh, 1);
 	_eventDispatcher->addEventListenerWithFixedPriority(_listenerIsGameOverTrue, 1);
 	_eventDispatcher->addEventListenerWithFixedPriority(_listenerIsGameOverFaLse, 1);
+
+	auto _listenerBlue = EventListenerCustom::create(BLUE, [=](EventCustom*event){
+		m_blue -= matrix->removeTargetECount;
+		if (m_blue <= 0)
+		{
+			m_blue = 0;
+		}
+		showTargetElementNum(0, m_blue);
+	});
+	auto _listenerPurple = EventListenerCustom::create(PURPLE, [=](EventCustom*event){
+		m_purple -= matrix->removeTargetECount;
+		if (m_purple <= 0)
+		{
+			m_purple = 0;
+		}
+		showTargetElementNum(1, m_purple);
+	});
+	auto _listenerGreen = EventListenerCustom::create(GREEN, [=](EventCustom*event){
+		m_green -= matrix->removeTargetECount;
+		if (m_green <= 0)
+		{
+			m_green = 0;
+		}
+		showTargetElementNum(2, m_green);
+	});
+	auto _listenerRad = EventListenerCustom::create(RAD, [=](EventCustom*event){
+		m_rad -= matrix->removeTargetECount;
+		if (m_rad <= 0)
+		{
+			m_rad = 0;
+		}
+		showTargetElementNum(3, m_rad);
+	});
+	auto _listenerYellor = EventListenerCustom::create(YELLOR, [=](EventCustom*event){
+		m_yellor -= matrix->removeTargetECount;
+		if (m_yellor <= 0)
+		{
+			m_yellor = 0;
+		}
+		showTargetElementNum(4, m_yellor);
+	});
+
+	_eventDispatcher->addEventListenerWithFixedPriority(_listenerBlue, 1);
+	_eventDispatcher->addEventListenerWithFixedPriority(_listenerPurple, 1);
+	_eventDispatcher->addEventListenerWithFixedPriority(_listenerGreen, 1);
+	_eventDispatcher->addEventListenerWithFixedPriority(_listenerRad, 1);
+	_eventDispatcher->addEventListenerWithFixedPriority(_listenerYellor, 1);
 }
 
 GameScene::~GameScene()
@@ -34,6 +83,11 @@ GameScene::~GameScene()
 	_eventDispatcher->removeCustomEventListeners(REFRESHPROPS);
 	_eventDispatcher->removeCustomEventListeners(ISGAMEOVERTRUE);
 	_eventDispatcher->removeCustomEventListeners(ISGAMEOVERFALSE);
+	_eventDispatcher->removeCustomEventListeners(BLUE);
+	_eventDispatcher->removeCustomEventListeners(PURPLE);
+	_eventDispatcher->removeCustomEventListeners(GREEN);
+	_eventDispatcher->removeCustomEventListeners(RAD);
+	_eventDispatcher->removeCustomEventListeners(YELLOR);
 }
 bool GameScene::init()
 {
@@ -42,11 +96,9 @@ bool GameScene::init()
 #endif
 	if (!Scene::init())
 	{
-#if(CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
-		LOGD("GameScene::init() false");
-#endif
 		return false;
 	}
+
 	isGameOver = false;
 	addUI();
 	stateMachine = StateMachine::createWithGameScene(this); //创建状态机
@@ -79,13 +131,13 @@ void GameScene::addUI()
 
 
 	auto stopButton = Button::create("button/stop_button2.png", "button/stop_button2.png");
-	stopButton->setPosition(CommonFunction::getVisibleAchor(Anchor::Center, bg, Vec2(-180, -30)));
+	stopButton->setPosition(CommonFunction::getVisibleAchor(Anchor::Center, bg, Vec2(-268, -20)));
 	bg->addChild(stopButton);
 	stopButton->addClickEventListener([=](Ref*){
 		if (matrix->isResponse())
 		{
 			if (UserDefault::getInstance()->getBoolForKey("IS_EFFECT", true))
-				CocosDenshion::SimpleAudioEngine::getInstance()->playEffect(CLICK_BUTTON);
+				AudioData::getInstance()->addButtonEffect(1);
 			StopLayer* stopLayer = StopLayer::create();
 			addChild(stopLayer, 2);
 		}
@@ -94,53 +146,63 @@ void GameScene::addUI()
 	for (int i = 0; i < 2; i++)
 	{
 		auto props_bg = Sprite::create("infor/props_bg.png");
-		props_bg->setPosition(CommonFunction::getVisibleAchor(Anchor::Center,bg,Vec2(i*160-30,-30)));
+		props_bg->setPosition(CommonFunction::getVisibleAchor(Anchor::Center,bg,Vec2(i*170,-35)));
 		bg->addChild(props_bg);
 
-		auto numbg = Sprite::create("infor/props_numbg.png");
-		numbg->setPosition(CommonFunction::getVisibleAchor(Anchor::RightTop, props_bg, Vec2(0, 0)));
+		auto numbg = Button::create("infor/props_numbg.png");
+		numbg->setPosition(CommonFunction::getVisibleAchor(Anchor::RightButtom, props_bg, Vec2(-5, 15)));
 		props_bg->addChild(numbg);
 
 		if (i==0)
 		{
 			refreshNum = LabelAtlas::create(Value(GAMEDATA->getRefresh()).asString(), "fonts/game_propsnum.png", 20, 24, '0');
-			refreshNum->setPosition(CommonFunction::getVisibleAchor(Anchor::Center, numbg, Vec2(0, 0)));
+			refreshNum->setPosition(CommonFunction::getVisibleAchor(Anchor::Center, numbg, Vec2(10, 0)));
 			refreshNum->setAnchorPoint(Vec2(0.5, 0.5));
 			refreshNum->setScale(0.6);
 			numbg->addChild(refreshNum);
+			numbg->addClickEventListener(CC_CALLBACK_0(GameScene::addRefreshPropsCallBarck, this));
 		}
 		if (i==1)
 		{
 			boombNum = LabelAtlas::create(Value(GAMEDATA->getBoomb()).asString(), "fonts/game_propsnum.png", 20, 24, '0');
-			boombNum->setPosition(CommonFunction::getVisibleAchor(Anchor::Center, numbg, Vec2(0, 0)));
+			boombNum->setPosition(CommonFunction::getVisibleAchor(Anchor::Center, numbg, Vec2(10 , 0)));
 			boombNum->setAnchorPoint(Vec2(0.5, 0.5));
 			boombNum->setScale(0.6);
 			numbg->addChild(boombNum);
+			numbg->addClickEventListener(CC_CALLBACK_0(GameScene::addBoomPropsCallBarck,this));
 		}
 
 		string str = StringUtils::format("infor/props_%d.png", i);
 		auto props = Button::create(str);
 		if (props)
 		{
-			props->setPosition(CommonFunction::getVisibleAchor(Anchor::Center,props_bg,Vec2(0,0)));
+			props->setScale(1.3);
+			props->setPosition(CommonFunction::getVisibleAchor(Anchor::Center,props_bg,Vec2(0,20)));
 			props_bg->addChild(props);
 			props->addClickEventListener([=](Ref*){
-				if (UserDefault::getInstance()->getBoolForKey("IS_EFFECT", true))
-					CocosDenshion::SimpleAudioEngine::getInstance()->playEffect(CLICK_BUTTON);
 				if (i == 0)
 				{
 					if (GAMEDATA->getRefresh() > 0)
 					{
-						GAMEDATA->setrefresh(GAMEDATA->getRefresh() - 1);
+						if (UserDefault::getInstance()->getBoolForKey("IS_EFFECT", true))
+							AudioData::getInstance()->addSpecialEffect(4);
+						GAMEDATA->setRefresh(GAMEDATA->getRefresh() - 1);
 						refreshElement();
 						refreshNum->setString(Value(GAMEDATA->getRefresh()).asString());
+					}
+					else
+					{
+						//道具不够提醒购买
+						cout << "道具不够提醒购买" << endl;
 					}
 
 				}
 				if (i == 1)
 				{
-					if (GAMEDATA->getBoomb())
+					if (GAMEDATA->getBoomb() > 0)
 					{
+						if (UserDefault::getInstance()->getBoolForKey("IS_EFFECT", true))
+							AudioData::getInstance()->addButtonEffect(1);
 						if (matrix->getIsBoom())
 						{
 							matrix->setIsBoom(false);
@@ -150,11 +212,75 @@ void GameScene::addUI()
 							matrix->setIsBoom(true);
 						}
 					}
+					else
+					{
+						//道具不够提醒购买
+						cout << "道具不够提醒购买" << endl;
+					}
 				}
 			});
 		}
 	}
 
+}
+
+//道具按钮旁边添加道具回调方法
+void GameScene::addRefreshPropsCallBarck()
+{
+	bool isBy = false;
+	if (GAMEDATA->getLoveNum() >= 2)
+	{
+		GAMEDATA->setLoveNum(GAMEDATA->getLoveNum() - 2); //爱心大于等于2
+		isBy = true;
+	}
+	else
+	{
+		isBy = false; //数量不够，弹出购买弹框
+		cout << "爱心不够" << endl;
+	}
+	if (GAMEDATA->getMoneyNum() >= 60)
+	{
+		if (isBy)
+		{
+			GAMEDATA->setMoneyNum(GAMEDATA->getMoneyNum() - 60); //爱心扣成功，扣除金币
+			GAMEDATA->setRefresh(GAMEDATA->getRefresh() + 1); //两者都扣除后，添加道具
+			refreshNum->setString(Value(GAMEDATA->getRefresh()).asString()); //刷新道具数量
+		}
+	}
+	else
+	{
+		isBy = false;
+		cout << "金币不够" << endl;
+	}
+}
+
+void GameScene::addBoomPropsCallBarck()
+{
+	bool isBy = false;
+	if (GAMEDATA->getLoveNum() >= 2)
+	{
+		GAMEDATA->setLoveNum(GAMEDATA->getLoveNum() - 2); //爱心大于等于2
+		isBy = true;
+	}
+	else
+	{
+		isBy = false; //数量不够，弹出购买弹框
+		cout << "爱心不够" << endl;
+	}
+	if (GAMEDATA->getMoneyNum() >= 60)
+	{
+		if (isBy)
+		{
+			GAMEDATA->setMoneyNum(GAMEDATA->getMoneyNum() - 60); //爱心扣成功，扣除金币
+			GAMEDATA->setRefresh(GAMEDATA->getBoomb() + 1); //两者都扣除后，添加道具
+			refreshNum->setString(Value(GAMEDATA->getBoomb()).asString()); //刷新道具数量
+		}
+	}
+	else
+	{
+		isBy = false;
+		cout << "金币不够" << endl;
+	}
 }
 
 void GameScene::refreshProps()
@@ -260,6 +386,10 @@ void GameScene::showCount(int c)
 	information->showCount(c);
 }
 
+void  GameScene::showTargetElementNum(int ele, int n)
+{
+	information->showTargetElementNum(ele,n);
+}
 // 显示体力
 void GameScene::showPower(int p)
 {
@@ -271,7 +401,18 @@ void GameScene::showPower(int p)
 
 void GameScene::showAllCount()
 {
-	m_count = _count - matrix->removeMyCount();
+	//if (!enoughTargetElement || GAMEDATA->getCurSocre() < GAMEDATA->getTargetScore(GAMEDATA->getCurLevel()))
+	//{
+
+	//}
+	m_count = GAMEDATA->getCount(GAMEDATA->getCurLevel()) - matrix->removeMyCount();
+	if (m_count <= 0 )
+	{
+		m_count = 0;
+	}
+#if(CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
+	LOGD(" GameScene::showAllCount():%d",m_count);
+#endif
 	information->showCount(m_count);
 }
 
@@ -312,8 +453,6 @@ bool GameScene::elementsFall()
 //#if(CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
 //	LOGD("GameScene::elementsFall()");
 //#endif
-	log(" GameScene::elementsFall()");
-
 	return matrix->elementsFall();
 }
 
@@ -358,7 +497,6 @@ void GameScene::removeLink()
 //游戏结束，显示分数，提示开始新游戏
 void GameScene::gameOver()
 {
-	log("gameOver()");
 	if (GAMEDATA->getCurSocre() < GAMEDATA->getTargetScore(GAMEDATA->getCurLevel()))
 	{
 		LoserLayer* loserLayer = LoserLayer::create();
@@ -368,8 +506,85 @@ void GameScene::gameOver()
 
 void  GameScene::gameNextLevel()
 {
-	auto nextlevel = TotalLayer::create();
-	addChild(nextlevel,1);
+	this->unscheduleUpdate();
+
+	auto time = DelayTime::create(1.5);
+
+	auto callFun = CallFunc::create([=]{
+		auto nextlevel = TotalLayer::create();
+		addChild(nextlevel, 1);
+	});
+
+	auto seq = Sequence::create(time, callFun,nullptr);
+	this->runAction(seq);
+
+}
+
+bool  GameScene::enoughTargetElement()
+{
+	int index = GAMEDATA->getCurLevel();
+	bool finish = true;
+	if (REWARDDATA->getBlue(index) != 0)
+	{
+		if (m_blue <= 0)//REWARDDATA->getBlue(index)
+		{
+			finish = true;
+		}
+		else
+		{
+			finish = false;
+			return finish;
+		}
+	}
+	if (REWARDDATA->getPurple(index) != 0)
+	{
+		if (m_purple <= 0)//REWARDDATA->getPurple(index
+		{
+			finish = true;
+		}
+		else
+		{
+			finish = false;
+			return finish;
+		}
+	}
+	if (REWARDDATA->getGreen(index) != 0)
+	{
+		if (m_green <= 0) //REWARDDATA->getGreen(index)
+		{
+			finish = true;
+		}
+		else
+		{
+			finish = false;
+			return finish;
+		}
+	}
+	if (REWARDDATA->getRad(index) != 0)
+	{
+		if (m_rad <= 0) //REWARDDATA->getRad(index)
+		{
+			finish = true;
+		}
+		else
+		{
+			finish = false;
+			return finish;
+		}
+	}
+	if (REWARDDATA->getYellor(index) != 0)
+	{
+		if (m_yellor <= 0) //REWARDDATA->getYellor(index)
+		{
+			finish = true;
+		}
+		else
+		{
+			finish = false;
+			return finish;
+		}
+	}
+	return finish;
 }
 
 //开始新游戏
@@ -389,7 +604,7 @@ void GameScene::createQuitButton(string normal, string selected)
 	closeItem->setPosition(Point(WIDTH / 2, 0));
 	closeItem->setAnchorPoint(Point(0.5f, 0));
 	setSize(closeItem, 0.08f);
-	auto menu = Menu::create(closeItem, NULL);
+	auto menu = Menu::create(closeItem, nullptr); //--nullptr
 	menu->setPosition(Point::ZERO);
 	this->addChild(menu, 1);
 }
@@ -397,7 +612,6 @@ void GameScene::createQuitButton(string normal, string selected)
 //退出游戏
 void GameScene::quitGame(Ref* pSender)
 {
-	log("Director::getInstance()->popScene();");
 	StartScene* startScene = StartScene::create();
 	Director::getInstance()->replaceScene(startScene);
 }
@@ -417,6 +631,7 @@ void GameScene::update(float dt)
 		stateMachine->update(dt); //游戏主循环由状态机调度
 	}
 }
+
 
 void GameScene::onKeyReleased(EventKeyboard::KeyCode keycode, Event* event)
 {

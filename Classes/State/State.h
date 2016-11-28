@@ -18,8 +18,8 @@ static __TYPE__* create(GameScene* scene) \
 	else \
 	{ \
         delete pRet; \
-        pRet = NULL; \
-        return NULL; \
+        pRet = nullptr; \
+        return nullptr; \
 	} \
 }
 

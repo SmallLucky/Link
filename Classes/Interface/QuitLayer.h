@@ -3,8 +3,9 @@
 #include "Global.h"
 
 #include "TouchSwallowLayer.h"
+#include "LayerEffect/LayerEffect.h"
 
-class QuitLayer : public Layer
+class QuitLayer : public EasePop
 {
 public:
 	bool init();

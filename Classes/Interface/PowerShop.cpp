@@ -3,15 +3,16 @@
 #include "TouchSwallowLayer.h"
 #include "CommonFunction.h"
 #include "Data/GameData.h"
+#include "Data/Data.h"
 
 bool	PowerShop:: init()
 {
-	if (!Layer::init())
+	if (!TopDownLayer::init())
 	{
 		return false;
 	}
-	auto touch = TouchSwallowLayer::create();
-	addChild(touch);
+	//auto touch = TouchSwallowLayer::create();
+	//addChild(touch);
 
 	addUI();
 
@@ -21,8 +22,8 @@ bool	PowerShop:: init()
 void	PowerShop::addUI()
 {
 	auto bg = Sprite::create("popbox/power_kuang.png");
-	bg->setPosition(CommonFunction::getVisibleAchor(Anchor::Center,Vec2(0,0)));
-	addChild(bg);
+	bg->setPosition(CommonFunction::getVisibleAchor(Anchor::Center,this,Vec2(0,0)));
+	m_popNode->addChild(bg);
 
 	auto hong = Sprite::create("popbox/power_shop.png");
 	hong->setPosition(CommonFunction::getVisibleAchor(Anchor::MidTop, bg, Vec2(0, -25)));
@@ -32,7 +33,12 @@ void	PowerShop::addUI()
 	backButton->setPosition(CommonFunction::getVisibleAchor(Anchor::RightTop, bg, Vec2(-20, -20)));
 	bg->addChild(backButton);
 	backButton->addClickEventListener([=](Ref*){
-		this->removeFromParent();
+		if (UserDefault::getInstance()->getBoolForKey("IS_EFFECT", true))
+		{
+			AudioData::getInstance()->addButtonEffect(1);
+		}
+		//this->removeFromParent();
+		close();
 	});
 
 	auto hp_bg = Sprite::create("popbox/hp_bg.png");
@@ -43,7 +49,7 @@ void	PowerShop::addUI()
 	timerbg->setPosition(CommonFunction::getVisibleAchor(Anchor::Center, hp_bg, Vec2(0, -30)));
 	hp_bg->addChild(timerbg);
 	//xueliang
-	float p = (GAMEDATA->getPowerNum() * 100) / 500;
+	float p = (GAMEDATA->getPowerNum() * 100) / MAXPOWER;
 	auto timer = Sprite::create("popbox/timer.png");
 	auto progressTimer = ProgressTimer::create(timer);
 	progressTimer->setPosition(CommonFunction::getVisibleAchor(Anchor::Center, timerbg, Vec2(0, 0)));
@@ -67,11 +73,15 @@ void	PowerShop::addUI()
 		p_button->setPosition(CommonFunction::getVisibleAchor(Anchor::MidButtom, power, Vec2(0, -55)));
 		power->addChild(p_button);
 		p_button->addClickEventListener([=](Ref*){
+			if (UserDefault::getInstance()->getBoolForKey("IS_EFFECT", true))
+			{
+				AudioData::getInstance()->addButtonEffect(1);
+			}
 			if (i == 0)
 			{
 				log("1");
-				GAMEDATA->setPowerNum(500); //»¨Ò»¿éÇ®ÂúÑª
-			    float np = (GAMEDATA->getPowerNum() * 100) / 500;
+				GAMEDATA->setPowerNum(MAXPOWER); //»¨Ò»¿éÇ®ÂúÑª
+				float np = (GAMEDATA->getPowerNum() * 100) / MAXPOWER;
 				auto progressTo = ProgressTo::create(1,np);
 				progressTimer->runAction(progressTo);
 				refreshUI();
@@ -82,8 +92,8 @@ void	PowerShop::addUI()
 			if (i == 1)
 			{
 				log("12");
-				GAMEDATA->setPowerNum(min(GAMEDATA->getPowerNum()+10,500)); //»¨12coinsÇ®ÂúÑª
-				float np = (GAMEDATA->getPowerNum() * 100) / 500;
+				GAMEDATA->setPowerNum(min(GAMEDATA->getPowerNum()+10,MAXPOWER)); //»¨12coinsÇ®ÂúÑª
+				float np = (GAMEDATA->getPowerNum() * 100) / MAXPOWER;
 				auto progressTo = ProgressTo::create(1, np);
 				progressTimer->runAction(progressTo);
 				refreshUI();
@@ -94,8 +104,8 @@ void	PowerShop::addUI()
 			if (i == 2)
 			{
 				log("20");
-				GAMEDATA->setPowerNum(min(GAMEDATA->getPowerNum() + 5, 500)); //»¨20lovesÇ®ÂúÑª
-				float np = (GAMEDATA->getPowerNum() * 100) / 500;
+				GAMEDATA->setPowerNum(min(GAMEDATA->getPowerNum() + 5, MAXPOWER)); //»¨20lovesÇ®ÂúÑª
+				float np = (GAMEDATA->getPowerNum() * 100) / MAXPOWER;
 				auto progressTo = ProgressTo::create(1, np);
 				progressTimer->runAction(progressTo);
 				refreshUI();
@@ -116,9 +126,13 @@ void	PowerShop::addUI()
 	share_power->setPosition(CommonFunction::getVisibleAchor(Anchor::RightTop,timer_zhao,Vec2(10,30)));
 	timer_zhao->addChild(share_power);
 	share_power->addClickEventListener([=](Ref*){
+		if (UserDefault::getInstance()->getBoolForKey("IS_EFFECT", true))
+		{
+			AudioData::getInstance()->addButtonEffect(1);
+		}
 		log("share:1"); //¼Ó·ÖÏíÁ´½Ó
-		GAMEDATA->setPowerNum(min(GAMEDATA->getPowerNum()+1,500)); //·ÖÏí¼Ó1 
-		float np = (GAMEDATA->getPowerNum() * 100) / 500;
+		GAMEDATA->setPowerNum(min(GAMEDATA->getPowerNum() + 1, MAXPOWER)); //·ÖÏí¼Ó1 
+		float np = (GAMEDATA->getPowerNum() * 100) / MAXPOWER;
 		auto progressTo = ProgressTo::create(1, np);
 		progressTimer->runAction(progressTo);
 		refreshUI();
@@ -127,17 +141,18 @@ void	PowerShop::addUI()
 		_eventDispatcher->dispatchEvent(&_event);
 	});
 
-	nowNum = LabelAtlas::create(Value(GAMEDATA->getPowerNum()).asString(),"fonts/power_shopnum.png",25,32,'0');
+	nowNum = LabelAtlas::create(Value(GAMEDATA->getPowerNum()).asString(),"fonts/power_shopnum.png",28,32,'0');
 	nowNum->setAnchorPoint(Vec2(1,0.5));
 	nowNum->setPosition(CommonFunction::getVisibleAchor(Anchor::Center,timer_zhao,Vec2(0,0)));
 	timer_zhao->addChild(nowNum);
 
 	auto xie = Sprite::create("popbox/timerxie.png");
 	xie->setPosition(CommonFunction::getVisibleAchor(Anchor::RightMid,nowNum,Vec2(10,0)));
+	xie->setAnchorPoint(Vec2(0, 0.5));
 	nowNum->addChild(xie);
 
-	auto num = LabelAtlas::create(Value(500).asString(), "fonts/power_shopnum.png", 25, 32, '0');
-	num->setPosition(CommonFunction::getVisibleAchor(Anchor::RightMid,xie,Vec2(0,0)));
+	auto num = LabelAtlas::create(Value(MAXPOWER).asString(), "fonts/power_shopnum.png", 28, 32, '0');
+	num->setPosition(CommonFunction::getVisibleAchor(Anchor::RightMid,xie,Vec2(10,0)));
 	xie->addChild(num);
 	num->setAnchorPoint(Vec2(0,0.5));
 

@@ -2,28 +2,30 @@
 #include "QuitLayer.h"
 #include "CommonFunction.h"
 #include "Data/GameData.h"
+#include "Data/Data.h"
 
 bool QuitLayer::init()
 {
-	if (!Layer::init())
+	if (!EasePop::init())
 	{
 		return false;
 	}
-	auto touchSwallow = TouchSwallowLayer::create();
-	addChild(touchSwallow);
+	/*auto touchSwallow = TouchSwallowLayer::create();
+	touchSwallow->setPosition(CommonFunction::getVisibleAchor(Anchor::Center, m_popNode, Vec2(0, 0)));
+	m_popNode->addChild(touchSwallow);*/
 
 	addUI();
-	auto listenerkeyPad = EventListenerKeyboard::create();
-	listenerkeyPad->onKeyReleased = CC_CALLBACK_2(QuitLayer::onKeyReleased, this);
-	_eventDispatcher->addEventListenerWithSceneGraphPriority(listenerkeyPad, this);
+	//auto listenerkeyPad = EventListenerKeyboard::create();
+	//listenerkeyPad->onKeyReleased = CC_CALLBACK_2(QuitLayer::onKeyReleased, this);
+	//_eventDispatcher->addEventListenerWithSceneGraphPriority(listenerkeyPad, this);
 	return true;
 }
 
 void QuitLayer::addUI()
 {
 	auto bg = Sprite::create("popbox/mid_kuang.png");
-	bg->setPosition(CommonFunction::getVisibleAchor(Anchor::Center,Vec2(0,0)));
-	addChild(bg);
+	bg->setPosition(CommonFunction::getVisibleAchor(Anchor::Center,this,Vec2(0,0)));
+	m_popNode->addChild(bg);
 
 	auto quitLabel = Sprite::create("popbox/quit_label.png");
 	quitLabel->setPosition(CommonFunction::getVisibleAchor(Anchor::MidTop,bg,Vec2(0,-10)));
@@ -56,7 +58,11 @@ void QuitLayer::QuitGame()
 	MessageBox("You pressed the close button. Windows Store Apps do not implement a close button.", "Alert");
 	return;
 #endif
-	GAMEDATA->setLoveNum(3);
+	if (UserDefault::getInstance()->getBoolForKey("IS_EFFECT", true))
+	{
+		AudioData::getInstance()->addButtonEffect(1);
+	}
+	//GAMEDATA->setLoveNum(3);
 	Director::getInstance()->end();
 
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_IOS)
@@ -66,8 +72,12 @@ void QuitLayer::QuitGame()
 
 void QuitLayer::backGame()
 {
-	log("leave");
-	this->removeFromParent();
+	if (UserDefault::getInstance()->getBoolForKey("IS_EFFECT", true))
+	{
+		AudioData::getInstance()->addButtonEffect(1);
+	}
+	//this->removeFromParent();
+	close();
 }
 
 void QuitLayer::onKeyReleased(EventKeyboard::KeyCode keycode, Event* event)
@@ -78,7 +88,8 @@ void QuitLayer::onKeyReleased(EventKeyboard::KeyCode keycode, Event* event)
 		{
 			if (keycode == EventKeyboard::KeyCode::KEY_BACK)  //·µ»Ø
 			{
-				this->removeFromParent();
+				//this->removeFromParent();
+				close();
 			}
 		}
 	}

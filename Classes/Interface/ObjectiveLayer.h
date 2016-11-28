@@ -2,8 +2,9 @@
 
 #include "Global.h"
 #include "LevelLayer.h"
+#include "LayerEffect/LayerEffect.h"
 
-class ObjectiveLayer : public Layer
+class ObjectiveLayer : public EasePop
 {
 public:
 	bool init();
@@ -17,5 +18,7 @@ public:
 private:
 	LevelLayer* levelLayer;
 	Button* starGame;
+
+	bool isFinish;
 	
 };

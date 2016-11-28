@@ -55,12 +55,17 @@ public:
 	int getTargetScore(int level);
 	int getCount(int level);
 	int getShopCoins(int index);
+	int getSpecialNum(int level);
+	int getCoinsMoney(int index);
+	int getLovesNum(int index);
+	int getLovesMoney(int index);
+
 	//获得x，y的偏移量
 	int getOffsetX(int level);
 	int getOffsetY(int level);
 
 	int getRefresh(){ return refresh_num; };
-	void setrefresh(int num);
+	void setRefresh(int num);
 	int getBoomb(){ return boom_num; }
 	void setBoomb(int num);
 
@@ -84,13 +89,15 @@ private:
 	int refresh_num;
 	int boom_num;
 
-
 	string path;
 
 	vector <int> m_targetScore;
 	vector <int> m_offsetX;
 	vector <int> m_offsetY;
 	vector <int> m_count;
-	//vector <int> m_coins;
+	vector <int> m_special;//特殊出现需要的个数
+	vector <int> m_coinsmoney;
+	vector <int> m_lovesmoney;
+	vector <int> m_loves;
 };
 

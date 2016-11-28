@@ -8,12 +8,21 @@
 
 bool LoserLayer:: init()
 {
-	if (!Layer::init())
+	if (!EasePop::init())
 	{
 		return false;
 	}
-	auto tuchSwall = TouchSwallowLayer::create();
-	addChild(tuchSwall);
+	bool flag = UserDefault::getInstance()->getBoolForKey("IS_MUSIC", true);
+	if (flag)
+	{
+		AudioData::getInstance()->addBgMusic(5);
+	}
+	else
+	{
+		AudioData::getInstance()->stopBgMusic();
+	}
+	//auto tuchSwall = TouchSwallowLayer::create();
+	//addChild(tuchSwall);
 
 	GAMEDATA->praseJsonData();
 
@@ -25,8 +34,8 @@ void LoserLayer::addUI()
 {
 
 	auto BG_kuang = Sprite::create("popbox/dikuang.png");
-	BG_kuang->setPosition(CommonFunction::getVisibleAchor(Anchor::Center, Vec2(0, 0)));
-	addChild(BG_kuang);
+	BG_kuang->setPosition(CommonFunction::getVisibleAchor(Anchor::Center,this, Vec2(0, 0)));
+	m_popNode->addChild(BG_kuang);
 
 	auto hong = Sprite::create("popbox/loser_hong.png");
 	hong->setPosition(CommonFunction::getVisibleAchor(Anchor::MidTop,BG_kuang,Vec2(0,-40)));
@@ -48,7 +57,7 @@ void LoserLayer::addUI()
 	levelnumbg->setPosition(CommonFunction::getVisibleAchor(Anchor::MidButtom,hong,Vec2(0,0)));
 	hong->addChild(levelnumbg);
 
-	auto level = LabelAtlas::create(Value(GAMEDATA->getCurLevel()).asString(),"fonts/loser_num.png",19,27,'0');
+	auto level = LabelAtlas::create(Value(GAMEDATA->getCurLevel()+1).asString(),"fonts/loser_num.png",19,27,'0');
 	level->setAnchorPoint(Vec2(0.5,0.5));
 	level->setPosition(CommonFunction::getVisibleAchor(Anchor::Center,levelnumbg,Vec2(0,0)));
 	levelnumbg->addChild(level);
@@ -66,19 +75,23 @@ void LoserLayer::addUI()
 
 void LoserLayer::quitCallBack()
 {
+	if (UserDefault::getInstance()->getBoolForKey("IS_EFFECT", true))
+		AudioData::getInstance()->addButtonEffect(1);
 	auto gameScene = LevelScene::create();
-	Director::getInstance()->replaceScene(gameScene);
+	Director::getInstance()->replaceScene(TransitionCrossFade::create(0.7,gameScene));
 }
 
 void LoserLayer::againCallBack()
 {
 	log("again game");
 	//再玩一次减少体力
+	if (UserDefault::getInstance()->getBoolForKey("IS_EFFECT", true))
+		AudioData::getInstance()->addButtonEffect(1);
 	if (GAMEDATA->getPowerNum()>= 2)
 	{
 		GAMEDATA->setPowerNum(GAMEDATA->getPowerNum() - 2);
 		auto gameScene = GameScene::create();
-		Director::getInstance()->replaceScene(gameScene);
+		Director::getInstance()->replaceScene(TransitionFade::create(0.7,gameScene));
 	}
 	else
 	{

@@ -6,17 +6,20 @@
 #include "Scene/GameScene.h"
 
 
+
 #define GAMEDATA GameData::getInstance()
 bool ObjectiveLayer::init()
 {
-	if (!Layer::init())
+	if (!EasePop::init())
 	{
 		return false;
 	}
 	GameData::getInstance()->praseJsonData();
 
-	TouchSwallowLayer* touchSwall = TouchSwallowLayer::create();
-	addChild(touchSwall);
+	//TouchSwallowLayer* touchSwall = TouchSwallowLayer::create();
+	//addChild(touchSwall);
+
+	isFinish = true;
 
 	addUI();
 
@@ -26,8 +29,8 @@ bool ObjectiveLayer::init()
 void ObjectiveLayer::addUI()
 {
 	auto BG_kuang = Sprite::create("popbox/dikuang.png");
-	BG_kuang->setPosition(CommonFunction::getVisibleAchor(Anchor::Center,Vec2(0, 0)));
-	addChild(BG_kuang);
+	BG_kuang->setPosition(CommonFunction::getVisibleAchor(Anchor::Center,this,Vec2(0, 0)));
+	m_popNode->addChild(BG_kuang);
 
 	auto hong = Sprite::create("popbox/hong.png");
 	hong->setPosition(CommonFunction::getVisibleAchor(Anchor::MidTop,BG_kuang,Vec2(0,-30)));
@@ -84,47 +87,59 @@ void ObjectiveLayer::addUI()
 
 void ObjectiveLayer::startGame()
 {
-	GAMEDATA->setPowerNum(GAMEDATA->getPowerNum() - 2); //扣两点体力
-	//发送消息到UI层
-	EventCustom _event(REFRESHUI);
-	_eventDispatcher->dispatchEvent(&_event);
-
-	if (UserDefault::getInstance()->getIntegerForKey("GAME_TIME") == 0)
+	if (isFinish)
 	{
-		UserDefault::getInstance()->setIntegerForKey("GAME_TIME", millisecondNow());
+		isFinish = false;
+		if (GAMEDATA->getPowerNum() >= 2)
+		{
+			GAMEDATA->setPowerNum(GAMEDATA->getPowerNum() - 2); //扣两点体力
+			//发送消息到UI层
+			EventCustom _event(REFRESHUI);
+			_eventDispatcher->dispatchEvent(&_event);
+
+			if (UserDefault::getInstance()->getIntegerForKey("GAME_TIME") == 0)
+			{
+				UserDefault::getInstance()->setIntegerForKey("GAME_TIME", millisecondNow());
+			}
+			Point powerPoint = CommonFunction::getVisibleAchor(Anchor::Center, starGame, Vec2(37, 10));
+			auto power = Sprite::create("popbox/power.png");
+			power->setPosition(powerPoint);//CommonFunction::getVisibleAchor(Anchor::MidTop, starGame, Vec2(-200, 600))
+			power->setScale(4.0);
+			power->setOpacity(0);
+			starGame->addChild(power);
+
+			ScaleTo* scaleTo = ScaleTo::create(0.5, 1);
+			auto fin = FadeTo::create(0.5, 250);
+			//FadeTo
+			auto time = DelayTime::create(0.2f);
+			Spawn* spawn = Spawn::create(fin, scaleTo, nullptr);
+			auto action = Sequence::create(spawn, time, CallFunc::create([&]{
+				if (UserDefault::getInstance()->getBoolForKey("IS_EFFECT", true))
+					AudioData::getInstance()->addOtherEffect(1);
+				//this->removeFromParent();
+				GameScene* gameScene = GameScene::create();
+				Director::getInstance()->replaceScene(TransitionFade::create(1, gameScene));  //跳转TransitionSlideInT::create(2, scene)
+			}), nullptr);
+
+			power->runAction(action);
+		}
+		else
+		{
+			//没有体力
+		}
 	}
-
-	auto power = Sprite::create("popbox/power.png");
-	power->setPosition(CommonFunction::getVisibleAchor(Anchor::MidTop, starGame,Vec2(-200, 600)));
-	power->setScale(0.1);
-	starGame->addChild(power);
-	Point powerPoint = CommonFunction::getVisibleAchor(Anchor::Center, starGame, Vec2(37, 10));
-	auto moveTo = MoveTo::create(1.0, powerPoint);
-	ScaleTo* scaleTo = ScaleTo::create(1,1);
-	auto time = DelayTime::create(0.5f);
-	Spawn* spawn = Spawn::create(moveTo, scaleTo,nullptr);
-	auto action = Sequence::create(spawn, time, CallFunc::create([&]{
-		if (UserDefault::getInstance()->getBoolForKey("IS_EFFECT",true))
-			CocosDenshion::SimpleAudioEngine::getInstance()->playEffect(NEW_RECORD_EFFECT);
-		//this->removeFromParent();
-		GameScene* gameScene = GameScene::create();
-		Director::getInstance()->replaceScene(gameScene);  //跳转
-	}), nullptr);
-
-	power->runAction(action);
 }
 void ObjectiveLayer::backButton()
 {
-	if (UserDefault::getInstance()->getBoolForKey("IS_EFFECT"))
-	{
-		CocosDenshion::SimpleAudioEngine::getInstance()->playEffect(CLICK_BUTTON);
-	}
-	this->removeFromParent();
+	if (UserDefault::getInstance()->getBoolForKey("IS_EFFECT", true))
+		AudioData::getInstance()->addButtonEffect(1);
+	close();
+	//this->removeFromParent();
 }
 
 long ObjectiveLayer::millisecondNow()
 {
 	struct timeval now;
-	gettimeofday(&now, NULL);
+	gettimeofday(&now, nullptr);
 	return (now.tv_sec * 1000 + now.tv_usec / 1000);
 }
