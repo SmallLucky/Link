@@ -23,6 +23,12 @@ protected:
 	Sprite* score_bg;
 	Sprite* targetScore_bg;
 
+	Sprite* Btaskbg;
+	Sprite* Ptaskbg;
+	Sprite* Gtaskbg;
+	Sprite* Rtaskbg;
+	Sprite* Ytaskbg;
+
 public:
 	InformationLayer();
 	~InformationLayer();
@@ -33,6 +39,10 @@ public:
 
 	//void initTimeLabel(); //初始化时间标签
 	//void showTime(float t); //显示时间
+
+	void effectAction(Node* node, float delay); //		
+	void finishEffect(Node* node);
+	void scalecEffect(Node* node);
 
 	void initScoreLabel(); //初始化得分标签
 	void showScore(int s); //显示得分
@@ -49,4 +59,5 @@ public:
 	void	addUI();
 	void	addTargetElement();
 	void	showTargetElementNum(int ele ,int n);
+	LabelAtlas* clone(int c);
 };

@@ -59,6 +59,8 @@ public:
 	int getCoinsMoney(int index);
 	int getLovesNum(int index);
 	int getLovesMoney(int index);
+	int getCoinsMoneyJiao(int index);
+	int getLovesMoneyJiao(int index);
 
 	//获得x，y的偏移量
 	int getOffsetX(int level);
@@ -98,6 +100,8 @@ private:
 	vector <int> m_special;//特殊出现需要的个数
 	vector <int> m_coinsmoney;
 	vector <int> m_lovesmoney;
+	vector <int> m_coinsmoneyJiao;
+	vector <int> m_lovesmoneyJiao;
 	vector <int> m_loves;
 };
 

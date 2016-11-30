@@ -6,15 +6,10 @@
 #include "Interface/ShopLayer.h"
 #include "Interface/QuitLayer.h"
 #include "CommonFunction.h"
+#include "PreloadUtils.h"
 //test
-#include "Interface/ObjectiveLayer.h"
-#include "Interface/TotalLayer.h"
-#include "Interface/LoserLayer.h"
-#include "Interface/MapLayer.h"
-#include "TTButton.h"
-#include "DrawLight.h"
-#include "Interface/Unit/ShopItem.h"
-#include "Interface/AddCount.h"
+#include "Interface/Interface.h"
+#include "Interface/PowerLayer.h"
 
 bool StartScene::init()
 {
@@ -22,6 +17,12 @@ bool StartScene::init()
 		{
 			return false;
 		}
+
+		PreloadUtils::getInstance()->preloadBg();
+		PreloadUtils::getInstance()->preloadKuang();
+
+		REWARDDATA->praseJsonData();
+
 		initUI();
 		PlayStopBGM();
 		auto listenerkeyPad = EventListenerKeyboard::create();
@@ -41,14 +42,13 @@ void StartScene::initUI()
 
 	auto shadow_sp = Sprite::create("startScene/startbtn_shadow.png");
 	if (shadow_sp){
-		shadow_sp->setScale(0.7f);
 		addChild(shadow_sp,9);
 		shadow_sp->setPosition(CommonFunction::getVisibleAchor(0.5, 0.25, Vec2(0, -30)));
 	}
 
 	auto start_btn = Button::create("startScene/startbtn_nor.png","startScene/startbtn_sel.png");
 	if (start_btn){
-		start_btn->setScale(0.7f);
+		//start_btn->setScale(0.7f);
 		addChild(start_btn,10);
 		start_btn->setPosition(CommonFunction::getVisibleAchor(0.5,0.25,Vec2(0,-35)));
 		start_btn->addClickEventListener(CC_CALLBACK_1(StartScene::StartGame,this));
@@ -57,7 +57,7 @@ void StartScene::initUI()
 	auto light_sp = Sprite::create("startScene/light.png");
 	if (light_sp){
 		addChild(light_sp);
-		light_sp->setPosition(CommonFunction::getVisibleAchor(Anchor::Center, Vec2(0, 0)));
+		light_sp->setPosition(CommonFunction::getVisibleAchor(Anchor::Center, Vec2(0, -35)));
 		rotateAction(light_sp);
 		fadeInAction(light_sp,1.5f);
 	}
@@ -65,7 +65,7 @@ void StartScene::initUI()
 	auto title_sp = Sprite::create("startScene/tital.png");
 	if (title_sp){
 		addChild(title_sp);
-		title_sp->setPosition(CommonFunction::getVisibleAchor(0.5,0.80 , Vec2(0, -20)));
+		title_sp->setPosition(CommonFunction::getVisibleAchor(0.5,0.80 , Vec2(0, 0)));
 		fadeInAction(title_sp, 0.2f);
 	}
 
@@ -89,11 +89,20 @@ void StartScene::initUI()
 		cloud_3->setPosition(CommonFunction::getVisibleAchor(0.75f, 0.5f, Vec2(0, 0)));
 	}
 
-	auto cloud_4 = Sprite::create("startScene/cloud_2.png");
+	auto cloud_4 = Sprite::create("startScene/cloud_3.png");
 	if (cloud_4){
-		addChild(cloud_4);
-		cloud_4->setPosition(CommonFunction::getVisibleAchor(0.25f, 0.35f, Vec2(0, 0)));
+		cloud_4->setScale(1.3f);
+		addChild(cloud_4,11);
+		cloud_4->setPosition(CommonFunction::getVisibleAchor(0.25f, 0.35f, Vec2(80, 20)));
 	}
+
+	auto cloud_8 = Sprite::create("startScene/cloud_3.png");
+	if (cloud_8){
+		cloud_8->setScale(1.5f);
+		addChild(cloud_8,11);
+		cloud_8->setPosition(CommonFunction::getVisibleAchor(0.5f, 0.35f, Vec2(50, 20)));
+	}
+
 
 	auto cloud_5 = Sprite::create("startScene/cloud_2.png");
 	if (cloud_5){
@@ -121,7 +130,7 @@ void StartScene::initUI()
 	if (penguin_sp){
 		penguin_sp->setScale(0.8f);
 		addChild(penguin_sp, 10);
-		penguin_sp->setPosition(CommonFunction::getVisibleAchor(0.5f, 0.5f,this,Vec2(0, -20)));
+		penguin_sp->setPosition(CommonFunction::getVisibleAchor(0.5f, 0.5f,this,Vec2(0, -55)));
 		fadeInAction(penguin_sp, 0.4f);
 		penguin_shakeAction(penguin_sp,2.0f);
 	}
@@ -129,24 +138,49 @@ void StartScene::initUI()
 		return;
 	}
 
-	//Ô²Ã¨
-	auto cat_sp_1 = Sprite::create("startScene/animal_cat_1.png");
+	auto candy_2 = Sprite::create("startScene/candy_2.png");
+	if (candy_2){
+		addChild(candy_2,8);
+		candy_2->setPosition(CommonFunction::getVisibleAchor(Anchor::Center, Vec2(0, 0)));
+		auto to = CommonFunction::getVisibleAchor(Anchor::Center, Vec2(130, -120));
+		//auto to = CommonFunction::getVisibleAchor(0.75, 0.5, Vec2(10, 70));
+		fadeInAction(candy_2, candy_2->getPosition(), to, 0.8f);
+		moveAction(candy_2, Vec2(15, 10), 0.9f, 5.0f);
+	}
+
+	//ÐÇÐÇ
+	auto star_sp = Sprite::create("startScene/star.png");
+	if (star_sp){
+		addChild(star_sp, 10);
+		star_sp->setPosition(CommonFunction::getVisibleAchor(0.5f, 0.5f, this, Vec2(0, -20)));
+		fadeInAction(star_sp, 2.0f);
+		//blinkAction(star_sp,2.0f,3);
+	}
+
+	//Ð¡¹í
+	auto cat_sp_1 = Sprite::create("startScene/animal_ghost.png");
 	if (cat_sp_1){
 		addChild(cat_sp_1);
 		cat_sp_1->setScale(0.8f);
-		auto to = CommonFunction::getVisibleAchor(0.25, 0.5, Vec2(30, 70));
+		auto to = CommonFunction::getVisibleAchor(0.20, 0.5, Vec2(0, 40));
 		fadeInAction(cat_sp_1, penguin_sp->getPosition(), to, 0.5f);
 		moveAction(cat_sp_1, Vec2(-10,10),0.7f,5.0f);
 	}
+
+	auto candy_1 = Sprite::create("startScene/candy_1.png");
+	if (candy_1 && cat_sp_1){
+		cat_sp_1->addChild(candy_1);
+		candy_1->setPosition(CommonFunction::getVisibleAchor(Anchor::LeftMid, cat_sp_1, Vec2(60, -15)));
+	}
 	//·½Ã¨
-	auto cat_sp_2 = Sprite::create("startScene/animal_cat_2.png");
+	/*auto cat_sp_2 = Sprite::create("startScene/animal_cat_2.png");
 	if (cat_sp_2){
 		addChild(cat_sp_2);
 		cat_sp_2->setScale(0.8f);
 		auto to = CommonFunction::getVisibleAchor(0.25, 0.35, Vec2(30, -15));
 		fadeInAction(cat_sp_2, penguin_sp->getPosition(), to, 1.0f);
 		moveAction(cat_sp_2, Vec2(-15, -10), 1.1f, 5.0f);
-	}
+	}*/
 	//Ð¡¼¦
 	auto chicken_sp = Sprite::create("startScene/animal_chicken.png");
 	if (chicken_sp){
@@ -159,7 +193,7 @@ void StartScene::initUI()
 	}
 
 	//Ð¡¹í
-	auto ghost_sp = Sprite::create("startScene/animal_ghost.png");
+	/*auto ghost_sp = Sprite::create("startScene/animal_ghost.png");
 	if (ghost_sp){
 		ghost_sp->setScale(0.8f);
 		addChild(ghost_sp);
@@ -167,7 +201,7 @@ void StartScene::initUI()
 		auto to = CommonFunction::getVisibleAchor(0.65, 0.35, Vec2(0, 0));
 		fadeInAction(ghost_sp, penguin_sp->getPosition(), to, 1.2f);
 		moveAction(ghost_sp, Vec2(15, -10), 1.3f, 5.0f);
-	}
+	}*/
 }
 
 void StartScene::rotateAction(Node* node)
@@ -181,6 +215,19 @@ void StartScene::rotateAction(Node* node)
 	if (r_node){
 		r_node->runAction(RepeatForever::create(rotate_ac));
 	}
+}
+
+void StartScene::blinkAction(Node* node, float delay,int blink)
+{
+	auto r_node = dynamic_cast<Sprite*>(node);
+	if (!r_node){
+		return;
+	}
+
+	auto bl = Blink::create(0.5f, blink);
+	auto del = DelayTime::create(delay);
+	auto seq = Sequence::create(del, bl, nullptr);
+	r_node->runAction(RepeatForever::create(seq));
 }
 
 void StartScene::penguin_shakeAction(Node* node, float delay)
@@ -306,6 +353,9 @@ void StartScene::StartGame(Ref* ref)
 	{
 		Director::getInstance()->replaceScene(levelScene);
 	}
+
+	//auto layer = LoserLayer::create();
+	//addChild(layer,10);
 	
 }
 
@@ -356,7 +406,8 @@ void StartScene::onKeyReleased(EventKeyboard::KeyCode keycode, Event* event)
 		{
 			if (keycode == EventKeyboard::KeyCode::KEY_BACK)  //·µ»Ø
 			{
-				auto quitLayer = QuitLayer::create();
+				//auto quitLayer = QuitLayer::create();
+				auto quitLayer = PowerLayer::create();
 				if (quitLayer)
 				{
 					addChild(quitLayer,100);

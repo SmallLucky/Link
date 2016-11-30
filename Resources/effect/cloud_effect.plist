@@ -1,0 +1,181 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple Computer//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+	<dict>
+		<key>frames</key>
+		<dict>
+			<key>cloud_0.png</key>
+			<dict>
+				<key>frame</key>
+				<string>{{0,462},{91,90}}</string>
+				<key>offset</key>
+				<string>{-1,0}</string>
+				<key>rotated</key>
+				<false />
+				<key>sourceSize</key>
+				<string>{100,100}</string>
+			</dict>
+			<key>cloud_1.png</key>
+			<dict>
+				<key>frame</key>
+				<string>{{0,799},{68,68}}</string>
+				<key>offset</key>
+				<string>{0,0}</string>
+				<key>rotated</key>
+				<false />
+				<key>sourceSize</key>
+				<string>{100,100}</string>
+			</dict>
+			<key>cloud_10.png</key>
+			<dict>
+				<key>frame</key>
+				<string>{{0,0},{93,94}}</string>
+				<key>offset</key>
+				<string>{0,0}</string>
+				<key>rotated</key>
+				<true />
+				<key>sourceSize</key>
+				<string>{100,100}</string>
+			</dict>
+			<key>cloud_11.png</key>
+			<dict>
+				<key>frame</key>
+				<string>{{0,93},{93,94}}</string>
+				<key>offset</key>
+				<string>{0,0}</string>
+				<key>rotated</key>
+				<true />
+				<key>sourceSize</key>
+				<string>{100,100}</string>
+			</dict>
+			<key>cloud_12.png</key>
+			<dict>
+				<key>frame</key>
+				<string>{{0,186},{93,94}}</string>
+				<key>offset</key>
+				<string>{0,0}</string>
+				<key>rotated</key>
+				<true />
+				<key>sourceSize</key>
+				<string>{100,100}</string>
+			</dict>
+			<key>cloud_13.png</key>
+			<dict>
+				<key>frame</key>
+				<string>{{0,372},{90,92}}</string>
+				<key>offset</key>
+				<string>{0,0}</string>
+				<key>rotated</key>
+				<true />
+				<key>sourceSize</key>
+				<string>{100,100}</string>
+			</dict>
+			<key>cloud_2.png</key>
+			<dict>
+				<key>frame</key>
+				<string>{{74,725},{50,50}}</string>
+				<key>offset</key>
+				<string>{0,0}</string>
+				<key>rotated</key>
+				<false />
+				<key>sourceSize</key>
+				<string>{100,100}</string>
+			</dict>
+			<key>cloud_3.png</key>
+			<dict>
+				<key>frame</key>
+				<string>{{84,641},{44,43}}</string>
+				<key>offset</key>
+				<string>{0,1}</string>
+				<key>rotated</key>
+				<false />
+				<key>sourceSize</key>
+				<string>{100,100}</string>
+			</dict>
+			<key>cloud_4.png</key>
+			<dict>
+				<key>frame</key>
+				<string>{{90,552},{38,38}}</string>
+				<key>offset</key>
+				<string>{0,0}</string>
+				<key>rotated</key>
+				<false />
+				<key>sourceSize</key>
+				<string>{100,100}</string>
+			</dict>
+			<key>cloud_5.png</key>
+			<dict>
+				<key>frame</key>
+				<string>{{68,799},{56,56}}</string>
+				<key>offset</key>
+				<string>{0,0}</string>
+				<key>rotated</key>
+				<false />
+				<key>sourceSize</key>
+				<string>{100,100}</string>
+			</dict>
+			<key>cloud_6.png</key>
+			<dict>
+				<key>frame</key>
+				<string>{{0,725},{74,74}}</string>
+				<key>offset</key>
+				<string>{0,0}</string>
+				<key>rotated</key>
+				<false />
+				<key>sourceSize</key>
+				<string>{100,100}</string>
+			</dict>
+			<key>cloud_7.png</key>
+			<dict>
+				<key>frame</key>
+				<string>{{0,641},{84,84}}</string>
+				<key>offset</key>
+				<string>{0,0}</string>
+				<key>rotated</key>
+				<false />
+				<key>sourceSize</key>
+				<string>{100,100}</string>
+			</dict>
+			<key>cloud_8.png</key>
+			<dict>
+				<key>frame</key>
+				<string>{{0,552},{89,90}}</string>
+				<key>offset</key>
+				<string>{0,0}</string>
+				<key>rotated</key>
+				<true />
+				<key>sourceSize</key>
+				<string>{100,100}</string>
+			</dict>
+			<key>cloud_9.png</key>
+			<dict>
+				<key>frame</key>
+				<string>{{0,279},{93,94}}</string>
+				<key>offset</key>
+				<string>{0,0}</string>
+				<key>rotated</key>
+				<true />
+				<key>sourceSize</key>
+				<string>{100,100}</string>
+			</dict>
+		</dict>
+		<key>metadata</key>
+		<dict>
+			<key>format</key>
+			<integer>2</integer>
+			<key>textureFileName</key>
+			<string>cloud_effect.png</string>
+			<key>realTextureFileName</key>
+			<string>cloud_effect.png</string>
+			<key>size</key>
+			<string>{128,1024}</string>
+		</dict>
+		<key>texture</key>
+		<dict>
+			<key>width</key>
+			<integer>128</integer>
+			<key>height</key>
+			<integer>1024</integer>
+		</dict>
+	</dict>
+</plist>

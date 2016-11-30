@@ -74,7 +74,7 @@ void StopLayer::addUI()
 	soundCBox->addEventListener(CC_CALLBACK_2(StopLayer::soundCBoxCallBack, this));
 	vibrationCBox->addEventListener(CC_CALLBACK_2(StopLayer::vibrationCBoxCallBack, this));
 
-	auto newGame = Button::create("button/newleve_button.png");
+	auto newGame = Button::create("button/newleve_button_0.png", "button/newleve_button_1.png");
 	newGame->setPosition(CommonFunction::getVisibleAchor(Anchor::MidButtom, bg, Vec2(-100, 70)));
 	bg->addChild(newGame);
 	newGame->addClickEventListener([=](Ref*){
@@ -89,7 +89,7 @@ void StopLayer::addUI()
 	brackButton->setPosition(CommonFunction::getVisibleAchor(Anchor::RightTop, bg, Vec2(-20, -20)));
 	bg->addChild(brackButton);
 
-	auto brackGame = Button::create("button/brack_button.png");
+	auto brackGame = Button::create("button/brack_button_0.png", "button/brack_button_1.png");
 	brackGame->setPosition(CommonFunction::getVisibleAchor(Anchor::MidButtom, bg, Vec2(100, 70)));
 	bg->addChild(brackGame);
 	brackGame->addClickEventListener(CC_CALLBACK_0(StopLayer::newGameCallBack, this));

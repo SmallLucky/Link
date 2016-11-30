@@ -48,7 +48,7 @@ bool ShopLayer:: init()
 void ShopLayer::addUI()
 {
 	auto BG_kuang = Sprite::create("popbox/changKuang.png");
-	BG_kuang->setPosition(CommonFunction::getVisibleAchor(Anchor::Center,this, Vec2(0, 0)));
+	BG_kuang->setPosition(CommonFunction::getVisibleAchor(Anchor::Center, m_popNode, Vec2(0, 0)));
 	m_popNode->addChild(BG_kuang);
 
 	auto hong = Sprite::create("popbox/shopHong.png");
@@ -81,7 +81,7 @@ void ShopLayer::addUI()
 	auto propsscrv_width = propsscrollView->getContentSize().width;
 	for (int i = 0; i <2; i++)
 	{
-		auto item = ShopItem::createShopItem(2,i,i);
+		auto item = ShopItem::createShopItem(2,i,i,i);
 		item->setTag(i);
 		int item_height = item->getContentSize().height;
 		propsscrollView->addChild(item);
@@ -108,7 +108,7 @@ void ShopLayer::addUI()
 
 	for (int i = 0; i < GAMEDATA->m_coins.size(); i++)
 	{
-		auto item = ShopItem::createShopItem(1, GAMEDATA->getCoinsMoney(i),GAMEDATA->getShopCoins(i));
+		auto item = ShopItem::createShopItem(1, GAMEDATA->getCoinsMoney(i), GAMEDATA->getCoinsMoneyJiao(i),GAMEDATA->getShopCoins(i));
 		item->setTag(i);
 		int item_height = item->getContentSize().height;
 		item->setAnchorPoint(Vec2(0.5,1));
@@ -135,7 +135,7 @@ void ShopLayer::addUI()
 
 	for (int i = 0; i < GAMEDATA->m_coins.size(); i++)
 	{
-		auto item = ShopItem::createShopItem(3, GAMEDATA->getLovesMoney(i), GAMEDATA->getLovesNum(i));
+		auto item = ShopItem::createShopItem(3, GAMEDATA->getLovesMoney(i), GAMEDATA->getLovesMoneyJiao(i), GAMEDATA->getLovesNum(i));
 		item->setTag(i);
 		int item_height = item->getContentSize().height;
 		item->setAnchorPoint(Vec2(0.5, 1));

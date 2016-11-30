@@ -22,7 +22,7 @@ bool	PowerShop:: init()
 void	PowerShop::addUI()
 {
 	auto bg = Sprite::create("popbox/power_kuang.png");
-	bg->setPosition(CommonFunction::getVisibleAchor(Anchor::Center,this,Vec2(0,0)));
+	bg->setPosition(CommonFunction::getVisibleAchor(Anchor::Center, m_popNode, Vec2(0, 0)));
 	m_popNode->addChild(bg);
 
 	auto hong = Sprite::create("popbox/power_shop.png");

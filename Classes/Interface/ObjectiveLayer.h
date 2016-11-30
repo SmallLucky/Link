@@ -15,6 +15,9 @@ public:
 	void startGame();
 	void backButton();
 	long millisecondNow();
+
+	int  getTargetElementCount(int level);
+	void addTargetElement(Node* node);
 private:
 	LevelLayer* levelLayer;
 	Button* starGame;

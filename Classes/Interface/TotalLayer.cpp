@@ -8,6 +8,7 @@
 #include "Data/Data.h"
 #include "Scene/GameScene.h"
 #include "Interface/ObjectiveLayer.h"
+#include "PowerLayer.h"
 
 bool TotalLayer:: init()
 {
@@ -62,7 +63,7 @@ void TotalLayer::addUI()
 	comonon->setPosition(CommonFunction::getVisibleAchor(Anchor::Center, BG_kuang, Vec2(0, 100)));
 	BG_kuang->addChild(comonon);
 
-	auto nextLevel = Button::create("button/next_level.png");
+	nextLevel = Button::create("button/next_level0.png", "button/next_level1.png");
 	nextLevel->setPosition(CommonFunction::getVisibleAchor(Anchor::MidButtom,BG_kuang,Vec2(0,80)));
 	BG_kuang->addChild(nextLevel);
 	nextLevel->addClickEventListener(CC_CALLBACK_0(TotalLayer::GoOnCallBack, this));
@@ -103,7 +104,7 @@ void TotalLayer::addGift(Sprite* s)
 				power->setScale(1.5);
 				giftBg->addChild(power);
 				auto x = Sprite::create("popbox/X.png");
-				x->setPosition(CommonFunction::getVisibleAchor(Anchor::RightButtom, giftBg, Vec2(0, 0)));
+				x->setPosition(CommonFunction::getVisibleAchor(Anchor::RightButtom, giftBg, Vec2(-20, 20)));
 				giftBg->addChild(x);
 
 				auto num = LabelAtlas::create(Value(1).asString(), "fonts/succes_propsnum.png", 27, 34, '0');
@@ -118,7 +119,7 @@ void TotalLayer::addGift(Sprite* s)
 				love->setScale(1.5);
 				giftBg->addChild(love);
 				auto x = Sprite::create("popbox/X.png");
-				x->setPosition(CommonFunction::getVisibleAchor(Anchor::RightButtom, giftBg, Vec2(0, 0)));
+				x->setPosition(CommonFunction::getVisibleAchor(Anchor::RightButtom, giftBg, Vec2(-20, 20)));
 				giftBg->addChild(x);
 				auto num = LabelAtlas::create(Value(1).asString(), "fonts/succes_propsnum.png", 27, 34, '0');
 				num->setPosition(CommonFunction::getVisibleAchor(Anchor::RightMid, x, Vec2(0, 0)));
@@ -133,7 +134,7 @@ void TotalLayer::addGift(Sprite* s)
 				giftBg->addChild(coins);
 
 				auto x = Sprite::create("popbox/X.png");
-				x->setPosition(CommonFunction::getVisibleAchor(Anchor::RightButtom, giftBg, Vec2(0, 0)));
+				x->setPosition(CommonFunction::getVisibleAchor(Anchor::RightButtom, giftBg, Vec2(-20, 20)));
 				giftBg->addChild(x);
 				auto num = LabelAtlas::create(Value(10).asString(), "fonts/succes_propsnum.png", 27, 34, '0');
 				num->setPosition(CommonFunction::getVisibleAchor(Anchor::RightMid, x, Vec2(0, 0)));
@@ -150,7 +151,7 @@ void TotalLayer::addGift(Sprite* s)
 				giftBg->addChild(props);
 
 				auto x = Sprite::create("popbox/X.png");
-				x->setPosition(CommonFunction::getVisibleAchor(Anchor::RightButtom, giftBg, Vec2(0, 0)));
+				x->setPosition(CommonFunction::getVisibleAchor(Anchor::RightButtom, giftBg, Vec2(-20, 20)));
 				giftBg->addChild(x);
 
 				if (ele == 0 )
@@ -190,7 +191,7 @@ void TotalLayer::addGift(Sprite* s)
 				power->setScale(1.5);
 				giftBg->addChild(power);
 				auto x = Sprite::create("popbox/X.png");
-				x->setPosition(CommonFunction::getVisibleAchor(Anchor::RightButtom, giftBg, Vec2(0, 0)));
+				x->setPosition(CommonFunction::getVisibleAchor(Anchor::RightButtom, giftBg, Vec2(-20, 20)));
 				giftBg->addChild(x);
 
 				auto num = LabelAtlas::create(Value(1).asString(), "fonts/succes_propsnum.png", 27, 34, '0');
@@ -205,7 +206,7 @@ void TotalLayer::addGift(Sprite* s)
 				love->setScale(1.5);
 				giftBg->addChild(love);
 				auto x = Sprite::create("popbox/X.png");
-				x->setPosition(CommonFunction::getVisibleAchor(Anchor::RightButtom, giftBg, Vec2(0, 0)));
+				x->setPosition(CommonFunction::getVisibleAchor(Anchor::RightButtom, giftBg, Vec2(-20, 20)));
 				giftBg->addChild(x);
 				auto num = LabelAtlas::create(Value(1).asString(), "fonts/succes_propsnum.png", 27, 34, '0');
 				num->setPosition(CommonFunction::getVisibleAchor(Anchor::RightMid, x, Vec2(0, 0)));
@@ -220,7 +221,7 @@ void TotalLayer::addGift(Sprite* s)
 				giftBg->addChild(coins);
 
 				auto x = Sprite::create("popbox/X.png");
-				x->setPosition(CommonFunction::getVisibleAchor(Anchor::RightButtom, giftBg, Vec2(0, 0)));
+				x->setPosition(CommonFunction::getVisibleAchor(Anchor::RightButtom, giftBg, Vec2(-20, 20)));
 				giftBg->addChild(x);
 				auto num = LabelAtlas::create(Value(10).asString(), "fonts/succes_propsnum.png", 27, 34, '0');
 				num->setPosition(CommonFunction::getVisibleAchor(Anchor::RightMid, x, Vec2(0, 0)));
@@ -247,14 +248,49 @@ void TotalLayer::GoOnCallBack()
 		if (GAMEDATA->getPowerNum()>= 2)
 		{
 			GAMEDATA->setPowerNum(GAMEDATA->getPowerNum() -2);  //扣两点体力开始新游戏
-			auto scene = GameScene::create();
-			Director::getInstance()->replaceScene(TransitionFade::create(1,scene));
+			Point powerPoint = CommonFunction::getVisibleAchor(Anchor::Center, nextLevel, Vec2(-45, 10));
+			auto power = Sprite::create("popbox/power.png");
+			power->setPosition(powerPoint);//CommonFunction::getVisibleAchor(Anchor::MidTop, starGame, Vec2(-200, 600))
+			power->setScale(4.0);
+			power->setOpacity(0);
+			nextLevel->addChild(power);
+
+			auto x2 = Sprite::create("popbox/X2.png");
+			x2->setPosition(CommonFunction::getVisibleAchor(Anchor::RightTop, power, Vec2(0, 0)));
+			power->addChild(x2);
+
+			ScaleTo* scaleTo = ScaleTo::create(0.5, 0.8);
+			auto fin = FadeTo::create(0.5, 250);
+			//FadeTo
+			auto time = DelayTime::create(0.5f);
+			Spawn* spawn = Spawn::create(fin, scaleTo, nullptr);
+			auto call = CallFunc::create([=]{
+
+				auto light1 = Sprite::create("infor/guang.png");
+				light1->setPosition(CommonFunction::getVisibleAchor(Anchor::Center, power, Vec2(-10, -5)));
+				power->addChild(light1, -1);
+				auto rotate_ac = RotateBy::create(20.0f, 360.0);
+				if (light1)
+					light1->runAction(RepeatForever::create(rotate_ac));
+			});
+			auto action = Sequence::create(spawn, call, time, CallFunc::create([&]{
+				if (UserDefault::getInstance()->getBoolForKey("IS_EFFECT", true))
+					AudioData::getInstance()->addOtherEffect(1);
+				//this->removeFromParent();
+				GameScene* gameScene = GameScene::create();
+				Director::getInstance()->replaceScene(TransitionFade::create(1, gameScene));  //跳转TransitionSlideInT::create(2, scene)
+			}), nullptr);
+
+			power->runAction(action);
 		}
 		else
 		{
 			cout << "体力不够了！" << endl;
-			LevelScene* levelScene = LevelScene::create();
-			Director::getInstance()->replaceScene(TransitionCrossFade::create(1, levelScene));
+			auto layer = PowerLayer::create();
+			layer->setPosition(CommonFunction::getVisibleAchor(Anchor::Center, this, Vec2(0, 0)));
+			addChild(layer, 10);
+			//LevelScene* levelScene = LevelScene::create();
+			//Director::getInstance()->replaceScene(TransitionCrossFade::create(1, levelScene));
 		}
 
 

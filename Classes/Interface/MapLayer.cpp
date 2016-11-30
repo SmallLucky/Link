@@ -15,7 +15,7 @@ using namespace std;
 #define RATIO   1.0
 
 MapLayer::MapLayer() :isLine(false), green(0), red(0), yellor(0), blue(0), purple(0), elementType(5), line(0), row(0), lastPoint({0,0}),
-isBoom(false), isCount(false), specialScore(0), containsDis(0.0)
+isBoom(false), isCount(false), specialScore(0), containsDis(0.0), isTargetElementFinish(false)
 {
 	//分配格子元素空间
 	elements = new ElementUnit* *[MATRIX_ROW];
@@ -43,17 +43,29 @@ isBoom(false), isCount(false), specialScore(0), containsDis(0.0)
 	{
 		blocksCenter[i] = new Point[MATRIX_MLINE];
 	}
+
+
+	signBeRemove = new bool *[MATRIX_ROW];
+	for (int i = 0; i < MATRIX_ROW; i++)
+	{
+		signBeRemove[i] = new bool[MATRIX_MLINE];
+	}
+
 	////分配各元素数量空间
 	//--elementCount = new int[40]; //注意万能元素空间
 
 	////分配消除个元素的数量空间
 	//--removeCount = new int[40]; //注意万能元素空间
-
+	auto _listenerElement = EventListenerCustom::create(FINISHTARGETELEMENT, [=](EventCustom*event){
+		isTargetElementFinish = true;
+	});
+	_eventDispatcher->addEventListenerWithFixedPriority(_listenerElement, 1);
 	linkBrush.clear();
 	m_effects.clear();
 }
 MapLayer::~MapLayer()
 {
+	_eventDispatcher->removeCustomEventListeners(FINISHTARGETELEMENT);
 	CC_SAFE_DELETE_ARRAY(elements);
 	//回收格子元素空间
 	//for (int i = 0; i < MATRIX_ROW; i++)
@@ -75,6 +87,7 @@ MapLayer::~MapLayer()
 	//	delete[] blocksCenter[i];
 	//delete[] blocksCenter;
 
+	CC_SAFE_DELETE_ARRAY(signBeRemove);
 	//回收各元素数量空间
 
 	//--CC_SAFE_DELETE_ARRAY(elementCount);
@@ -110,10 +123,11 @@ bool MapLayer::init()
 	}
 
 	Size visibleSize = Director::getInstance()->getVisibleSize();
-	mapPoint = { visibleSize.width / 2, visibleSize.height/2 - 80 };
+	mapPoint = { visibleSize.width / 2, visibleSize.height/2 - 65 };
 
 	initBlocks();//初始化格子，确定格子区域，初始状态矩阵为空
 	initSign(); //初始化标记
+	initSignBeRemove(); //初始被消标记
 
 	forbiddenResponse(); //暂时禁止触摸，在进入等待连接状态后通过allowResponse函数允许触摸（继承自TouchableLayer）
 	touchedFlag = false; //没有有效的触摸
@@ -229,6 +243,7 @@ void MapLayer::removeLink()
 int		MapLayer::removeSignedElement()
 {
 	removeAllCount = 0;
+	clearSignBeRemove();
 	ERGODIC_MBLOCK(row,line)
 	{
 		if (signFlag[row][line])
@@ -259,6 +274,7 @@ int		MapLayer::removeSignedElement()
 			}
 		}
 	}
+	clearSignBeRemove(); //走完同一次的连接,清除被消除标记
 	//signClear();
 	if (getElementType()%10 == 2)
 	{
@@ -286,7 +302,7 @@ int		MapLayer::removeSignedElement()
 		yellor += removeAllCount;
 		eventTargetElement(4, removeAllCount);
 	}
-	log("removeTargetECount:%d",removeTargetECount);
+
 #if(CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
 	LOGD("removeSignedElement");
 #endif
@@ -297,7 +313,6 @@ int		MapLayer::removeSignedElement()
 //检测并消除可以被消除的元素，改变type值
 void MapLayer::removeBeEliminate(int r, int l)
 {
-	log("removeBeEliminate1:%d,%d", r, l);
 	//for (int i = max(r - 1, 0); i <= min(r + 1, MATRIX_ROW - 1); i++) // 0,2
 	//{
 	//	for (int j = max(l - 1, 0); j <= min(l + 1, MATRIX_MLINE - 1); j++) //0,2
@@ -329,13 +344,24 @@ void MapLayer::removeBeEliminate(int r, int l)
 				s->createElement(7, getMCenterByCoord(r, max(l - 1, 0)));
 				elements[r][max(l - 1, 0)] = s;
 				addChild(elements[r][max(l - 1, 0)], 1);
+				jitterEffect(elements[r][max(l - 1, 0)],2.0);
 			}
+
+			signBeRemove[r][max(l - 1, 0)] = true; //同一次标记
+
 		}
-		else if (elements[r][max(l - 1, 0)]->getElement() == 7)
+		else if (elements[r][max(l - 1, 0)]->getElement() == 7 && !signBeRemove[r][max(l - 1, 0)])
 		{
+			showCloudEffect(blocksCenter[r][max(l - 1, 0)]);
 			removeElement(r, max(l - 1, 0)); // 移除精灵
 			//修改瓦片属性
 			changeTiledType(r, max(l - 1, 0));
+		}
+		else if (elements[r][max(l - 1, 0)]->getElement() == 8)
+		{
+			removeElement(r, max(l - 1, 0)); // 移除love
+			changeTiledType(r, max(l - 1, 0));
+			GAMEDATA->setLoveNum(GAMEDATA->getLoveNum() + 1); //加一
 		}
 	}
 	if (elements[r][min(l + 1, 5)] && !signFlag[r][min(l+1,5)])
@@ -349,13 +375,23 @@ void MapLayer::removeBeEliminate(int r, int l)
 				s->createElement(7, getMCenterByCoord(r, min(l + 1, 5)));
 				elements[r][min(l + 1, 5)] = s;
 				addChild(elements[r][min(l + 1, 5)], 1);
+				jitterEffect(elements[r][min(l + 1, 5)], 2.0);
 			}
+
+			signBeRemove[r][min(l + 1, 5)] = true;
 		}
-		else if (elements[r][min(l + 1, 5)]->getElement() == 7)
+		else if (elements[r][min(l + 1, 5)]->getElement() == 7 && !signBeRemove[r][min(l + 1, 5)])
 		{
+			showCloudEffect(blocksCenter[r][min(l + 1, 5)]);
 			removeElement(r, min(l + 1, 5)); // 移除精灵
 			//修改瓦片属性
 			changeTiledType(r, min(l + 1, 5));
+		}
+		else if (elements[r][min(l + 1, 5)]->getElement() == 8)
+		{
+			removeElement(r, min(l + 1, 5)); // 移除精灵
+			changeTiledType(r, min(l + 1, 5));
+			GAMEDATA->setLoveNum(GAMEDATA->getLoveNum() + 1); //加一
 		}
 	}
 	if (elements[max(r - 1, 0)][l] && !signFlag[max(r - 1, 0)][l])
@@ -369,13 +405,22 @@ void MapLayer::removeBeEliminate(int r, int l)
 				s->createElement(7, getMCenterByCoord(max(r - 1, 0), l));
 				elements[max(r - 1, 0)][l] = s;
 				addChild(elements[max(r - 1, 0)][l], 1);
+				jitterEffect(elements[max(r - 1, 0)][l], 2.0);
 			}
+			signBeRemove[max(r - 1, 0)][l] = true;
 		}
-		else if (elements[max(r - 1, 0)][l]->getElement() == 7)
+		else if (elements[max(r - 1, 0)][l]->getElement() == 7 && !signBeRemove[max(r - 1, 0)][l])
 		{
+			showCloudEffect(blocksCenter[max(r - 1, 0)][l]);
 			removeElement(max(r - 1, 0), l); // 移除精灵
 			//修改瓦片属性
 			changeTiledType(max(r - 1, 0), l);
+		}
+		else if (elements[max(r - 1, 0)][l]->getElement() == 8)
+		{
+			removeElement(max(r - 1, 0), l); // 移除精灵
+			changeTiledType(max(r - 1, 0), l);
+			GAMEDATA->setLoveNum(GAMEDATA->getLoveNum() + 1); //加一
 		}
 	}
 	if (elements[min(r + 1, 5)][l] && !signFlag[min(r + 1, 5)][l])
@@ -389,16 +434,41 @@ void MapLayer::removeBeEliminate(int r, int l)
 				s->createElement(7, getMCenterByCoord(min(r + 1, 5), l));
 				elements[min(r + 1, 5)][l] = s;
 				addChild(elements[min(r + 1, 5)][l], 1);
+				jitterEffect(elements[min(r + 1, 5)][l], 2.0);
 			}
+			signBeRemove[min(r + 1, 5)][l] = true;
 		}
-		else if (elements[min(r + 1, 5)][l]->getElement() == 7)
+		else if (elements[min(r + 1, 5)][l]->getElement() == 7 && !signBeRemove[min(r + 1, 5)][l])
 		{
+			showCloudEffect(blocksCenter[min(r + 1, 5)][l]);
 			removeElement(min(r + 1, 5), l); // 移除精灵
 			//修改瓦片属性
 			changeTiledType(min(r + 1, 5), l);
 		}
+		else if (elements[min(r + 1, 5)][l]->getElement() == 8)
+		{
+			removeElement(min(r + 1, 5), l); // 移除精灵
+			changeTiledType(min(r + 1, 5), l);
+			GAMEDATA->setLoveNum(GAMEDATA->getLoveNum() + 1); //加一
+		}
 	}
 }
+
+//初始被同一次被消标记
+void	MapLayer:: initSignBeRemove()
+{
+	clearSignBeRemove();
+}
+
+//清除被消标记
+void	MapLayer:: clearSignBeRemove()
+{
+	ERGODIC_MBLOCK(row, line)
+	{
+		signBeRemove[row][line] = false;
+	}
+}
+
 // 修改指定位置上瓦片的属性值
 void	MapLayer::changeTiledType(int r, int l)
 {
@@ -441,8 +511,11 @@ int MapLayer::removeElement(int row,int line)
 
 	ParticleSystem * efft = ParticleSystemQuad::create("effect/bomb_4.plist");
 	efft->setPosition(blocksCenter[row][line]);
-	efft->setScale(0.15);
 	addChild(efft,-1);
+	efft->setTotalParticles(800);
+	efft->setSpeedVar(0);
+	efft->setStartSizeVar(0);
+	efft->setScale(0.16f);
 
 	temp->disappear(FALL_TIME);//元素缩小至消失FALL_TIME
 
@@ -467,19 +540,27 @@ int MapLayer::removeMyCount()
 	}
 	else
 	{
-		log("addcount :%d",m_count);
-		if (m_count == GAMEDATA->getCount(GAMEDATA->getCurLevel())-1)
-		{
-			//如果过关了就不弹出这个窗口，可以发消息到gamescene
-			auto layer = AddCount::create();
-			addChild(layer,1);
-			m_count -= 4;
-			return GAMEDATA->getCount(GAMEDATA->getCurLevel());
-		}
-		else
-		{
-			return ++m_count;
-		}
+			if (m_count == GAMEDATA->getCount(GAMEDATA->getCurLevel())-1)
+			{
+				//如果过关了就不弹出这个窗口，可以发消息到gamescene
+				auto time = DelayTime::create(1.0);
+				auto callFun = CallFunc::create([=]{
+					if (!isTargetElementFinish)
+					{
+						auto layer = AddCount::create();
+						addChild(layer, 1);
+						m_count -= 4;
+					}
+				});
+				auto seq = Sequence::create(time, callFun, nullptr);
+				this->runAction(seq);
+		
+				return GAMEDATA->getCount(GAMEDATA->getCurLevel());
+			}
+			else
+			{
+				return ++m_count;
+			}
 	}
 }
 
@@ -1041,6 +1122,17 @@ void  MapLayer::initBlocks()
 				//--elementCount[_type]++;
 				addChild(elements[row][line], 1);
 				//elements[row][line]->setVisible(false);
+				if (_type == 8)
+				{//爱心
+					elements[row][line]->setScale(0.7);
+					auto seq = Sequence::create(ScaleTo::create(0.5, 1.2), ScaleTo::create(0.6, 0.9),nullptr);
+					elements[row][line]->runAction(RepeatForever::create(seq));
+				}
+				if (_type == 6)
+				{
+					jitterEffect(elements[row][line],2.0);
+					
+				}
 			}
 		}
 		else
@@ -1419,7 +1511,7 @@ void MapLayer::showLineEffect(Point p)
 		s->setPosition(Vec2(mapPoint.x,p.y));
 		//s->setScale(1);
 		addChild(s, 1);
-		auto a = CommonFunction::createWithSingleFrameName("line_", 0.05, 1);
+		auto a = CommonFunction::createWithSingleFrameName("line_", 0.03, 1);
 		Animate* animate = CCAnimate::create(a);
 
 		CallFunc* call = CallFunc::create([=]{
@@ -1447,7 +1539,7 @@ void MapLayer::showRowEffect(Point p)
 		s->setPosition(Vec2(p.x, mapPoint.y));
 		s->setRotation(90.0f);
 		addChild(s, 1);
-		auto a = CommonFunction::createWithSingleFrameName("line_", 0.05, 1);
+		auto a = CommonFunction::createWithSingleFrameName("line_", 0.03, 1);
 		Animate* animate = CCAnimate::create(a);
 
 		CallFunc* call = CallFunc::create([=]{
@@ -1462,6 +1554,32 @@ void MapLayer::showRowEffect(Point p)
 		s->runAction(action);
 	}
 }
+
+void MapLayer::showCloudEffect(Point p)
+{
+	SpriteFrameCache *frameCache = SpriteFrameCache::sharedSpriteFrameCache();
+	frameCache->addSpriteFramesWithFile("effect/cloud_effect.plist");
+	if (UserDefault::getInstance()->getBoolForKey("IS_EFFECT", true))
+		AudioData::getInstance()->addSpecialEffect(2);
+
+	auto s = Sprite::createWithSpriteFrameName("cloud_0.png");
+	if (s)
+	{
+		s->setPosition(Vec2(p.x, p.y));
+		addChild(s, 1);
+		auto a = CommonFunction::createWithSingleFrameName("cloud_", 0.02, 1);
+		Animate* animate = CCAnimate::create(a);
+		CallFunc* call = CallFunc::create([=]{
+			if (s)
+			{
+				removeChild(s);
+			}
+		});
+		Sequence* action = Sequence::create(animate, call, nullptr);
+		s->runAction(action);
+	}
+}
+
 void MapLayer::showBoomEffect(Point p)
 {
 	ParticleSystem * efft = ParticleSystemQuad::create("effect/particle_6.plist");
@@ -2007,4 +2125,21 @@ void MapLayer::signOnlyBlock(int row, int line)
 {
 	signClear();
 	signElement(row, line);
+}
+
+//特效
+void  MapLayer::jitterEffect(Node* node, float delay)
+{
+	auto f_node = dynamic_cast<ElementUnit*>(node);
+	if (!f_node){
+		return;
+	}
+
+	auto delayTime = DelayTime::create(delay);
+	auto rotate_1 = RotateTo::create(0.10f, -15);
+	auto rotate_2 = RotateTo::create(0.10f, 15);
+	auto rotate_3 = RotateTo::create(0.10f, 0);
+	auto seq = Sequence::create(delayTime, rotate_1, rotate_2, rotate_3, nullptr);
+	auto repeat = RepeatForever::create(seq);
+	f_node->runAction(repeat);
 }

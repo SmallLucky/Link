@@ -155,6 +155,7 @@ void InformationLayer::initScoreLabel()
 	//scoreLabel->setScale(1.2);
 	scoreLabel->setAnchorPoint(Vec2(0,0.5));
 	score_bg->addChild(scoreLabel);
+	scalecEffect(scoreLabel);
 }
 
 //显示得分
@@ -171,7 +172,6 @@ void InformationLayer::scoreUp(int delta, int time)
 	addscore->setPosition(CommonFunction::getVisibleAchor(Anchor::Center,Vec2(0,-30)));
 	addscore->setScale(2.5);
 	addChild(addscore);
-
 	Action* a = Sequence::create(FadeOut::create(time), RemoveSelf::create(), nullptr); //设置动画，标签在一定时间内淡出，然后消失
 	addscore->runAction(a);
 } 
@@ -193,9 +193,28 @@ void InformationLayer::showCount(int c)
 	{
 		c = 0;
 	}
-	countLabel->setString(Value(c).asString()); //修改时间标签的文本为对应步数
+	countLabel->setString(Value(c).asString());
+	//effect
+	auto effect = clone(c);
+	effect->setScale(0.9f);
+	if (effect && count_bg){
+		effect->setAnchorPoint(Vec2(0.5, 0.5));
+		count_bg->addChild(effect);
+		effect->setPosition(countLabel->getPosition() + Vec2(0, 0));
+		auto easeSacle = EaseExponentialOut::create(ScaleTo::create(0.30f, 1.5f));
+		auto spawn = Spawn::create(easeSacle, FadeOut::create(0.30f), nullptr);
+		auto calf = CallFunc::create([effect](){effect->removeFromParent(); });
+		effect->runAction(Sequence::create(spawn, calf, nullptr));
+	}
+}
 
-
+LabelAtlas* InformationLayer::clone(int c)
+{
+	auto effect = LabelAtlas::create(Value(c).asString(), "fonts/game_countnum.png", 38, 48, '0');
+	if (effect){
+		return effect;
+	}
+	return nullptr;
 }
 
 void	InformationLayer::addTargetElement()
@@ -204,73 +223,88 @@ void	InformationLayer::addTargetElement()
 	int offY = 0;
 	if (REWARDDATA->getBlue(index) != 0)
 	{
-		auto ele = Sprite::create("element/element_0.png");
-		ele->setPosition(CommonFunction::getVisibleAchor(Anchor::LeftButtom, info_bg, Vec2(30 + (offY * 40),0)));
-		ele->setScale(0.3);
-		info_bg->addChild(ele);
+		Btaskbg = Sprite::create("infor/task_bg.png");
+		Btaskbg->setPosition(CommonFunction::getVisibleAchor(Anchor::LeftButtom, info_bg, Vec2(150 + (offY * 100), -75)));
+		info_bg->addChild(Btaskbg);
+
+		auto Bele = Sprite::create("infor/task_ele_0.png");
+		Bele->setPosition(CommonFunction::getVisibleAchor(Anchor::Center, Btaskbg, Vec2(0, 0)));
+		Btaskbg->addChild(Bele);
+		effectAction(Bele,2.5);
 		offY++;
 
-		targetElementBNum = LabelAtlas::create(Value(REWARDDATA->getBlue(index)).asString(), "fonts/game_scorenum.png", 17, 19, '0');
-		targetElementBNum->setPosition(CommonFunction::getVisibleAchor(Anchor::MidButtom,ele,Vec2(0,-25)));
+		targetElementBNum = LabelAtlas::create(Value(REWARDDATA->getBlue(index)).asString(), "fonts/task_number.png", 22, 26, '0');
+		targetElementBNum->setPosition(CommonFunction::getVisibleAchor(Anchor::MidButtom, Btaskbg, Vec2(0, 0)));
 		targetElementBNum->setAnchorPoint(Vec2(0.5,0.5));
-		targetElementBNum->setScale(2.5);
-		ele->addChild(targetElementBNum);
+		Btaskbg->addChild(targetElementBNum);
 	}
 	if (REWARDDATA->getPurple(index) != 0)
 	{
-		auto ele = Sprite::create("element/element_1.png");
-		ele->setPosition(CommonFunction::getVisibleAchor(Anchor::LeftButtom, info_bg, Vec2(30 + (offY * 40), 0)));
-		ele->setScale(0.3);
-		info_bg->addChild(ele);
+		Ptaskbg = Sprite::create("infor/task_bg.png");
+		Ptaskbg->setPosition(CommonFunction::getVisibleAchor(Anchor::LeftButtom, info_bg, Vec2(150 + (offY * 100), -75)));
+		info_bg->addChild(Ptaskbg);
+
+		auto Pele = Sprite::create("infor/task_ele_1.png");
+		Pele->setPosition(CommonFunction::getVisibleAchor(Anchor::Center, Ptaskbg, Vec2(0, 0)));
+		Ptaskbg->addChild(Pele);
+		effectAction(Pele, 2.5);
 		offY++;
 
-		targetElementPNum = LabelAtlas::create(Value(REWARDDATA->getPurple(index)).asString(), "fonts/game_scorenum.png", 17, 19, '0');
-		targetElementPNum->setPosition(CommonFunction::getVisibleAchor(Anchor::MidButtom, ele, Vec2(0, -25)));
+		targetElementPNum = LabelAtlas::create(Value(REWARDDATA->getPurple(index)).asString(), "fonts/task_number.png", 22, 26, '0');
+		targetElementPNum->setPosition(CommonFunction::getVisibleAchor(Anchor::MidButtom, Ptaskbg, Vec2(0, 0)));
 		targetElementPNum->setAnchorPoint(Vec2(0.5, 0.5));
-		targetElementPNum->setScale(2.5);
-		ele->addChild(targetElementPNum);
+		Ptaskbg->addChild(targetElementPNum);
 	}
 	if (REWARDDATA->getGreen(index) != 0)
 	{
-		auto ele = Sprite::create("element/element_2.png");
-		ele->setPosition(CommonFunction::getVisibleAchor(Anchor::LeftButtom, info_bg, Vec2(30 + (offY * 40), 0)));
-		ele->setScale(0.3);
-		info_bg->addChild(ele);
+		Gtaskbg = Sprite::create("infor/task_bg.png");
+		Gtaskbg->setPosition(CommonFunction::getVisibleAchor(Anchor::LeftButtom, info_bg, Vec2(150 + (offY * 100), -75)));
+		info_bg->addChild(Gtaskbg);
+
+		auto Gele = Sprite::create("infor/task_ele_2.png");
+		Gele->setPosition(CommonFunction::getVisibleAchor(Anchor::Center, Gtaskbg, Vec2(0, 0)));
+		Gtaskbg->addChild(Gele);
+		effectAction(Gele, 2.5);
 		offY++;
 
-		targetElementGNum = LabelAtlas::create(Value(REWARDDATA->getGreen(index)).asString(), "fonts/game_scorenum.png", 17, 19, '0');
-		targetElementGNum->setPosition(CommonFunction::getVisibleAchor(Anchor::MidButtom, ele, Vec2(0, -25)));
+		targetElementGNum = LabelAtlas::create(Value(REWARDDATA->getGreen(index)).asString(), "fonts/task_number.png", 22, 26, '0');
+		targetElementGNum->setPosition(CommonFunction::getVisibleAchor(Anchor::MidButtom, Gtaskbg, Vec2(0, 0)));
 		targetElementGNum->setAnchorPoint(Vec2(0.5, 0.5));
-		targetElementGNum->setScale(2.5);
-		ele->addChild(targetElementGNum);
+		Gtaskbg->addChild(targetElementGNum);
 	}
 	if (REWARDDATA->getRad(index) != 0)
 	{
-		auto ele = Sprite::create("element/element_3.png");
-		ele->setPosition(CommonFunction::getVisibleAchor(Anchor::LeftButtom, info_bg, Vec2(30 + (offY * 40), 0)));
-		ele->setScale(0.3);
-		info_bg->addChild(ele);
+		Rtaskbg = Sprite::create("infor/task_bg.png");
+		Rtaskbg->setPosition(CommonFunction::getVisibleAchor(Anchor::LeftButtom, info_bg, Vec2(150 + (offY * 100), -75)));
+		info_bg->addChild(Rtaskbg);
+
+		auto Rele = Sprite::create("infor/task_ele_3.png");
+		Rele->setPosition(CommonFunction::getVisibleAchor(Anchor::Center, Rtaskbg, Vec2(0, 0)));
+		Rtaskbg->addChild(Rele);
+		effectAction(Rele, 2.5);
 		offY++;
 
-		targetElementRNum = LabelAtlas::create(Value(REWARDDATA->getRad(index)).asString(), "fonts/game_scorenum.png", 17, 19, '0');
-		targetElementRNum->setPosition(CommonFunction::getVisibleAchor(Anchor::MidButtom, ele, Vec2(0, -25)));
+		targetElementRNum = LabelAtlas::create(Value(REWARDDATA->getRad(index)).asString(), "fonts/task_number.png", 22, 26, '0');
+		targetElementRNum->setPosition(CommonFunction::getVisibleAchor(Anchor::MidButtom, Rtaskbg, Vec2(0, 0)));
 		targetElementRNum->setAnchorPoint(Vec2(0.5, 0.5));
-		targetElementRNum->setScale(2.5);
-		ele->addChild(targetElementRNum);
+		Rtaskbg->addChild(targetElementRNum);
 	}
 	if (REWARDDATA->getYellor(index) != 0)
 	{
-		auto ele = Sprite::create("element/element_4.png");
-		ele->setPosition(CommonFunction::getVisibleAchor(Anchor::LeftButtom, info_bg, Vec2(30 + (offY * 40), 0)));
-		ele->setScale(0.3);
-		info_bg->addChild(ele);
+		Ytaskbg = Sprite::create("infor/task_bg.png");
+		Ytaskbg->setPosition(CommonFunction::getVisibleAchor(Anchor::LeftButtom, info_bg, Vec2(150 + (offY * 100), -75)));
+		info_bg->addChild(Ytaskbg);
+
+		auto Yele = Sprite::create("infor/task_ele_4.png");
+		Yele->setPosition(CommonFunction::getVisibleAchor(Anchor::Center, Ytaskbg, Vec2(0, 0)));
+		Ytaskbg->addChild(Yele);
+		effectAction(Yele, 2.5);
 		offY++;
 
-		targetElementYNum = LabelAtlas::create(Value(REWARDDATA->getYellor(index)).asString(), "fonts/game_scorenum.png", 17, 19, '0');
-		targetElementYNum->setPosition(CommonFunction::getVisibleAchor(Anchor::MidButtom, ele, Vec2(0, -25)));
+		targetElementYNum = LabelAtlas::create(Value(REWARDDATA->getYellor(index)).asString(), "fonts/task_number.png", 22, 26, '0');
+		targetElementYNum->setPosition(CommonFunction::getVisibleAchor(Anchor::MidButtom, Ytaskbg, Vec2(0, 0)));
 		targetElementYNum->setAnchorPoint(Vec2(0.5, 0.5));
-		targetElementYNum->setScale(2.5);
-		ele->addChild(targetElementYNum);
+		Ytaskbg->addChild(targetElementYNum);
 	}
 }
 void	InformationLayer::showTargetElementNum(int ele, int n)
@@ -286,21 +320,41 @@ void	InformationLayer::showTargetElementNum(int ele, int n)
 		}
 		else
 		{
-			//
 			if (targetElementBNum)
-				targetElementBNum->setString(Value(0).asString());
+			{
+				targetElementBNum->removeFromParent();
+				targetElementBNum = nullptr;
+				//targetElementBNum->setString(Value(0).asString());
+				auto finish = Sprite::create("infor/task_finish.png");
+				finish->setPosition(CommonFunction::getVisibleAchor(Anchor::MidButtom, Btaskbg, Vec2(0, 0)));
+				Btaskbg->addChild(finish, 1);
+				finish->setScale(4.0);
+				finishEffect(finish);
+			}
 		}
 		break;
 	case 1:
 		if (n > 0) // REWARDDATA->getPurple(index)
 		{
 			if (targetElementPNum)
+			{
 				targetElementPNum->setString(Value(n).asString());
+			}
 		}
 		else
 		{
 			if (targetElementPNum)
-				targetElementPNum->setString(Value(0).asString());
+			{
+				targetElementPNum->removeFromParent();
+				targetElementPNum = nullptr;
+				//targetElementBNum->setString(Value(0).asString());
+				auto finish = Sprite::create("infor/task_finish.png");
+				finish->setPosition(CommonFunction::getVisibleAchor(Anchor::MidButtom, Ptaskbg, Vec2(0, 0)));
+				Ptaskbg->addChild(finish, 1);
+				finish->setScale(4.0);
+				finishEffect(finish);
+			}
+
 		}
 		break;
 	case 2:
@@ -312,7 +366,17 @@ void	InformationLayer::showTargetElementNum(int ele, int n)
 		else
 		{
 			if (targetElementGNum)
-				targetElementGNum->setString(Value(0).asString());
+			{
+				targetElementGNum->removeFromParent();
+				//targetElementBNum->setString(Value(0).asString());
+				targetElementGNum = nullptr;
+				auto finish = Sprite::create("infor/task_finish.png");
+				finish->setPosition(CommonFunction::getVisibleAchor(Anchor::MidButtom, Gtaskbg, Vec2(0, 0)));
+				Gtaskbg->addChild(finish, 1);
+				finish->setScale(4.0);
+				finishEffect(finish);
+			}
+
 		}
 		break;
 	case 3:
@@ -324,7 +388,16 @@ void	InformationLayer::showTargetElementNum(int ele, int n)
 		else
 		{
 			if (targetElementRNum)
-				targetElementRNum->setString(Value(0).asString());
+			{
+				targetElementRNum->removeFromParent();
+				targetElementRNum = nullptr;
+				//targetElementBNum->setString(Value(0).asString());
+				auto finish = Sprite::create("infor/task_finish.png");
+				finish->setPosition(CommonFunction::getVisibleAchor(Anchor::MidButtom, Rtaskbg, Vec2(0, 0)));
+				Rtaskbg->addChild(finish, 1);
+				finish->setScale(4.0);
+				finishEffect(finish);
+			}
 		}
 		break;
 	case 4:
@@ -336,7 +409,16 @@ void	InformationLayer::showTargetElementNum(int ele, int n)
 		else
 		{
 			if (targetElementYNum)
-				targetElementYNum->setString(Value(0).asString());
+			{
+				targetElementYNum->removeFromParent();
+				targetElementYNum = nullptr;
+				//targetElementBNum->setString(Value(0).asString());
+				auto finish = Sprite::create("infor/task_finish.png");
+				finish->setPosition(CommonFunction::getVisibleAchor(Anchor::MidButtom, Ytaskbg, Vec2(0, 0)));
+				Ytaskbg->addChild(finish, 1);
+				finish->setScale(4.0);
+				finishEffect(finish);
+			}
 		}
 		break;
 	default:
@@ -344,3 +426,36 @@ void	InformationLayer::showTargetElementNum(int ele, int n)
 	}
 }
 
+void InformationLayer::effectAction(Node* node, float delay)
+{
+	auto f_node = dynamic_cast<Sprite*>(node);
+	if (!f_node){
+		return;
+	}
+
+	auto delayTime = DelayTime::create(delay);
+	auto rotate_1 = RotateTo::create(0.10f, -15);
+	auto rotate_2 = RotateTo::create(0.10f, 15);
+	auto rotate_3 = RotateTo::create(0.10f, 0);
+	auto seq = Sequence::create(delayTime, rotate_1, rotate_2, rotate_3, nullptr);
+	auto repeat = RepeatForever::create(seq);
+	f_node->runAction(repeat);
+}
+
+void InformationLayer::finishEffect(Node* node)
+{
+	auto f_node = dynamic_cast<Sprite*>(node);
+	if (!f_node){
+		return;
+	}
+	ScaleTo* scaleTo = ScaleTo::create(0.5, 1);
+	auto fin = FadeTo::create(0.5, 250);
+	Spawn* spawn = Spawn::create(fin, scaleTo, nullptr);
+	f_node->runAction(spawn);
+}
+
+void InformationLayer::scalecEffect(Node* node)
+{
+	auto seq = Sequence::create(ScaleTo::create(0.7, 1.2), ScaleTo::create(0.6, 0.9), nullptr);
+	node->runAction(RepeatForever::create(seq));
+}

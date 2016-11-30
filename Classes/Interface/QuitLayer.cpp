@@ -10,14 +10,8 @@ bool QuitLayer::init()
 	{
 		return false;
 	}
-	/*auto touchSwallow = TouchSwallowLayer::create();
-	touchSwallow->setPosition(CommonFunction::getVisibleAchor(Anchor::Center, m_popNode, Vec2(0, 0)));
-	m_popNode->addChild(touchSwallow);*/
 
 	addUI();
-	//auto listenerkeyPad = EventListenerKeyboard::create();
-	//listenerkeyPad->onKeyReleased = CC_CALLBACK_2(QuitLayer::onKeyReleased, this);
-	//_eventDispatcher->addEventListenerWithSceneGraphPriority(listenerkeyPad, this);
 	return true;
 }
 
@@ -35,12 +29,12 @@ void QuitLayer::addUI()
 	quitBG->setPosition(CommonFunction::getVisibleAchor(Anchor::Center,bg,Vec2(0,30)));
 	bg->addChild(quitBG);
 
-	auto goonbut = Button::create("button/gono_game.png");
+	auto goonbut = Button::create("button/gono_game_0.png", "button/gono_game_1.png");
 	goonbut->setPosition(CommonFunction::getVisibleAchor(Anchor::MidButtom, bg, Vec2(100, 60)));
 	bg->addChild(goonbut);
 	goonbut->addClickEventListener(CC_CALLBACK_0(QuitLayer::backGame, this));
 
-	auto quitButton = Button::create("button/break_game.png");
+	auto quitButton = Button::create("button/refused_0.png", "button/refused_1.png");
 	quitButton->setPosition(CommonFunction::getVisibleAchor(Anchor::MidButtom, bg, Vec2(-100, 60)));
 	bg->addChild(quitButton);
 	quitButton->addClickEventListener(CC_CALLBACK_0(QuitLayer::QuitGame, this));

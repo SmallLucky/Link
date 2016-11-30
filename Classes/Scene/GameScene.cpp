@@ -76,6 +76,12 @@ m_yellor(REWARDDATA->getYellor(GAMEDATA->getCurLevel()))
 	_eventDispatcher->addEventListenerWithFixedPriority(_listenerGreen, 1);
 	_eventDispatcher->addEventListenerWithFixedPriority(_listenerRad, 1);
 	_eventDispatcher->addEventListenerWithFixedPriority(_listenerYellor, 1);
+	auto _listenerPower = EventListenerCustom::create(ADDPOWER, [=](EventCustom*event){
+		auto layer = PowerLayer::create();
+		addChild(layer,25);
+		log("ADDPOWER");
+	});
+	_eventDispatcher->addEventListenerWithFixedPriority(_listenerPower, 1);
 }
 
 GameScene::~GameScene()
@@ -88,6 +94,7 @@ GameScene::~GameScene()
 	_eventDispatcher->removeCustomEventListeners(GREEN);
 	_eventDispatcher->removeCustomEventListeners(RAD);
 	_eventDispatcher->removeCustomEventListeners(YELLOR);
+	_eventDispatcher->removeCustomEventListeners(ADDPOWER);
 }
 bool GameScene::init()
 {
@@ -146,11 +153,11 @@ void GameScene::addUI()
 	for (int i = 0; i < 2; i++)
 	{
 		auto props_bg = Sprite::create("infor/props_bg.png");
-		props_bg->setPosition(CommonFunction::getVisibleAchor(Anchor::Center,bg,Vec2(i*170,-35)));
+		props_bg->setPosition(CommonFunction::getVisibleAchor(Anchor::Center,bg,Vec2(i*170,-25)));
 		bg->addChild(props_bg);
 
 		auto numbg = Button::create("infor/props_numbg.png");
-		numbg->setPosition(CommonFunction::getVisibleAchor(Anchor::RightButtom, props_bg, Vec2(-5, 15)));
+		numbg->setPosition(CommonFunction::getVisibleAchor(Anchor::RightButtom, props_bg, Vec2(-5, 20)));
 		props_bg->addChild(numbg);
 
 		if (i==0)
@@ -194,6 +201,8 @@ void GameScene::addUI()
 					{
 						//道具不够提醒购买
 						cout << "道具不够提醒购买" << endl;
+						SupplementsLayer* sppLayer = SupplementsLayer::createInit(i);
+						addChild(sppLayer, 10);
 					}
 
 				}
@@ -216,6 +225,8 @@ void GameScene::addUI()
 					{
 						//道具不够提醒购买
 						cout << "道具不够提醒购买" << endl;
+						SupplementsLayer* sppLayer = SupplementsLayer::createInit(i);
+						addChild(sppLayer, 10);
 					}
 				}
 			});
@@ -237,6 +248,9 @@ void GameScene::addRefreshPropsCallBarck()
 	{
 		isBy = false; //数量不够，弹出购买弹框
 		cout << "爱心不够" << endl;
+		SupplementsLayer* sppLayer = SupplementsLayer::createInit(3);
+		addChild(sppLayer,10);
+		return;
 	}
 	if (GAMEDATA->getMoneyNum() >= 60)
 	{
@@ -251,6 +265,9 @@ void GameScene::addRefreshPropsCallBarck()
 	{
 		isBy = false;
 		cout << "金币不够" << endl;
+		SupplementsLayer* sppLayer = SupplementsLayer::createInit(2);
+		addChild(sppLayer,10);
+		return;
 	}
 }
 
@@ -266,6 +283,9 @@ void GameScene::addBoomPropsCallBarck()
 	{
 		isBy = false; //数量不够，弹出购买弹框
 		cout << "爱心不够" << endl;
+		SupplementsLayer* sppLayer = SupplementsLayer::createInit(3);
+		addChild(sppLayer,10);
+		return;
 	}
 	if (GAMEDATA->getMoneyNum() >= 60)
 	{
@@ -280,6 +300,9 @@ void GameScene::addBoomPropsCallBarck()
 	{
 		isBy = false;
 		cout << "金币不够" << endl;
+		SupplementsLayer* sppLayer = SupplementsLayer::createInit(2);
+		addChild(sppLayer,10);
+		return;
 	}
 }
 
@@ -376,8 +399,16 @@ void GameScene::initMaster()
 /************************************/
 void GameScene::addCountLayer()
 {
-	auto addcountLayer = AddCount::create();
-	addChild(addcountLayer);
+	log("**************************************************curScore:%d", curScore);
+	if (curScore >= GAMEDATA->getTargetScore(GAMEDATA->getCurLevel()) && enoughTargetElement())
+	{ 
+		cout << "过关了！！！" << endl;
+	}
+	else
+	{
+		auto addcountLayer = AddCount::create();
+		addChild(addcountLayer);
+	}
 }
 
 //显示游戏剩余步数
@@ -426,6 +457,7 @@ int GameScene::showScoreUp()
 {
 	int score = getScoreByLinkCount(matrix->getRemoveCount(), matrix->getElementType()) + matrix->getSpecialScore();
 	//log(" GameScene::showScoreUp()score :%d ,%d", score, matrix->getSpecialScore());
+	curScore = score;
 	return showScoreUp(score); //通过消除元素个数计算获得的分数并显示
 }
 
@@ -508,7 +540,7 @@ void  GameScene::gameNextLevel()
 {
 	this->unscheduleUpdate();
 
-	auto time = DelayTime::create(1.5);
+	auto time = DelayTime::create(1.0);
 
 	auto callFun = CallFunc::create([=]{
 		auto nextlevel = TotalLayer::create();

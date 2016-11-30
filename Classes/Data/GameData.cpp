@@ -21,6 +21,8 @@ GameData::~GameData()
 	m_count.clear();
 	m_coins.clear();
 	m_special.clear();
+	m_lovesmoneyJiao.clear();
+	m_coinsmoneyJiao.clear();
 }
 
 GameData* GameData::getInstance()
@@ -119,6 +121,8 @@ void GameData::praseJsonData()
 	m_count.clear();
 	m_coins.clear();
 	m_special.clear();
+	m_lovesmoneyJiao.clear();
+	m_coinsmoneyJiao.clear();
 
 	rapidjson::Value & json_array = doc["Tollgate"];
 
@@ -145,6 +149,8 @@ void GameData::praseJsonData()
 		rapidjson::Value & shoplove = chapter["shoplove"];
 		rapidjson::Value & shopcoinsM = chapter["shopcoinsM"];
 		rapidjson::Value & shoploveM = chapter["shoploveM"];
+		rapidjson::Value & shopcoinsJ = chapter["shopcoinsJ"];
+		rapidjson::Value & shoploveJ = chapter["shoploveJ"];
 
 		for (unsigned int a = 0; a < shoplove.Size(); a++)
 		{
@@ -166,6 +172,18 @@ void GameData::praseJsonData()
 		{
 			rapidjson::Value & value = shopcoins[c];
 			m_coins.push_back(value.GetInt());
+		}
+
+		for (unsigned int e = 0; e < shopcoinsJ.Size(); e++)
+		{
+			rapidjson::Value & value = shopcoinsJ[e];
+			m_coinsmoneyJiao.push_back(value.GetInt());
+		}
+
+		for (unsigned int f = 0; f < shoploveJ.Size(); f++)
+		{
+			rapidjson::Value & value = shoploveJ[f];
+			m_lovesmoneyJiao.push_back(value.GetInt());
 		}
 
 		for (unsigned int j = 0; j < lock.Size(); j++)
@@ -238,6 +256,24 @@ void GameData::setLock(int level_index)
 		lock[level_index] = 0;
 	}
 	praseFinish(doc);
+}
+
+int GameData::getCoinsMoneyJiao(int index)
+{
+	if (index < 0)
+	{
+		return -1;
+	}
+	return m_coinsmoneyJiao[index];
+}
+
+int GameData::getLovesMoneyJiao(int index)
+{
+	if (index < 0)
+	{
+		return -1;
+	}
+	return m_lovesmoneyJiao[index];
 }
 
 int  GameData::getLock(int level)

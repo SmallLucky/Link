@@ -30,4 +30,5 @@ private:
 	void moveAction(Node* node, Vec2 to, float delay,float d);
 	void cloudMoveAction(Node* node, float delay, float d);
 	void penguin_shakeAction(Node* node,float delay);
+	void blinkAction(Node* node, float delay, int blink);
 };

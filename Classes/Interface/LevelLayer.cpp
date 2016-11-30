@@ -9,6 +9,9 @@
 #include "SetLayer.h"
 #include "PowerShop.h"
 #include "Data/RewardData.h"
+#include "GiftLayer.h"
+#include "SighedLayer.h"
+#include "PowerLayer.h"
 
 LevelLayer::LevelLayer() :mt(0),minutes(nullptr)
 {
@@ -16,24 +19,33 @@ LevelLayer::LevelLayer() :mt(0),minutes(nullptr)
 		refreshUI();
 	});
 	_eventDispatcher->addEventListenerWithFixedPriority(_listenerReresh, 1);
+	auto _listenerPower = EventListenerCustom::create(ADDPOWER, [=](EventCustom*event){
+		auto layer = PowerLayer::create();
+		addChild(layer);
+	});
+	_eventDispatcher->addEventListenerWithFixedPriority(_listenerPower, 1);
 }
 LevelLayer::~LevelLayer()
 {
 	_eventDispatcher->removeCustomEventListeners(REFRESHUI);
+	_eventDispatcher->removeCustomEventListeners(ADDPOWER);
 
 	if (GAMEDATA->getPowerNum() == MAXPOWER)
 	{
-		UserDefault::getInstance()->setIntegerForKey("LEAVE_TIME",0);
-		UserDefault::getInstance()->setIntegerForKey("LEAVE_POWER",0);
+		UserDefault::getInstance()->setIntegerForKey("CONSUMPTION_POWERTIME", 0); //满点体力下消耗体力时的毫秒时间
+		UserDefault::getInstance()->setIntegerForKey("CONSUMPTION_POWERDAY", CommonFunction::getCurDay()); //满点体力下消耗体力的第几天
+		//移除时间label
+		if (minutes)
+		{
+			minutes->removeFromParent();
+			minutes = nullptr;
+			//关闭定时器
+			this->unscheduleUpdate();
+		}
 	}
 	else
 	{
-		if (UserDefault::getInstance()->getIntegerForKey("LEAVE_TIME",0) == 0)
-		{
-			UserDefault::getInstance()->setIntegerForKey("LEAVE_TIME", millisecondNow());	
-		}
-		UserDefault::getInstance()->setIntegerForKey("LEAVE_POWER", mt);
-		log("wo jiao mt:%d", mt);
+
 	}
 }
 bool LevelLayer::init()
@@ -65,71 +77,207 @@ bool LevelLayer::init()
 	addUI();
 
 	addEffectYun();
+	addTimeLabel();
 
+	return true;
+}
+
+void  LevelLayer::addTimeLabel()
+{
 
 	if (GAMEDATA->getPowerNum() == MAXPOWER)
 	{
-		//log("addTimeLabel");
-		UserDefault::getInstance()->setIntegerForKey("GAME_TIME",0);//游戏开始按钮减体力的时间写入
-		UserDefault::getInstance()->setIntegerForKey("MIN_TIME",0);//
-		UserDefault::getInstance()->setIntegerForKey("LEAVE_TIME", 0);//离开的时间记录
-		UserDefault::getInstance()->setIntegerForKey("LEAVE_POWER", 0);//推出场景的时间
+		UserDefault::getInstance()->setIntegerForKey("CONSUMPTION_POWERTIME",0); //满点体力下消耗体力时的毫秒时间
+		UserDefault::getInstance()->setIntegerForKey("CONSUMPTION_POWERDAY", CommonFunction::getCurDay()); //满点体力下消耗体力的第几天
+		//移除时间label
+		if (minutes)
+		{
+			minutes->removeFromParent();
+			minutes = nullptr;
+			//关闭定时器
+			this->unscheduleUpdate();
+		}
 	}
 	else
 	{
-		int t =( millisecondNow() - UserDefault::getInstance()->getIntegerForKey("LEAVE_TIME",0))/60000;
-		log("long int:%d",t);
-		int ht = UserDefault::getInstance()->getIntegerForKey("LEAVE_POWER",0)%10; //离开的时间10分钟以内
-		log("int ht :%d",ht);
-		if (UserDefault::getInstance()->getIntegerForKey("LEAVE_TIME",0) != 0)
-		{
-			int p = (t + ht) / 10;
-			GAMEDATA->setPowerNum(min(GAMEDATA->getPowerNum() + p, MAXPOWER));
-			refreshUI();
-			UserDefault::getInstance()->setIntegerForKey("LEAVE_TIME", 0);//离开标记的时间取消
-			UserDefault::getInstance()->setIntegerForKey("LEAVE_POWER", 0);	//离开之前走过的时间
-			if (GAMEDATA->getPowerNum() == MAXPOWER)
+			int t;
+			int day = CommonFunction::getCurDay() - UserDefault::getInstance()->getIntegerForKey("CONSUMPTION_POWERDAY"); //
+			if (day > 0) //判断是不是同一天 86400000
 			{
-				UserDefault::getInstance()->setIntegerForKey("GAME_TIME", 0); //口血时间置0
-				UserDefault::getInstance()->setIntegerForKey("MIN_TIME", 0);//
-				UserDefault::getInstance()->setIntegerForKey("LEAVE_POWER", 0);//把游戏过去了几分钟置0
+				long int td = day * 86400000 - UserDefault::getInstance()->getIntegerForKey("CONSUMPTION_POWERTIME") + millisecondNow(); //相隔的天数*一天的毫秒数-走过的毫秒数加上今天的毫秒得到
+				t = td / 60000; // 得到时间差 分钟
+				log("day:%d",t);
 			}
-		}
-		if (GAMEDATA->getPowerNum() < MAXPOWER)
-		{
-			timeUI();
-			this->scheduleUpdate();
-		}
+			else
+			{
+				t = (millisecondNow() - UserDefault::getInstance()->getIntegerForKey("CONSUMPTION_POWERTIME")) / 60000; //同一天，现在的毫秒减去记录的毫秒得到时间差 分钟
+				log("long int:%d", t); //距离扣体力的分钟
+			}
+			int p = t / 10;
+			if (p > 0 ) //表示时间差大于十分钟，需要修改体力
+			{
+				GAMEDATA->setPowerNum(min(GAMEDATA->getPowerNum() + p, MAXPOWER));
+				refreshUI();
+				log("addpower:%d",p);
+				if (GAMEDATA->getPowerNum()  == MAXPOWER) //如果加完体力满点，那么
+				{
+					UserDefault::getInstance()->setIntegerForKey("CONSUMPTION_POWERTIME", 0); //满点体力下消耗体力时的毫秒时间
+					UserDefault::getInstance()->setIntegerForKey("CONSUMPTION_POWERDAY", CommonFunction::getCurDay()); //满点体力下消耗体力的第几天
+					//移除时间label
+					if (minutes)
+					{
+						minutes->removeFromParent();
+						minutes = nullptr;
+						//关闭定时器
+						this->unscheduleUpdate();
+					}
+				}
+				else
+				{
+					timeUI();
+					this->scheduleUpdate();
+				}
+			}
+			else //没有超过十分钟 ，需要添加倒数时间label
+			{
+				timeUI();
+				this->scheduleUpdate();
+			}
+	}
+}
+
+void  LevelLayer::timeUI() //
+{
+	long int t;
+	int day = CommonFunction::getCurDay() - UserDefault::getInstance()->getIntegerForKey("CONSUMPTION_POWERDAY"); //
+	if (day > 0) //判断是不是同一天 86400000
+	{
+		long int td = day * 86400000 - UserDefault::getInstance()->getIntegerForKey("CONSUMPTION_POWERTIME") + millisecondNow(); //相隔的天数*一天的毫秒数-走过的毫秒数加上今天的毫秒得到
+		t = td / 1000; // 得到时间差 秒
+	}
+	else
+	{
+		t = (millisecondNow() - UserDefault::getInstance()->getIntegerForKey("CONSUMPTION_POWERTIME")) / 1000; //同一天，现在的毫秒减去记录的毫秒得到时间差 秒
+		log("long int:%d", t); //距离扣体力的分钟
+	}
+	int p = t / 600; //过去几个十分钟
+	if (p > 0 && p != 0) //表示时间差大于十分钟，需要修改体力
+	{
+		mt = (t - (p * 600))/60; //label需要创建的分钟
+		st = t % 60; //label需要创建的秒
+	}
+	else //没有超过十分钟 ，需要添加倒数时间label
+	{
+		mt = t / 60; //label需要创建的分钟
+		st = t % 60; //label需要创建的秒
 	}
 
-	return true;
+	minutes = LabelAtlas::create(Value(9 - (mt % 10)).asString(), "fonts/power_shopnum.png", 28, 32, '0');
+	minutes->setPosition(CommonFunction::getVisibleAchor(Anchor::MidButtom, powerNum, Vec2(0, -40)));
+	minutes->setAnchorPoint(Vec2(1, 0.5));
+	powerNum->addChild(minutes);
+
+	auto f = Label::create(":", "fonts/Marker Felt.ttf", 30);
+	f->setPosition(CommonFunction::getVisibleAchor(Anchor::RightMid, minutes, Vec2(5, 0)));
+	f->setAnchorPoint(Vec2(0.5, 0.5));
+	minutes->addChild(f);
+
+	seconds = LabelAtlas::create(Value(59 - (st % 60)).asString(), "fonts/power_shopnum.png", 28, 32, '0');
+	seconds->setPosition(CommonFunction::getVisibleAchor(Anchor::RightMid, minutes, Vec2(10, 0)));
+	seconds->setAnchorPoint(Vec2(0, 0.5));
+	minutes->addChild(seconds);
+
+}
+
+void  LevelLayer::setTimeUI() //
+{
+	long int t;
+	int day = CommonFunction::getCurDay() - UserDefault::getInstance()->getIntegerForKey("CONSUMPTION_POWERDAY"); //
+	if (day > 0) //判断是不是同一天 86400000
+	{
+		long int td = day * 86400000 - UserDefault::getInstance()->getIntegerForKey("CONSUMPTION_POWERTIME") + millisecondNow(); //相隔的天数*一天的毫秒数-走过的毫秒数加上今天的毫秒得到
+		t = td / 1000; // 得到时间差 秒
+	}
+	else
+	{
+		t = (millisecondNow() - UserDefault::getInstance()->getIntegerForKey("CONSUMPTION_POWERTIME")) / 1000; //同一天，现在的毫秒减去记录的毫秒得到时间差 秒
+		log("long int:%d", t); //距离扣体力的分钟
+	}
+	int p = t / 600; //过去几个十分钟
+	if (p > 0 && p != 0) //表示时间差大于十分钟，需要修改体力
+	{
+		mt = (t - (p * 600)) / 60; //label需要创建的分钟
+		st = t % 60; //label需要创建的秒
+	}
+	else //没有超过十分钟 ，需要添加倒数时间label
+	{
+		mt = t / 60; //label需要创建的分钟
+		st = t % 60; //label需要创建的秒
+	}
+
+	if (minutes)
+	{
+		minutes->setString(Value(9 - (mt % 10)).asString());
+		seconds->setString(Value(59 - (st % 60)).asString());
+		if ((9 - (mt % 10)) == 0  && (59 - (st % 60) == 0))
+		{
+			cout << "时间满十分钟体力加一" << endl;
+			GAMEDATA->setPowerNum(min(GAMEDATA->getPowerNum() + 1, MAXPOWER));
+			refreshUI();
+			UserDefault::getInstance()->setIntegerForKey("CONSUMPTION_POWERTIME", millisecondNow());
+			if (GAMEDATA->getPowerNum() == MAXPOWER)
+			{
+				UserDefault::getInstance()->setIntegerForKey("CONSUMPTION_POWERTIME", 0); //满点体力下消耗体力时的毫秒时间
+				UserDefault::getInstance()->setIntegerForKey("CONSUMPTION_POWERDAY", CommonFunction::getCurDay()); //满点体力下消耗体力的第几天
+				//移除时间label
+				if (minutes)
+				{
+					minutes->removeFromParent();
+					minutes = nullptr;
+					//关闭定时器
+					this->unscheduleUpdate();
+				}
+			}
+		}
+	}
+}
+
+void  LevelLayer::update(float dt) // 
+{
+	setTimeUI();
+}
+long LevelLayer::millisecondNow()
+{
+	struct timeval now;
+	gettimeofday(&now, nullptr);
+	return (now.tv_sec * 1000 + now.tv_usec / 1000);
 }
 
 void LevelLayer::addEffectYun()
 {
 	auto yun1 = Sprite::create("effect/yun1.png");
-	yun1->setPosition(CommonFunction::getVisibleAchor(Anchor::Center, Vec2(0, 300)));
+	yun1->setPosition(CommonFunction::getVisibleAchor(Anchor::MidTop, Vec2(-300, 50)));
 	addChild(yun1, 3);
 	auto yun2 = Sprite::create("effect/yun2.png");
-	yun2->setPosition(CommonFunction::getVisibleAchor(Anchor::Center, Vec2(0,300)));
+	yun2->setPosition(CommonFunction::getVisibleAchor(Anchor::MidTop, Vec2(-150, 50)));
 	addChild(yun2, 3);
 	auto yun3 = Sprite::create("effect/yun3.png");
-	yun3->setPosition(CommonFunction::getVisibleAchor(Anchor::Center, Vec2(0, 300)));
+	yun3->setPosition(CommonFunction::getVisibleAchor(Anchor::MidTop, Vec2(0, 50)));
 	addChild(yun3, 3);
 	auto yun4 = Sprite::create("effect/yun4.png");
-	yun4->setPosition(CommonFunction::getVisibleAchor(Anchor::Center, Vec2(0, 300)));
+	yun4->setPosition(CommonFunction::getVisibleAchor(Anchor::MidTop, Vec2(450, 50)));
 	addChild(yun4, 3);
 
-	auto moverRB = MoveTo::create(2.0, Vec2(Director::getInstance()->getVisibleSize().width, -100));
-	auto moverLB = MoveTo::create(2.0, Vec2(0, 0));
-	auto scaleTo = ScaleTo::create(2.0, 3.0);
-	auto scaleTo2 = ScaleTo::create(2.0, 4.0);
+	auto moverRB = MoveTo::create(1.0, Vec2(Director::getInstance()->getVisibleSize().width, -100));
+	auto moverLB = MoveTo::create(1.0, Vec2(0, 0));
+	auto scaleTo = ScaleTo::create(1.0, 3.0);
+	auto scaleTo2 = ScaleTo::create(1.0, 4.0);
 
-	auto moverRT = MoveTo::create(2.0, Vec2(Director::getInstance()->getVisibleSize().width / 4, -100));
-	auto scaleTo3 = ScaleTo::create(2.0, 3.0);
+	auto moverRT = MoveTo::create(1.0, Vec2(Director::getInstance()->getVisibleSize().width / 4, -100));
+	auto scaleTo3 = ScaleTo::create(1.0, 3.0);
 
-	auto moverLT = MoveTo::create(2.0, Vec2((2 * (Director::getInstance()->getVisibleSize().width / 4)), -100));
-	auto scaleTo4 = ScaleTo::create(2.0, 3.0);
+	auto moverLT = MoveTo::create(1.0, Vec2((2 * (Director::getInstance()->getVisibleSize().width / 4)), -100));
+	auto scaleTo4 = ScaleTo::create(1.0, 3.0);
 
 	auto spaw1 = Spawn::create(scaleTo, moverRB, nullptr);
 	auto spaw2 = Spawn::create(scaleTo2, moverLB, nullptr);
@@ -201,28 +349,23 @@ void	LevelLayer::addScrollView()
 		}
 		float p = (float)((200 + 10375 - GAMEDATA->getOffsetY(index)) * 100 / (10375));
 		//scrollview->jumpToPercentVertical(p);
-		scrollview->scrollToPercentVertical(p, 5.0, true);
+		scrollview->scrollToPercentVertical(p, 2.0, true);
 		addChild(scrollview);
 		for (int i = 0; i < 9; i++)
 		{
-		string str = StringUtils::format("bg/levelbg/bg_00%d.png",i);
-			auto bg = Sprite::create(str);
-			//auto bg = Sprite::createWithTexture(t);
-			if (bg)
-			{
-				bg->setAnchorPoint(Vec2(0.5, 0));
-				bg->setPosition(CommonFunction::getVisibleAchor(Anchor::MidButtom, scrollview, Vec2(0, i*bg->getContentSize().height)));//i*bg->getContentSize().height
-				scrollview->addChild(bg);
+			string str = StringUtils::format("bg/levelbg/bg_00%d.png", i);
+			auto tex = TextureCache::getInstance()->getTextureForKey(str);
+			if (tex){
+				auto bg = Sprite::createWithTexture(tex);
+				if (bg)
+				{
+					//log("create bg..%d",i);
+					bg->setAnchorPoint(Vec2(0.5, 0));
+					bg->setPosition(CommonFunction::getVisibleAchor(Anchor::MidButtom, scrollview, Vec2(0, i*bg->getContentSize().height)));//i*bg->getContentSize().height
+					scrollview->addChild(bg);
+				}
 			}
 		}
-
-			//auto light = Sprite::create("popbox/");
-			//light->setPosition(CommonFunction::getVisibleAchor(Anchor::Center, scrollview, Vec2(GAMEDATA->getOffsetX(index), GAMEDATA->getOffsetY(index))));
-			//scrollview->addChild(light);
-		//ParticleSystem * efft = ParticleSystemQuad::create("effect/particle_1.plist");
-		////ParticleSystem* m_emitter1 = ParticleSystemQuad::create("effect/particle_1.plist");
-		//efft->setPosition(CommonFunction::getVisibleAchor(Anchor::MidButtom, scrollview, Vec2(GAMEDATA->getOffsetX(index), GAMEDATA->getOffsetY(index))));
-		//scrollview->addChild(efft);
 
 		auto light = Sprite::create("effect/light_1.png");
 		light->setPosition(CommonFunction::getVisibleAchor(Anchor::LeftButtom, scrollview, Vec2(GAMEDATA->getOffsetX(index), GAMEDATA->getOffsetY(index))));
@@ -262,13 +405,12 @@ void	LevelLayer::addUI()
 
 	for (int i = 0; i < 3; i++)
 	{
-		auto small_kuang = Sprite::create("popbox/labelkuang_w.png");
-		if (small_kuang)
-		{
-			small_kuang->setPosition(CommonFunction::getVisibleAchor(Anchor::MidTop, Vec2((i * 200 - 200), -50)));
-			addChild(small_kuang);
-			if (i == 0)
+		Sprite* small_kuang;
+			if (i == 0) //label_short
 			{
+				small_kuang = Sprite::create("popbox/label_short.png");
+				small_kuang->setPosition(CommonFunction::getVisibleAchor(Anchor::MidTop, Vec2((i * 200 - 200), -50)));
+				addChild(small_kuang);
 				auto power = Sprite::create("popbox/power.png");
 				if (power)
 				{
@@ -291,11 +433,15 @@ void	LevelLayer::addUI()
 				{
 					powerNum->setAnchorPoint(Vec2(0.5, 0.5));
 					powerNum->setPosition(CommonFunction::getVisibleAchor(Anchor::Center, small_kuang, Vec2(10, 0)));
+					powerNum->setScale(0.8);
 					small_kuang->addChild(powerNum);
 				}
 			}
 			if (i == 1)
 			{
+				small_kuang = Sprite::create("popbox/labelkuang_w.png");
+				small_kuang->setPosition(CommonFunction::getVisibleAchor(Anchor::MidTop, Vec2((i * 200 - 210), -50)));
+				addChild(small_kuang);
 				auto money = Sprite::create("popbox/big_gold.png");
 				money->setPosition(CommonFunction::getVisibleAchor(Anchor::LeftMid, small_kuang, Vec2(20, 0)));
 				small_kuang->addChild(money);
@@ -306,11 +452,15 @@ void	LevelLayer::addUI()
 
 				moneyNum = LabelAtlas::create(Value(GAMEDATA->getMoneyNum()).asString(), "fonts/power_shopnum.png", 28, 32, '0');
 				moneyNum->setAnchorPoint(Vec2(0.5, 0.5));
+				moneyNum->setScale(0.8);
 				moneyNum->setPosition(CommonFunction::getVisibleAchor(Anchor::Center, small_kuang, Vec2(10, 0)));
 				small_kuang->addChild(moneyNum);
 			}
 			if (i == 2)
 			{
+				small_kuang = Sprite::create("popbox/labelkuang_w.png");
+				small_kuang->setPosition(CommonFunction::getVisibleAchor(Anchor::MidTop, Vec2((i * 200 - 200), -50)));
+				addChild(small_kuang);
 				auto love = Sprite::create("popbox/big_hart.png");
 				love->setPosition(CommonFunction::getVisibleAchor(Anchor::LeftMid, small_kuang, Vec2(20, 0)));
 				small_kuang->addChild(love);
@@ -321,95 +471,56 @@ void	LevelLayer::addUI()
 
 				loveNum = LabelAtlas::create(Value(GAMEDATA->getLoveNum()).asString(), "fonts/power_shopnum.png", 28, 32, '0');
 				loveNum->setAnchorPoint(Vec2(0.5, 0.5));
+				loveNum->setScale(0.8);
 				loveNum->setPosition(CommonFunction::getVisibleAchor(Anchor::Center, small_kuang, Vec2(10, 0)));
 				small_kuang->addChild(loveNum);
 
 			}
-		}
 	}
 
 
-	auto shopButton = Button::create("popbox/shop_button.png");
+
+	auto shopButton = Button::create("button/shop_nor.png", "button/shop_sel.png");
 	shopButton->setPosition(CommonFunction::getVisibleAchor(Anchor::RightButtom,Vec2(-100,100)));
+	shopButton->setScale(0.6);
 	addChild(shopButton);
 	shopButton->addClickEventListener(CC_CALLBACK_0(LevelLayer::addCallBack,this));
 
-	auto setButton = Button::create("popbox/button_set.png");
+	auto setButton = Button::create("button/set_nor.png", "button/set_sel.png");
 	setButton->setPosition(CommonFunction::getVisibleAchor(Anchor::LeftButtom,Vec2(100,100)));
+	setButton->setScale(0.6);
 	addChild(setButton);
 	setButton->addClickEventListener(CC_CALLBACK_0(LevelLayer::setCallBack, this));
 
+	//豪华礼包，签到奖励
+	auto giftsBtn = Button::create("signed/main/haohua_nor.png", "signed/main/haohua_sel.png");
+	giftsBtn->setPosition(CommonFunction::getVisibleAchor(Anchor::RightMid, Vec2(-giftsBtn->getContentSize().width / 2 - 15, 280)));
+	addChild(giftsBtn);
+	giftsBtn->addClickEventListener(CC_CALLBACK_1(LevelLayer::giftedCallBack, this));
 
+	auto signendBtn = Button::create("signed/main/qiandao_nor.png", "signed/main/qiandao_sel.png");
+	signendBtn->setPosition(CommonFunction::getVisibleAchor(Anchor::RightMid, Vec2(-signendBtn->getContentSize().width / 2 - 15, 130)));
+	addChild(signendBtn);
+	signendBtn->addClickEventListener(CC_CALLBACK_1(LevelLayer::signedCallBack, this));
 }
-void  LevelLayer::timeUI() //
-{
-	long int t = millisecondNow() - UserDefault::getInstance()->getIntegerForKey("GAME_TIME"); //得到系统时间毫秒
-	long int tt = t / 1000; // 秒
-	
-	mt = tt / 60;
-	st = tt % 60;
-	//log("tt:%ld   %d:%d", tt,mt,st);
-	
-	minutsNum = mt - UserDefault::getInstance()->getIntegerForKey("MIN_TIME",0);
-	minutes = LabelAtlas::create(Value(9 - (minutsNum%10)).asString(), "fonts/power_shopnum.png", 28, 32, '0');
-	minutes->setPosition(CommonFunction::getVisibleAchor(Anchor::MidButtom,powerNum,Vec2(0,-40)));
-	minutes->setAnchorPoint(Vec2(1,0.5));
-	powerNum->addChild(minutes);
-	auto f = Label::create(":","fonts/Marker Felt.ttf",30);
-	f->setPosition(CommonFunction::getVisibleAchor(Anchor::RightMid, minutes, Vec2(5, 0)));
-	f->setAnchorPoint(Vec2(0.5, 0.5));
-	minutes->addChild(f);
-	seconds = LabelAtlas::create(Value(59 - (st%60)).asString(), "fonts/power_shopnum.png", 28, 32, '0');
-	seconds->setPosition(CommonFunction::getVisibleAchor(Anchor::RightMid , minutes,Vec2(10,0)));
-	seconds->setAnchorPoint(Vec2(0, 0.5));
-	minutes->addChild(seconds);
 
-}
-void  LevelLayer::setTimeUI() //
+void LevelLayer::signedCallBack(Ref* sender)
 {
-	long int t = millisecondNow() - UserDefault::getInstance()->getIntegerForKey("GAME_TIME"); //得到系统时间毫秒
-	long int tt = t / 1000; // 秒
-	mt = tt / 60;
-	st = tt % 60;
-	//log("tt:%ld   %d:%d", tt, mt, st);
-
-	minutsNum = mt - UserDefault::getInstance()->getIntegerForKey("MIN_TIME", 0);
-	//log("****time:%ld ,millisecondNow:%ld  minutsNum:%ld ", t, millisecondNow(), minutsNum);
-	if (minutes)
-	{
-		minutes->setString(Value(9-(minutsNum%10)).asString());
-		seconds->setString(Value(59 -(st%60)).asString());
-	}
-	if (minutsNum % 10 == 0 && minutsNum != 0)
-	{
-		GAMEDATA->setPowerNum(min(GAMEDATA->getPowerNum() + 1, MAXPOWER));
-		UserDefault::getInstance()->setIntegerForKey("MIN_TIME", minutsNum);
-		refreshUI(); //]
-		if (GAMEDATA->getPowerNum() == MAXPOWER)
-		{
-			UserDefault::getInstance()->setIntegerForKey("GAME_TIME", 0);
-			UserDefault::getInstance()->setIntegerForKey("MIN_TIME", 0);
-			//移除时间label
-			if (minutes)
-			{
-				minutes->removeFromParent();
-				minutes = nullptr;
-				//关闭定时器
-				this->unscheduleUpdate();
-			}
-		}
+	auto giftLayer = SignedLayer::create();
+	if (giftLayer){
+		addChild(giftLayer);
 	}
 }
-void  LevelLayer::update(float dt) // 
+
+void LevelLayer::giftedCallBack(Ref* sender)
 {
-	setTimeUI();
+	auto giftLayer = GiftLayer::create();
+	if (giftLayer){
+		addChild(giftLayer);
+	}
 }
-long LevelLayer::millisecondNow()
-{
-	struct timeval now;
-	gettimeofday(&now, nullptr);
-	return (now.tv_sec * 1000 + now.tv_usec / 1000);
-}
+
+
 //添加关卡
 void LevelLayer::addLevelButton()
 {
@@ -417,15 +528,33 @@ void LevelLayer::addLevelButton()
 
 	for (int i = 0; i <GAMEDATA->m_lock.size(); i++)
 	{
-		auto testButton = Button::create("button/level_normal.png", "button/level_pass.png", "button/level_disable.png");
+		Button* testButton;
+		if ((i+1) % 10 == 0 && i != 0)
+		{
+			testButton = Button::create("button/level_normal_10.png", "button/level_pass_10.png", "button/level_disable.png");
+			
+			
+			if (GameData::getInstance()->m_lock[i] == 0)
+			{
+				auto light1 = Sprite::create("infor/guang.png");
+				light1->setPosition(CommonFunction::getVisibleAchor(Anchor::Center, testButton, Vec2(-5, 10)));
+				light1->setScale(1.5);
+				testButton->addChild(light1, -1);
+				rotateAction(light1);
+			}
+		}
+		else
+		{
+			testButton = Button::create("button/level_normal.png", "button/level_pass.png", "button/level_disable.png");
+		}
 		testButton->setPosition(CommonFunction::getVisibleAchor(Anchor::LeftButtom, scrollview, Vec2(GAMEDATA->getOffsetX(i),  GAMEDATA->getOffsetY(i))));
-		testButton->setScale(0.7);
+		testButton->setScale(0.75);
 		scrollview->addChild(testButton);
 		testButton->setTag(i);
 		auto level_num = LabelAtlas::create(Value(i +1).asString(),"fonts/power_shopnum.png",28,32,'0');
 		level_num->setAnchorPoint(Vec2(0.5,0.5));
 		level_num->setScale(0.7);
-		level_num->setPosition(CommonFunction::getVisibleAchor(Anchor::Center, testButton, Vec2(0,0)));
+		level_num->setPosition(CommonFunction::getVisibleAchor(Anchor::Center, testButton, Vec2(0,10)));
 		testButton->addChild(level_num);
 
 		if (GameData::getInstance()->m_lock[i] == 1)
@@ -471,10 +600,8 @@ void LevelLayer::refreshUI()
 	moneyNum->setString(Value(GAMEDATA->getMoneyNum()).asString());
 	if (GAMEDATA->getPowerNum() == MAXPOWER)
 	{
-		UserDefault::getInstance()->setIntegerForKey("GAME_TIME", 0);//游戏开始按钮减体力的时间写入
-		UserDefault::getInstance()->setIntegerForKey("MIN_TIME", 0);//
-		UserDefault::getInstance()->setIntegerForKey("LEAVE_TIME", 0);//离开的时间记录
-		UserDefault::getInstance()->setIntegerForKey("LEAVE_POWER", 0);//推出场景的时间
+		UserDefault::getInstance()->setIntegerForKey("CONSUMPTION_POWERTIME", 0); //满点体力下消耗体力时的毫秒时间
+		UserDefault::getInstance()->setIntegerForKey("CONSUMPTION_POWERDAY", CommonFunction::getCurDay()); //满点体力下消耗体力的第几天
 		//移除时间label
 		if (minutes)
 		{
@@ -502,29 +629,32 @@ void LevelLayer::setCallBack()
 	addChild(setLayer);
 }
 
+void LevelLayer::tanLevelEffect(Node* node, float time)
+{
+	auto f_node = dynamic_cast<Sprite*>(node);
+	if (!f_node){
+		return;
+	}
+	auto delay = DelayTime::create(time);
+	auto call = CallFunc::create([=]{
+		node->setVisible(false);
+	});
+	auto fun = CallFunc::create([=]{
+		node->setVisible(true);
+	});
+	auto seq = Sequence::create(delay,call,delay,fun,nullptr);
+	node->runAction(RepeatForever::create(seq));
+}
 
+void LevelLayer::rotateAction(Node* node)
+{
+	if (!node){
+		return;
+	}
 
-//		//	log("....");
-//		//	Point nowPoint = convertToWorldSpace(scrollview->getInnerContainerPosition());//将坐标转换为世界坐标
-//		//	log("point old:%f,now:%f", oldPoint.y, nowPoint.y);
-//		//	float l = nowPoint.y - oldPoint.y;
-//		//	float x = l / 10;
-//		//	log("x:%f", x);
-//		//	MoveBy* moveby = MoveBy::create(0.5, Vec2(0, x));
-//		//	bgLayer->runAction(moveby);
-//		//	oldPoint = nowPoint;
-//		//	int y = 0;
-//		//	if (bgLayer->getPositionY()<0)
-//		//	{
-//		//		y = (0 - bgLayer->getPositionY()) / HEIGHT + 1;
-//		//		log("<<<<<<<<%f , y: %i", bg1->getPositionY(), y);
-//		//		if (numBG != y || numBG > y)
-//		//		{
-//		//			Sprite* bg = Sprite::create("bg/bg1.png");
-//		//			log("point*****************:%f,%f", WIDTH / 2, HEIGHT / 2 * y);
-//		//			bg->setAnchorPoint(Vec2(0, 0));
-//		//			bg->setPosition(0, HEIGHT*y);
-//		//			bgLayer->addChild(bg);
-//		//			numBG = y;
-//		//		}
-//		//	}
+	auto r_node = dynamic_cast<Sprite*>(node);
+	auto rotate_ac = RotateBy::create(20.0f, 360.0);
+	if (r_node){
+		r_node->runAction(RepeatForever::create(rotate_ac));
+	}
+}

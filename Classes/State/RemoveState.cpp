@@ -13,8 +13,20 @@ bool RemoveState::checkStateChange() //状态改变返回true，状态未改变返回false，
 	{
 		//CHANGE_TO_STATE(LineBoomState);
 	}
-	if (matrixFinishFlag && !scene->enoughTargetElement()) // && scene->showScoreUp() < GameData::getInstance()->getTargetScore(GameData::getInstance()->getCurLevel())
-		CHANGE_TO_STATE(LinkState); //若元素已下落完成，则进入等待连线状态
+	if (matrixFinishFlag)
+	{
+		if (score < GAMEDATA->getTargetScore(GAMEDATA->getCurLevel()) || !scene->enoughTargetElement())
+		{
+			log("score3:%d", score);
+			CHANGE_TO_STATE(LinkState); //若元素已下落完成，则进入等待连线状态
+		}
+		else
+		{
+			cout << "特殊元素都滿足" << endl;
+			EventCustom _event(FINISHTARGETELEMENT);
+			_eventDispatcher->dispatchEvent(&_event);
+		}
+	}
 	if (gameStartFlag)
 	{
 		CHANGE_TO_STATE(StartState);
@@ -28,7 +40,8 @@ bool RemoveState::entryState()
 #if(CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
 	LOGD("RemoveState::entryState()");
 #endif
-	scene->showScoreUp(); //显示分数增加
+	score = scene->showScoreUp(); //显示分数增加
+	log("score:%d",score);
 	scene->showAllCount(); //显示步数的更改
 	matrixFinishFlag = false;
 	matrixTime = FALL_TIME;
@@ -50,9 +63,9 @@ void RemoveState::onUpdate(float dt)
 	//	log("gameOverFlag");
 	//}
 	if (matrixFinishFlag)
-	if (scene->showScoreUp() >= GAMEDATA->getTargetScore(GAMEDATA->getCurLevel()) )
+	if (score >= GAMEDATA->getTargetScore(GAMEDATA->getCurLevel()) )
 	{
-		log("score");
+		log("score2:%d :: %d", score, GAMEDATA->getTargetScore(GAMEDATA->getCurLevel()));
 		if (scene->enoughTargetElement() && matrixFinishFlag)
 		{
 			scene->gameNextLevel();

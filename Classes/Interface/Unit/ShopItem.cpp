@@ -12,19 +12,18 @@ ShopItem::~ShopItem()
 
 }
 //CREATE_FUNC(ShopItem);
-ShopItem* ShopItem::createShopItem(int type, int moneyNum, int num)
+ShopItem* ShopItem::createShopItem(int type, int moneyNum, int moneyJ, int num)
 {
 	ShopItem* item = new ShopItem();
-	if (item && item->init(type, moneyNum,num))
+	if (item && item->init(type, moneyNum, moneyJ,num))
 	{
 		item->autorelease();
 		return item;
 	}
 	CC_SAFE_DELETE(item);
 	return nullptr;
-
 }
-bool ShopItem::init(int type, int moneyNum,int num)
+bool ShopItem::init(int type, int moneyNum, int moneyJ, int num)
 {
 	if (!Node::init())
 	{
@@ -58,20 +57,25 @@ bool ShopItem::init(int type, int moneyNum,int num)
 						AudioData::getInstance()->addButtonEffect(3);
 					log("go mai %d", moneyNum);
 				});
-
-				auto symbol = Sprite::create("popbox/m.png");
+				auto symbol = Sprite::create("signed/main/rmb_img.png");
 				symbol->setPosition(CommonFunction::getVisibleAchor(Anchor::LeftMid, shop_button, Vec2(30, 5)));
 				shop_button->addChild(symbol);
 
-				auto money = LabelAtlas::create(Value(moneyNum).asString(), "fonts/game_propsnum.png", 20, 24, '0');
-				money->setPosition(CommonFunction::getVisibleAchor(Anchor::LeftMid, symbol, Vec2(25, 0)));
+				auto money = LabelAtlas::create(Value(moneyNum).asString(), "fonts/shop_num_2.png", 30, 30, '0');
+				money->setPosition(CommonFunction::getVisibleAchor(Anchor::LeftMid, symbol, Vec2(18, 0)));
 				money->setAnchorPoint(Vec2(0, 0.5));
 				money->setScale(0.6);
 				symbol->addChild(money);
 
-				auto dian = Sprite::create("popbox/dian.png");
-				dian->setPosition(CommonFunction::getVisibleAchor(Anchor::MidButtom, money, Vec2(0, 0)));//money->getContentSize().width
+				auto dian = Sprite::create("signed/main/point.png");
+				dian->setPosition(CommonFunction::getVisibleAchor(Anchor::RightButtom, money, Vec2(0, 0)));//money->getContentSize().width
 				money->addChild(dian);
+
+				auto moneyj = LabelAtlas::create(Value(moneyJ).asString(), "fonts/shop_num_2.png", 30, 30, '0');
+				moneyj->setPosition(CommonFunction::getVisibleAchor(Anchor::RightMid, symbol, Vec2(35, 0)));
+				moneyj->setAnchorPoint(Vec2(0, 0.5));
+				moneyj->setScale(0.6);
+				symbol->addChild(moneyj);
 
 			}
 		}
@@ -95,7 +99,6 @@ bool ShopItem::init(int type, int moneyNum,int num)
 				{
 					addBoomPropsCallBarck(3);
 				}
-				
 			});
 
 			auto pro_num1 = Button::create("button/shop_props1.png","button/props_shop1.png");
@@ -135,19 +138,25 @@ bool ShopItem::init(int type, int moneyNum,int num)
 					log("go mai %d", moneyNum);
 				});
 
-				auto symbol = Sprite::create("popbox/m.png");
+				auto symbol = Sprite::create("signed/main/rmb_img.png");
 				symbol->setPosition(CommonFunction::getVisibleAchor(Anchor::LeftMid,shop_button,Vec2(30,5)));
 				shop_button->addChild(symbol);
 
-				auto money = LabelAtlas::create(Value(moneyNum).asString(), "fonts/game_propsnum.png", 20, 24, '0');
-				money->setPosition(CommonFunction::getVisibleAchor(Anchor::LeftMid,symbol,Vec2(25,0)));
-				money->setAnchorPoint(Vec2(0,0.5));
+				auto money = LabelAtlas::create(Value(moneyNum).asString(), "fonts/shop_num_2.png", 30, 30, '0');
+				money->setPosition(CommonFunction::getVisibleAchor(Anchor::LeftMid, symbol, Vec2(18, 0)));
+				money->setAnchorPoint(Vec2(0, 0.5));
 				money->setScale(0.6);
 				symbol->addChild(money);
 
-				auto dian = Sprite::create("popbox/dian.png");
-				dian->setPosition(CommonFunction::getVisibleAchor(Anchor::MidButtom, money, Vec2(0, 0)));//money->getContentSize().width
+				auto dian = Sprite::create("signed/main/point.png");
+				dian->setPosition(CommonFunction::getVisibleAchor(Anchor::RightButtom, money, Vec2(0, 0)));//money->getContentSize().width
 				money->addChild(dian);
+
+				auto moneyj = LabelAtlas::create(Value(moneyJ).asString(), "fonts/shop_num_2.png", 30, 30, '0');
+				moneyj->setPosition(CommonFunction::getVisibleAchor(Anchor::RightMid, symbol, Vec2(35, 0)));
+				moneyj->setAnchorPoint(Vec2(0, 0.5));
+				moneyj->setScale(0.6);
+				symbol->addChild(moneyj);
 
 			}
 

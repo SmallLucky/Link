@@ -24,6 +24,7 @@ bool matrixFinishFlag;
 bool gameOverFlag;
 bool gameStartFlag;
 bool IsLineBoom;
+int  score;
 END_DEFINE_STATE
 
 DEFINE_STATE(LineBoomState) //¿ªÊ¼×´Ì¬

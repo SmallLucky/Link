@@ -12,4 +12,6 @@ public:
 
 	void quitCallBack();
 	void againCallBack();
+private:
+	Button* againButton;
 };

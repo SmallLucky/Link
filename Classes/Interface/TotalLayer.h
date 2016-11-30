@@ -15,4 +15,7 @@ public:
 	void addReward();
 
 	void addGift(Sprite* s);
+
+private:
+	Button* nextLevel;
 };

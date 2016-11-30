@@ -50,11 +50,14 @@ void addSprite(Sprite* & s, string img, Point pos, float size, Node* n, int zOrd
 #define GAMEDATA GameData::getInstance()
 #define REWARDDATA RewardData::getInstance()
 #define REFRESHUI "refreshUI"		//
+#define ADDPOWER "addPower"
 #define REFRESHPROPS "refreshProps"		//
 #define ISGAMEOVERTRUE "isGameOverTrue"		//
 #define ISGAMEOVERFALSE "isGameOverFalse"		//
 #define BYICONS "byIcons"
 #define BYLOVES	"byLoves"
+
+#define FINISHTARGETELEMENT "isFinishTargetElement"
 
 #define BLUE "blue"
 #define PURPLE "purple"

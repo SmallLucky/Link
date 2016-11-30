@@ -59,7 +59,7 @@ public:
 
 	//是否是炸弹
 	bool isBoom;
-
+	bool isTargetElementFinish;
 	bool getIsBoom() { return isBoom; }
 	void setIsBoom( bool b) { isBoom = b; }
 	//炸弹炸掉的元素
@@ -77,6 +77,7 @@ private:
 	void showLineEffect(Point p);
 	void showRowEffect(Point p);
 	void showBoomEffect(Point p);
+	void showCloudEffect(Point p);
 
 	void eventTargetElement(int ele,int count);
 private:
@@ -102,6 +103,7 @@ private:
 
 	bool **signFlag;		//是否被标记
 	bool **signFlagSpecial;		//是否被特殊元素标记的
+	bool **signBeRemove;	//标记被消除是否是同一次连线被改变
 
 	float containsDis;		//触点包含于格子内的最大距离
 
@@ -132,6 +134,9 @@ public:
 	int m_count = 0;
 	int removeMyCount();
 	int removeTargetECount;
+
+	//特效
+	void  jitterEffect(Node* node, float delay);
 public:
 	//void drawGuideLine(Point leftBottom, Point rightTop);		//绘制矩形辅助线
 	void drawLine(Coord from, Coord to);			//绘制连接两个元素的线
@@ -180,4 +185,7 @@ private:
 	void removeCountCleaar();  //清空消除个数
 	void signOnlyBlock(int row, int line);		//只标记一个元素（其他标记被取消）
 
+
+	void	 initSignBeRemove(); //初始被同一次被消标记
+	void	 clearSignBeRemove(); //清除被消标记
 };

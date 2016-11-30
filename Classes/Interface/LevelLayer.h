@@ -26,8 +26,14 @@ public:
 	void setTimeUI(); //
 	void update(float dt); // 
 	long millisecondNow();
+	void addTimeLabel();
 
 	void addEffectYun();
+	void tanLevelEffect(Node* node ,float time);
+	void rotateAction(Node* node);
+
+	void signedCallBack(Ref* sender);
+	void giftedCallBack(Ref* sender);
 
 private:
 	ScrollView* scrollview;

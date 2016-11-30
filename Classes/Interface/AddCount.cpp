@@ -9,8 +9,6 @@ bool AddCount::init()
 	{
 		return false;
 	}
-	//auto touchlayer = TouchSwallowLayer::create();
-	//addChild(touchlayer);
 
 	addUI();
 	return true;
@@ -34,7 +32,7 @@ void AddCount::addUI()
 	});
 	bg->addChild(breakButton);
 
-	auto addCountBut = Button::create("button/addCountBut.png");
+	auto addCountBut = Button::create("button/addCountBut_0.png", "button/addCountBut_1.png");
 	addCountBut->setPosition(CommonFunction::getVisibleAchor(Anchor::Center,bg,Vec2(60,-40)));
 	bg->addChild(addCountBut);
 
