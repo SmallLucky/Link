@@ -406,8 +406,7 @@ void StartScene::onKeyReleased(EventKeyboard::KeyCode keycode, Event* event)
 		{
 			if (keycode == EventKeyboard::KeyCode::KEY_BACK)  //·µ»Ø
 			{
-				//auto quitLayer = QuitLayer::create();
-				auto quitLayer = PowerLayer::create();
+				auto quitLayer = QuitLayer::create();
 				if (quitLayer)
 				{
 					addChild(quitLayer,100);

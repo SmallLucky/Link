@@ -71,13 +71,17 @@ private:
 	int  specialScore;
 	void  changeTiledType(int r,int l); // 修改指定位置上瓦片的属性值
 
-	Vector<ParticleSystem*> m_effects;
+	Vector<Sprite*> m_effects;
+	//Vector<ParticleSystem*> m_effects;
 	void showEffect(Point p);
 	bool removeEffect();
 	void showLineEffect(Point p);
 	void showRowEffect(Point p);
 	void showBoomEffect(Point p);
 	void showCloudEffect(Point p);
+	void showLoveEffect(Point p);
+	void showRemoveEleEffect(Point p);
+	void showQQEffect(Node* node);
 
 	void eventTargetElement(int ele,int count);
 private:

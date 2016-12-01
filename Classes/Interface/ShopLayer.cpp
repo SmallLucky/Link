@@ -5,6 +5,7 @@
 #include "Unit/ShopItem.h"
 #include "CommonFunction.h"
 #include "Data/Data.h"
+#include "GiftLayer.h"
 
 ShopLayer::ShopLayer()
 {
@@ -38,9 +39,6 @@ bool ShopLayer:: init()
 		return false;
 	}
 
-	//auto touchSwallow = TouchSwallowLayer::create();
-	//addChild(touchSwallow);
-
 	addUI();
 	return true;
 }
@@ -56,37 +54,67 @@ void ShopLayer::addUI()
 	BG_kuang->addChild(hong);
 
 	//props
-	props_bg = Sprite::create("popbox/shop_propskuang.png");
-	props_bg->setPosition(CommonFunction::getVisibleAchor(Anchor::Center,BG_kuang,Vec2(0,70)));
+	props_bg = Sprite::create("popbox/gift_kuang.png");
+	props_bg->setPosition(CommonFunction::getVisibleAchor(Anchor::Center,BG_kuang,Vec2(0,20)));
 	BG_kuang->addChild(props_bg);
 
 	//props_bg->setVisible(false);
 
 	auto pat = Sprite::create("popbox/pet.png");
-	pat->setPosition(CommonFunction::getVisibleAchor(Anchor::MidButtom,props_bg,Vec2(0,-150)));
+	pat->setPosition(CommonFunction::getVisibleAchor(Anchor::MidButtom,props_bg,Vec2(0,-110)));
 	props_bg->addChild(pat);
-	
-	auto propsscrollView = ScrollView::create();
-	propsscrollView->setDirection(ui::ScrollView::Direction::VERTICAL);
-	propsscrollView->setAnchorPoint(Vec2(0.5, 0));
-	propsscrollView->setContentSize(Size(props_bg->getContentSize().width, props_bg->getContentSize().height));
-	propsscrollView->setInertiaScrollEnabled(true);
-	propsscrollView->setBounceEnabled(true); //开启回弹
-	propsscrollView->setInnerContainerSize(Size(props_bg->getContentSize().width, 2 * 165));
-	propsscrollView->setBackGroundColor(Color3B::GRAY);
-	propsscrollView->setPosition(CommonFunction::getVisibleAchor(Anchor::MidButtom, props_bg, Vec2(0, 0)));
-	propsscrollView->setScrollBarOpacity(0); //设置滚动条透明度
-	props_bg->addChild(propsscrollView);
 
-	auto propsscrv_width = propsscrollView->getContentSize().width;
-	for (int i = 0; i <2; i++)
+	auto scrollView = ScrollView::create();
+	scrollView->setDirection(ui::ScrollView::Direction::VERTICAL);
+	scrollView->setAnchorPoint(Vec2(0.5, 0));
+	scrollView->setContentSize(Size(props_bg->getContentSize().width, props_bg->getContentSize().height - 10));
+	scrollView->setInertiaScrollEnabled(true);
+	scrollView->setBounceEnabled(true);
+	//scrollView->setInnerContainerSize(Size(BG_kuang->getContentSize().width, 3 * 160));
+	scrollView->setBackGroundColor(Color3B::GRAY);
+	scrollView->setPosition(CommonFunction::getVisibleAchor(Anchor::MidButtom, props_bg, Vec2(0, 10)));
+	scrollView->setScrollBarOpacity(0);
+	//scrollView->setBackGroundColorType(Layout::BackGroundColorType::SOLID);
+	//scrollView->setBackGroundColorOpacity(150);
+	props_bg->addChild(scrollView);
+
+	auto light_sp = Sprite::create("signed/main/light_5.png");
+	if (light_sp){
+		scrollView->addChild(light_sp,-1);
+		light_sp->setPosition(CommonFunction::getVisibleAchor(Anchor::Center, scrollView, Vec2(0, 50)));
+	}
+	auto scrv_width = scrollView->getContentSize().width;
+
+	for (int i = 0; i < 3; i++)
 	{
-		auto item = ShopItem::createShopItem(2,i,i,i);
-		item->setTag(i);
-		int item_height = item->getContentSize().height;
-		propsscrollView->addChild(item);
-		item->setAnchorPoint(Vec2(0.5,0.5));
-		item->setPosition(CommonFunction::getVisibleAchor(Anchor::MidTop, propsscrollView, Vec2(0, -100 - (i*150))));//item_height/4(0 - i * (item_height)-item_height / 2) + 4 * 90)
+		int item_height = 0;
+		if (i == 0){
+			auto item = GiftItem::createItem(20, 20, 18.8);
+			if (item){
+				item->setTag(i);
+				item_height = item->getContentSize().height;
+				scrollView->addChild(item);
+				item->setPosition(CommonFunction::getVisibleAchor(0.5, 0.5, scrollView, Vec2(0, i * (item_height - 14) - 160)));
+			}
+		}
+		else if (i == 1){
+			auto item = GiftItem::createItem(6, 6, 6.0);
+			if (item){
+				item->setTag(i);
+				item_height = item->getContentSize().height;
+				scrollView->addChild(item);
+				item->setPosition(CommonFunction::getVisibleAchor(0.5, 0.5, scrollView, Vec2(0, i * (item_height - 14) - 160)));
+			}
+		}
+		else if (i == 2){
+			auto item = GiftItem::createItem(10, 10, 8.8);
+			if (item){
+				item->setTag(i);
+				item_height = item->getContentSize().height;
+				scrollView->addChild(item);
+				item->setPosition(CommonFunction::getVisibleAchor(0.5, 0.5, scrollView, Vec2(0, i * (item_height - 14) - 160)));
+			}
+		}
 	}
 
 	money_bg = Sprite::create("popbox/shop_moneykuang.png");

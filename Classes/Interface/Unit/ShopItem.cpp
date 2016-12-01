@@ -64,7 +64,7 @@ bool ShopItem::init(int type, int moneyNum, int moneyJ, int num)
 				auto money = LabelAtlas::create(Value(moneyNum).asString(), "fonts/shop_num_2.png", 30, 30, '0');
 				money->setPosition(CommonFunction::getVisibleAchor(Anchor::LeftMid, symbol, Vec2(18, 0)));
 				money->setAnchorPoint(Vec2(0, 0.5));
-				money->setScale(0.6);
+				money->setScale(0.8);
 				symbol->addChild(money);
 
 				auto dian = Sprite::create("signed/main/point.png");
@@ -74,7 +74,7 @@ bool ShopItem::init(int type, int moneyNum, int moneyJ, int num)
 				auto moneyj = LabelAtlas::create(Value(moneyJ).asString(), "fonts/shop_num_2.png", 30, 30, '0');
 				moneyj->setPosition(CommonFunction::getVisibleAchor(Anchor::RightMid, symbol, Vec2(35, 0)));
 				moneyj->setAnchorPoint(Vec2(0, 0.5));
-				moneyj->setScale(0.6);
+				moneyj->setScale(0.8);
 				symbol->addChild(moneyj);
 
 			}
@@ -145,7 +145,7 @@ bool ShopItem::init(int type, int moneyNum, int moneyJ, int num)
 				auto money = LabelAtlas::create(Value(moneyNum).asString(), "fonts/shop_num_2.png", 30, 30, '0');
 				money->setPosition(CommonFunction::getVisibleAchor(Anchor::LeftMid, symbol, Vec2(18, 0)));
 				money->setAnchorPoint(Vec2(0, 0.5));
-				money->setScale(0.6);
+				money->setScale(0.8);
 				symbol->addChild(money);
 
 				auto dian = Sprite::create("signed/main/point.png");
@@ -155,7 +155,7 @@ bool ShopItem::init(int type, int moneyNum, int moneyJ, int num)
 				auto moneyj = LabelAtlas::create(Value(moneyJ).asString(), "fonts/shop_num_2.png", 30, 30, '0');
 				moneyj->setPosition(CommonFunction::getVisibleAchor(Anchor::RightMid, symbol, Vec2(35, 0)));
 				moneyj->setAnchorPoint(Vec2(0, 0.5));
-				moneyj->setScale(0.6);
+				moneyj->setScale(0.8);
 				symbol->addChild(moneyj);
 
 			}

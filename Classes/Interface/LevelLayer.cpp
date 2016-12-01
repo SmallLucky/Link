@@ -477,9 +477,6 @@ void	LevelLayer::addUI()
 
 			}
 	}
-
-
-
 	auto shopButton = Button::create("button/shop_nor.png", "button/shop_sel.png");
 	shopButton->setPosition(CommonFunction::getVisibleAchor(Anchor::RightButtom,Vec2(-100,100)));
 	shopButton->setScale(0.6);

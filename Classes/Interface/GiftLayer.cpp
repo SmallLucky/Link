@@ -48,12 +48,6 @@ void GiftLayer::addUI()
 		title_img->setPosition(CommonFunction::getVisibleAchor(Anchor::MidTop, BG_kuang, Vec2(0, -20)));
 	}
 
-	auto light_sp = Sprite::create("signed/main/light_5.png");
-	if (light_sp){
-		BG_kuang->addChild(light_sp);
-		light_sp->setPosition(CommonFunction::getVisibleAchor(Anchor::Center, BG_kuang, Vec2(0, 50)));
-	}
-
 	auto scrollView = ScrollView::create();
 	scrollView->setDirection(ui::ScrollView::Direction::VERTICAL);
 	scrollView->setAnchorPoint(Vec2(0.5, 0));
@@ -67,6 +61,12 @@ void GiftLayer::addUI()
 	//scrollView->setBackGroundColorType(Layout::BackGroundColorType::SOLID);
 	//scrollView->setBackGroundColorOpacity(150);
 	BG_kuang->addChild(scrollView);
+
+	auto light_sp = Sprite::create("signed/main/light_5.png");
+	if (light_sp){
+		scrollView->addChild(light_sp,-1);
+		light_sp->setPosition(CommonFunction::getVisibleAchor(Anchor::Center, scrollView, Vec2(0, 50)));
+	}
 
 	auto scrv_width = scrollView->getContentSize().width;
 

@@ -1,4 +1,5 @@
 ﻿#include "DrawLine.h"
+#include "CommonFunction.h"
 
 DrawLine::DrawLine(){
 
@@ -42,7 +43,8 @@ void DrawLine::addLine(Vec2 from, Vec2 to,  std::string img)
 	//	return;
 	//}
 	//m_drawNode->drawSegment(from, to, 10, Color4F(0, 1, 0, 1));
-
+	SpriteFrameCache *frameCache = SpriteFrameCache::sharedSpriteFrameCache();
+	frameCache->addSpriteFramesWithFile("effect/Link.plist");
 	if (img.empty()){
 		return;
 	}
@@ -54,9 +56,13 @@ void DrawLine::addLine(Vec2 from, Vec2 to,  std::string img)
 	auto sp = Sprite::create(img);
 	if (sp){
 		sp->setPosition(Vec2(pos_x, pos_y));
+		sp->setScaleY(1.3);
 		sp->setRotation(-angle);
 		addChild(sp);
 		//m_LineVec.pushBack(sp);
+		auto a = CommonFunction::createWithSingleFrameName("link_", 0.15, -1);
+		Animate* animate = CCAnimate::create(a);
+		sp->runAction(animate);
 	}
 }
 

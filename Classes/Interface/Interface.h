@@ -17,4 +17,5 @@
 
 #include "SupplementsLayer.h" //²¹³ä½ð±Ò°®ÐÄ
 #include "PowerLayer.h" //
+#include "GiftLayer.h"
 

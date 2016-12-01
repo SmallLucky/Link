@@ -361,6 +361,7 @@ void MapLayer::removeBeEliminate(int r, int l)
 		{
 			removeElement(r, max(l - 1, 0)); // 移除love
 			changeTiledType(r, max(l - 1, 0));
+			showLoveEffect(blocksCenter[r][max(l - 1, 0)]);
 			GAMEDATA->setLoveNum(GAMEDATA->getLoveNum() + 1); //加一
 		}
 	}
@@ -391,6 +392,7 @@ void MapLayer::removeBeEliminate(int r, int l)
 		{
 			removeElement(r, min(l + 1, 5)); // 移除精灵
 			changeTiledType(r, min(l + 1, 5));
+			showLoveEffect(blocksCenter[r][min(l + 1, 5)]);
 			GAMEDATA->setLoveNum(GAMEDATA->getLoveNum() + 1); //加一
 		}
 	}
@@ -420,6 +422,7 @@ void MapLayer::removeBeEliminate(int r, int l)
 		{
 			removeElement(max(r - 1, 0), l); // 移除精灵
 			changeTiledType(max(r - 1, 0), l);
+			showLoveEffect(blocksCenter[max(r - 1, 0)][l]);
 			GAMEDATA->setLoveNum(GAMEDATA->getLoveNum() + 1); //加一
 		}
 	}
@@ -449,6 +452,7 @@ void MapLayer::removeBeEliminate(int r, int l)
 		{
 			removeElement(min(r + 1, 5), l); // 移除精灵
 			changeTiledType(min(r + 1, 5), l);
+			showLoveEffect(blocksCenter[min(r + 1, 5)][l]);
 			GAMEDATA->setLoveNum(GAMEDATA->getLoveNum() + 1); //加一
 		}
 	}
@@ -516,6 +520,8 @@ int MapLayer::removeElement(int row,int line)
 	efft->setSpeedVar(0);
 	efft->setStartSizeVar(0);
 	efft->setScale(0.16f);
+
+	//showRemoveEleEffect(blocksCenter[row][line]);
 
 	temp->disappear(FALL_TIME);//元素缩小至消失FALL_TIME
 
@@ -1285,7 +1291,8 @@ bool MapLayer::onTouchBegan(Touch *touch, Event *unused_event) //开始触摸
 					linkStart(row, line);//该格子作为连线起点
 					touchedFlag = true;//成为有效触摸
 					//加个特效看看
-					showEffect(blocksCenter[row][line]);
+					showEffect(blocksCenter[row][line]);//blocksCenter[row][line]
+					showQQEffect(elements[row][line]);
 					return true; //对该次触摸的后续操作做出反映
 				}
 			}
@@ -1346,7 +1353,8 @@ void MapLayer::onTouchMoved(Touch *touch, Event *unused_event) //触摸点移动
 								{
 									linkElement(latestPos, { i, j }); //连接两个元素 加上了标记
 									//特效
-									showEffect(blocksCenter[i][j]);
+									showEffect(blocksCenter[i][j]);//blocksCenter[i][j]
+									showQQEffect(elements[i][j]);
 									//特殊元素30以上将周围3*3变色
 
 									if (elements[i][j]->getElement() >= 10)
@@ -1481,10 +1489,17 @@ void	MapLayer::undoChangeElement()
 
 void MapLayer::showEffect(Point p)
 {
-	ParticleSystem * efft = ParticleSystemQuad::create("effect/particle_1.plist");
-	efft->setPosition(p);
-	m_effects.pushBack(efft);
-	addChild(efft, 1);
+	auto guang = Sprite::create("effect/element_quan.png");
+	guang->setPosition(Vec2(p.x,p.y+3));
+	addChild(guang,1);
+
+	auto rotate_ac = RotateBy::create(10.0f, 360.0);
+	guang->runAction(RepeatForever::create(rotate_ac));
+
+	//ParticleSystem * efft = ParticleSystemQuad::create("effect/particle_1.plist");
+	//efft->setPosition(p);
+	//addChild(efft, 1);
+	m_effects.pushBack(guang);
 }
 
 bool MapLayer::removeEffect()
@@ -1493,10 +1508,34 @@ bool MapLayer::removeEffect()
 	{
 		return false;
 	}
-	ParticleSystem* e = m_effects.back();
+	Sprite* e = m_effects.back();
 	m_effects.popBack();
 	removeChild(e);
 	return true;
+}
+
+void MapLayer::showQQEffect(Node* node)
+{
+	auto s1 = ScaleTo::create(0.05,0.85,1.12);
+	auto s2 = ScaleTo::create(0.06, 0.89, 1.08);
+	auto s3 = ScaleTo::create(0.065,1.05,0.92);
+	auto s4 = ScaleTo::create(0.07, 1.03, 0.96);
+	auto s5 = ScaleTo::create(0.075, 1, 1);
+
+	auto s6 = ScaleTo::create(0.055, 0.88, 1.09);
+	auto s7 = ScaleTo::create(0.06, 0.9, 1.05);
+	auto s8 = ScaleTo::create(0.065, 1.02, 0.98);
+	auto s9 = ScaleTo::create(0.07, 1.01, 0.99);
+	auto s10 = ScaleTo::create(0.07, 1, 1);
+
+	auto s11 = ScaleTo::create(0.06, 0.9, 1.06);
+	auto s12 = ScaleTo::create(0.065, 0.95, 1.04);
+	auto s13 = ScaleTo::create(0.07, 0.97, 1.02);
+	//auto s14 = ScaleTo::create(0.075, 0.99, 1.0);
+	auto s15 = ScaleTo::create(0.08, 1, 1);
+	auto seq = Sequence::create(s1, s2, s3, s4, s5, s6, s7, s8, s9, s10, s11, s12, s13, s15, nullptr);// s6, s7, s8, s9, s10,s14,
+
+	node->runAction(Repeat::create(seq,1));
 }
 
 void MapLayer::showLineEffect(Point p)
@@ -1559,6 +1598,7 @@ void MapLayer::showCloudEffect(Point p)
 {
 	SpriteFrameCache *frameCache = SpriteFrameCache::sharedSpriteFrameCache();
 	frameCache->addSpriteFramesWithFile("effect/cloud_effect.plist");
+
 	if (UserDefault::getInstance()->getBoolForKey("IS_EFFECT", true))
 		AudioData::getInstance()->addSpecialEffect(2);
 
@@ -1576,6 +1616,57 @@ void MapLayer::showCloudEffect(Point p)
 			}
 		});
 		Sequence* action = Sequence::create(animate, call, nullptr);
+		s->runAction(action);
+	}
+}
+
+void MapLayer::showLoveEffect(Point p)
+{
+	SpriteFrameCache *frameCache = SpriteFrameCache::sharedSpriteFrameCache();
+	frameCache->addSpriteFramesWithFile("effect/Love_Bomb.plist");
+
+	//if (UserDefault::getInstance()->getBoolForKey("IS_EFFECT", true))
+	//	AudioData::getInstance()->addSpecialEffect(2);
+
+	auto s = Sprite::createWithSpriteFrameName("love_effect_0.png");
+	if (s)
+	{
+		s->setPosition(Vec2(p.x, p.y));
+		addChild(s, 1);
+		auto a = CommonFunction::createWithSingleFrameName("love_effect_", 0.07, 1);
+		Animate* animate = CCAnimate::create(a);
+		CallFunc* call = CallFunc::create([=]{
+			if (s)
+			{
+				removeChild(s);
+			}
+		});
+		Sequence* action = Sequence::create(animate, call, nullptr);
+		s->runAction(action);
+	}
+}
+
+void MapLayer::showRemoveEleEffect(Point p)
+{
+	SpriteFrameCache *frameCache = SpriteFrameCache::sharedSpriteFrameCache();
+	frameCache->addSpriteFramesWithFile("effect/LoveBomb.plist");
+	//if (UserDefault::getInstance()->getBoolForKey("IS_EFFECT", true))
+	//	AudioData::getInstance()->addSpecialEffect(2);
+	auto s = Sprite::createWithSpriteFrameName("love_0.png");
+	if (s)
+	{
+		s->setPosition(Vec2(p.x, p.y));
+		addChild(s, 1);
+		auto a = CommonFunction::createWithSingleFrameName("love_", 0.1, 1);
+		Animate* animate = CCAnimate::create(a);
+		CallFunc* call = CallFunc::create([=]{
+			if (s)
+			{
+				removeChild(s);
+			}
+		});
+		Sequence* action = Sequence::create(animate, call, nullptr);
+		s->setScale(0.7);
 		s->runAction(action);
 	}
 }
@@ -1722,11 +1813,17 @@ void	 MapLayer::specialSignElement(int ele, Coord c)
 void MapLayer::undoLink()
 {
 	Coord latest = linkIndex.back();
+	if (elements[latest.row][latest.line])
+	{
+		showQQEffect(elements[latest.row][latest.line]);
+
+	}
 	linkIndex.pop_back(); //清除连线序列的最后一个元素
 	removeLatestLine(); //删除最后一条连接线
 	removeEffect(); // 删除最后一个元素的特效
 	unsignElement(latest); //取消最后一个元素的标记
 	int number = linkIndex.size();
+
 	if (number > 14)
 	{
 		if (UserDefault::getInstance()->getBoolForKey("IS_EFFECT", true))
@@ -1764,8 +1861,9 @@ void	MapLayer::removeSignSpecial()
 				{
 					showRowEffect(blocksCenter[row][line]);
 				}
-				if (ele >= 30 && ele < 40)
+				if (ele > 5 && ele < 10)
 				{
+					changeTiledType(row,line);
 					//showBoomEffect(blocksCenter[row][line]);
 				}
 			}
@@ -1884,7 +1982,7 @@ void MapLayer:: eventTargetElement(int ele, int count)
 //绘制连接两个元素的线
 void MapLayer::drawLine(Coord from, Coord to)
 {
-	auto line = DrawLine::create(getMCenterByCoord(from), getMCenterByCoord(to), "effect/lineLight.png");
+	auto line = DrawLine::create(getMCenterByCoord(from), getMCenterByCoord(to), "effect/link_0.png");
 	addChild(line,-1);
 
 	linkBrush.push_back(line); //将该连接线添加到线序列中
@@ -2044,6 +2142,7 @@ void MapLayer::linkElement(Coord from, Coord to)
 	drawLine(from, to); //绘制连线
 	linkIndex.push_back(to); //添加到连线序列
 	int number = linkIndex.size();
+
 	if (number > 14)
 	{
 		if (UserDefault::getInstance()->getBoolForKey("IS_EFFECT", true))
