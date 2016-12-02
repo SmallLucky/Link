@@ -14,8 +14,8 @@ using namespace std;
 
 #define RATIO   1.0
 
-MapLayer::MapLayer() :isLine(false), green(0), red(0), yellor(0), blue(0), purple(0), elementType(5), line(0), row(0), lastPoint({0,0}),
-isBoom(false), isCount(false), specialScore(0), containsDis(0.0), isTargetElementFinish(false)
+MapLayer::MapLayer() :isLine(false), green(0), red(0), yellor(0), blue(0), purple(0), elementType(5),lastPoint({0,0}),
+isBoom(false), isCount(false), specialScore(0), containsDis(0.0), isTargetElementFinish(false), isRemoveFinish(false)
 {
 	//分配格子元素空间
 	elements = new ElementUnit* *[MATRIX_ROW];
@@ -233,6 +233,8 @@ void MapLayer::removeLink()
 		//if (UserDefault::getInstance()->getBoolForKey("IS_VIBRATE",true))
 		//	Vibrator::vibrate(WRONG_REMOVE_VIBRATOR_TIME); //震动
 	}
+
+	isRemoveFinish = true;
 
 	linkIndex.clear(); //清空连线序列
 	m_effects.clear();
@@ -513,13 +515,7 @@ int MapLayer::removeElement(int row,int line)
 	}
 	int ele = temp->getElement(); //获得元素类型
 
-	ParticleSystem * efft = ParticleSystemQuad::create("effect/bomb_4.plist");
-	efft->setPosition(blocksCenter[row][line]);
-	addChild(efft,-1);
-	efft->setTotalParticles(800);
-	efft->setSpeedVar(0);
-	efft->setStartSizeVar(0);
-	efft->setScale(0.16f);
+	showRemoveEffect(blocksCenter[row][line]);
 
 	//showRemoveEleEffect(blocksCenter[row][line]);
 
@@ -586,17 +582,20 @@ bool MapLayer::elementsFall()
 #endif
 	//log("elementsFall()");
 	bool flag = false; //是否填补了空位
-	for (int j = MATRIX_LINE; j >= 0; --j)//5
+	if (isRemoveFinish)
 	{
-		for (int i = 0; i < MATRIX_ROW; ++i)//对每hang单独处理 0
+		for (int j = MATRIX_LINE; j >= 0; --j)//5
 		{
-			if (elements[i][j] == nullptr )// && checkIsDrop(i, j)
+			for (int i = 0; i < MATRIX_ROW; ++i)//对每hang单独处理 0
 			{
-				if (checkIsDrop(i, j))
+				if (elements[i][j] == nullptr)// && checkIsDrop(i, j)
 				{
-					rowMyFall(i, j);
-					flag = true;
-					break;
+					if (checkIsDrop(i, j))
+					{
+						rowMyFall(i, j);
+						flag = true;
+						break;
+					}
 				}
 			}
 		}
@@ -1514,6 +1513,38 @@ bool MapLayer::removeEffect()
 	return true;
 }
 
+void MapLayer::showRemoveEffect(Point p)
+{
+	ParticleSystem * efft = ParticleSystemQuad::create("effect/bomb_4.plist");
+	efft->setPosition(p);
+	addChild(efft, -1);
+	efft->setTotalParticles(800);
+	efft->setSpeedVar(0);
+	efft->setStartSizeVar(0);
+	efft->setScale(0.16f);
+
+	//SpriteFrameCache *frameCache = SpriteFrameCache::sharedSpriteFrameCache();
+	//frameCache->addSpriteFramesWithFile("effect/removeEffect.plist");
+
+	//auto s = Sprite::createWithSpriteFrameName("remove_effe_0.png");
+	//if (s)
+	//{
+	//	s->setPosition(Vec2(p.x, p.y));
+	//	s->setScale(1.35);
+	//	addChild(s, 1);
+	//	auto a = CommonFunction::createWithSingleFrameName("remove_effe_", 0.09, 1);
+	//	Animate* animate = CCAnimate::create(a);
+	//	CallFunc* call = CallFunc::create([=]{
+	//		if (s)
+	//		{
+	//			removeChild(s);
+	//		}
+	//	});
+	//	Sequence* action = Sequence::create(animate, call, nullptr);
+	//	s->runAction(action);
+	//}
+}
+
 void MapLayer::showQQEffect(Node* node)
 {
 	auto s1 = ScaleTo::create(0.05,0.85,1.12);
@@ -1624,9 +1655,6 @@ void MapLayer::showLoveEffect(Point p)
 {
 	SpriteFrameCache *frameCache = SpriteFrameCache::sharedSpriteFrameCache();
 	frameCache->addSpriteFramesWithFile("effect/Love_Bomb.plist");
-
-	//if (UserDefault::getInstance()->getBoolForKey("IS_EFFECT", true))
-	//	AudioData::getInstance()->addSpecialEffect(2);
 
 	auto s = Sprite::createWithSpriteFrameName("love_effect_0.png");
 	if (s)

@@ -1,0 +1,159 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple Computer//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+	<dict>
+		<key>frames</key>
+		<dict>
+			<key>remove_effe_0.png</key>
+			<dict>
+				<key>frame</key>
+				<string>{{71,240},{20,20}}</string>
+				<key>offset</key>
+				<string>{0,0}</string>
+				<key>rotated</key>
+				<false />
+				<key>sourceSize</key>
+				<string>{120,120}</string>
+			</dict>
+			<key>remove_effe_1.png</key>
+			<dict>
+				<key>frame</key>
+				<string>{{71,260},{20,20}}</string>
+				<key>offset</key>
+				<string>{0,0}</string>
+				<key>rotated</key>
+				<false />
+				<key>sourceSize</key>
+				<string>{120,120}</string>
+			</dict>
+			<key>remove_effe_10.png</key>
+			<dict>
+				<key>frame</key>
+				<string>{{0,92},{77,75}}</string>
+				<key>offset</key>
+				<string>{-4,5}</string>
+				<key>rotated</key>
+				<false />
+				<key>sourceSize</key>
+				<string>{120,120}</string>
+			</dict>
+			<key>remove_effe_11.png</key>
+			<dict>
+				<key>frame</key>
+				<string>{{0,240},{70,71}}</string>
+				<key>offset</key>
+				<string>{-7,7}</string>
+				<key>rotated</key>
+				<true />
+				<key>sourceSize</key>
+				<string>{120,120}</string>
+			</dict>
+			<key>remove_effe_12.png</key>
+			<dict>
+				<key>frame</key>
+				<string>{{76,167},{29,16}}</string>
+				<key>offset</key>
+				<string>{-26,31}</string>
+				<key>rotated</key>
+				<true />
+				<key>sourceSize</key>
+				<string>{120,120}</string>
+			</dict>
+			<key>remove_effe_2.png</key>
+			<dict>
+				<key>frame</key>
+				<string>{{28,439},{24,24}}</string>
+				<key>offset</key>
+				<string>{0,0}</string>
+				<key>rotated</key>
+				<false />
+				<key>sourceSize</key>
+				<string>{120,120}</string>
+			</dict>
+			<key>remove_effe_3.png</key>
+			<dict>
+				<key>frame</key>
+				<string>{{0,439},{28,28}}</string>
+				<key>offset</key>
+				<string>{0,0}</string>
+				<key>rotated</key>
+				<false />
+				<key>sourceSize</key>
+				<string>{120,120}</string>
+			</dict>
+			<key>remove_effe_4.png</key>
+			<dict>
+				<key>frame</key>
+				<string>{{53,378},{36,37}}</string>
+				<key>offset</key>
+				<string>{1,-1}</string>
+				<key>rotated</key>
+				<true />
+				<key>sourceSize</key>
+				<string>{120,120}</string>
+			</dict>
+			<key>remove_effe_5.png</key>
+			<dict>
+				<key>frame</key>
+				<string>{{0,378},{61,53}}</string>
+				<key>offset</key>
+				<string>{1,-6}</string>
+				<key>rotated</key>
+				<true />
+				<key>sourceSize</key>
+				<string>{120,120}</string>
+			</dict>
+			<key>remove_effe_7.png</key>
+			<dict>
+				<key>frame</key>
+				<string>{{0,310},{68,70}}</string>
+				<key>offset</key>
+				<string>{1,-2}</string>
+				<key>rotated</key>
+				<true />
+				<key>sourceSize</key>
+				<string>{120,120}</string>
+			</dict>
+			<key>remove_effe_8.png</key>
+			<dict>
+				<key>frame</key>
+				<string>{{0,167},{73,76}}</string>
+				<key>offset</key>
+				<string>{0,0}</string>
+				<key>rotated</key>
+				<true />
+				<key>sourceSize</key>
+				<string>{120,120}</string>
+			</dict>
+			<key>remove_effe_9.png</key>
+			<dict>
+				<key>frame</key>
+				<string>{{0,0},{92,92}}</string>
+				<key>offset</key>
+				<string>{0,0}</string>
+				<key>rotated</key>
+				<false />
+				<key>sourceSize</key>
+				<string>{120,120}</string>
+			</dict>
+		</dict>
+		<key>metadata</key>
+		<dict>
+			<key>format</key>
+			<integer>2</integer>
+			<key>textureFileName</key>
+			<string>removeEffect.png</string>
+			<key>realTextureFileName</key>
+			<string>removeEffect.png</string>
+			<key>size</key>
+			<string>{92,467}</string>
+		</dict>
+		<key>texture</key>
+		<dict>
+			<key>width</key>
+			<integer>92</integer>
+			<key>height</key>
+			<integer>467</integer>
+		</dict>
+	</dict>
+</plist>

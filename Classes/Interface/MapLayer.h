@@ -82,8 +82,10 @@ private:
 	void showLoveEffect(Point p);
 	void showRemoveEleEffect(Point p);
 	void showQQEffect(Node* node);
+	void showRemoveEffect(Point p);
 
 	void eventTargetElement(int ele,int count);
+
 private:
 
 	TMXTiledMap* _tileMap;
@@ -96,8 +98,10 @@ private:
 
 	Point mapPoint;
 
-	int line; //行
-	int row; //列
+	//int line; //行
+	//int row; //列
+
+	bool isRemoveFinish;
 	
 	vector<Coord> spritenullptr;
 	

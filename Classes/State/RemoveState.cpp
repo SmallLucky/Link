@@ -55,13 +55,6 @@ bool RemoveState::entryState()
 
 void RemoveState::onUpdate(float dt)
 {
-	//log("RemoveState::onUpdate(float dt)");
-	//time += dt;
-	//if (scene->timeLapseShow(dt) <= 0)
-	//{
-	//	//gameOverFlag = true; //若时间用尽，则游戏结束
-	//	log("gameOverFlag");
-	//}
 	if (matrixFinishFlag)
 	if (score >= GAMEDATA->getTargetScore(GAMEDATA->getCurLevel()) )
 	{
@@ -76,7 +69,7 @@ void RemoveState::onUpdate(float dt)
 		gameOverFlag = true; //若步数用尽，则游戏结束
 	}
 	matrixTime += dt;
-	if (matrixTime > FALL_TIME)
+	if (matrixTime > 0.2 )//FALL_TIME
 	{
 		//log("(matrixTime > FALL_TIME)");
 		matrixTime = 0;

@@ -26,6 +26,8 @@ public:
 	void appear(float time);	//图案瞬间缩小逐渐变大至原大小
 	void disappear(float time);		//图案逐渐变小，消失后删除自身
 
+	void showQQEffect(Node* node);
+
 	int getElement();	//返回元素类型
 
 	void setElementType(ElementType eType);
