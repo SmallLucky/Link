@@ -324,7 +324,7 @@ void	LevelLayer::addScrollView()
 	{
 		scrollview->setAnchorPoint(Vec2(0.5, 0));
 		scrollview->setContentSize(Director::getInstance()->getVisibleSize());
-		scrollview->setInnerContainerSize(Size(visibleSize.width, 9*1136));
+		scrollview->setInnerContainerSize(Size(visibleSize.width, 18*1136));
 		scrollview->setDirection(ScrollView::Direction::VERTICAL);
 		scrollview->setBackGroundColor(Color3B::GRAY);
 		scrollview->setBackGroundColorOpacity(0);
@@ -351,9 +351,13 @@ void	LevelLayer::addScrollView()
 		//scrollview->jumpToPercentVertical(p);
 		scrollview->scrollToPercentVertical(p, 2.0, true);
 		addChild(scrollview);
-		for (int i = 0; i < 9; i++)
+		for (int j = 0; j < 18; j++)
 		{
-			string str = StringUtils::format("bg/levelbg/bg_00%d.png", i);
+			cout << "¹ö¶¯±³¾°ÇóÓà**" << ":%d" << j % 9 << endl;
+		}
+		for (int i = 0; i < 18; i++)
+		{
+			string str = StringUtils::format("bg/levelbg/bg_00%d.png", i%9);
 			auto tex = TextureCache::getInstance()->getTextureForKey(str);
 			if (tex){
 				auto bg = Sprite::createWithTexture(tex);

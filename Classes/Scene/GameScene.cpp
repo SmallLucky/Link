@@ -399,15 +399,20 @@ void GameScene::initMaster()
 /************************************/
 void GameScene::addCountLayer()
 {
-	log("**************************************************curScore:%d", curScore);
 	if (curScore >= GAMEDATA->getTargetScore(GAMEDATA->getCurLevel()) && enoughTargetElement())
 	{ 
 		cout << "นýนุมหฃกฃกฃก" << endl;
 	}
 	else
 	{
-		auto addcountLayer = AddCount::create();
-		addChild(addcountLayer);
+		auto time = DelayTime::create(2.0);
+		auto callFun = CallFunc::create([=]{
+			auto addcountLayer = AddCount::create();
+			addChild(addcountLayer);
+		});
+		auto seq = Sequence::create(time, callFun, nullptr);
+		this->runAction(seq);
+
 	}
 }
 
@@ -445,6 +450,29 @@ void GameScene::showAllCount()
 	LOGD(" GameScene::showAllCount():%d",m_count);
 #endif
 	information->showCount(m_count);
+
+	if (m_count == 5)
+	{
+		show5CoutPet();
+	}
+}
+
+void	GameScene::show5CoutPet()
+{
+	auto pet = Sprite::create("infor/just_5count.png");
+	pet->setPosition(CommonFunction::getVisibleAchor(Anchor::LeftButtom, Vec2(-255, 0)));
+	pet->setAnchorPoint(Vec2(0,0));
+	addChild(pet,20);
+
+	auto move = MoveTo::create(0.7,Vec2(0,0));
+	auto delay = DelayTime::create(1.0);
+	auto moveto = MoveTo::create(0.3, Vec2(-300, 0));
+	auto call = CallFunc::create([this]{
+		this->removeFromParent();
+	});
+	auto seq = Sequence::create(move,delay,moveto,call,nullptr);
+	pet->runAction(seq);
+	
 }
 
 int GameScene::getMyCount()

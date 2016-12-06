@@ -44,6 +44,9 @@ public:
 	int getRad(int index);
 	int getYellor(int index);
 
+	int getIsFristPlay(int index);
+	void setIsFristPlay(int level);
+
 private:
 	string path;
 
@@ -60,4 +63,5 @@ private:
 	vector <int> m_green;
 	vector <int> m_rad;
 	vector <int> m_yellor;
+	vector <int> m_isFristPlay;
 };

@@ -103,15 +103,23 @@ private:
 
 	bool isRemoveFinish;
 	
-	vector<Coord> spritenullptr;
+	/*vector<Coord> spritenullptr;*/
 	
 private:
-	ElementUnit* **elements; //格子元素
-	Point **blocksCenter;	//格子中心
+	//ElementUnit* **elements; //格子元素
+	//Point **blocksCenter;	//格子中心
 
-	bool **signFlag;		//是否被标记
-	bool **signFlagSpecial;		//是否被特殊元素标记的
-	bool **signBeRemove;	//标记被消除是否是同一次连线被改变
+	//bool **signFlag;		//是否被标记
+	//bool **signFlagSpecial;		//是否被特殊元素标记的
+	//bool **signBeRemove;	//标记被消除是否是同一次连线被改变
+	bool signBeRemove[6][6];	//标记被消除是否是同一次连线被改变
+	bool signFlag[6][6];		//是否被标记
+	bool signFlagSpecial[6][6];		//是否被特殊元素标记的
+	ElementUnit* elements[6][6]; //格子元素
+	Point blocksCenter[6][6];	//格子中心
+
+
+	void initArray();
 
 	float containsDis;		//触点包含于格子内的最大距离
 

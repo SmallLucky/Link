@@ -18,38 +18,38 @@ MapLayer::MapLayer() :isLine(false), green(0), red(0), yellor(0), blue(0), purpl
 isBoom(false), isCount(false), specialScore(0), containsDis(0.0), isTargetElementFinish(false), isRemoveFinish(false)
 {
 	//·ÖÅä¸ñ×ÓÔªËØ¿Õ¼ä
-	elements = new ElementUnit* *[MATRIX_ROW];
-	for (int i = 0; i < MATRIX_ROW; i++)
-	{
-		elements[i] = new ElementUnit*[MATRIX_MLINE];
-	}
+	//elements = new ElementUnit* *[MATRIX_ROW];
+	//for (int i = 0; i < MATRIX_ROW; i++)
+	//{
+	//	elements[i] = new ElementUnit*[MATRIX_MLINE];
+	//}
 
-	//·ÖÅä±ê¼Ç¿Õ¼ä
-	signFlag = new bool*[MATRIX_ROW];
-	for (int i = 0; i < MATRIX_ROW; i++)
-	{
-		signFlag[i] = new bool[MATRIX_MLINE];
-	}
+	////·ÖÅä±ê¼Ç¿Õ¼ä
+	//signFlag = new bool*[MATRIX_ROW];
+	//for (int i = 0; i < MATRIX_ROW; i++)
+	//{
+	//	signFlag[i] = new bool[MATRIX_MLINE];
+	//}
 
-	signFlagSpecial = new bool *[MATRIX_ROW];
-	for (int i = 0; i < MATRIX_ROW; i++)
-	{
-		signFlagSpecial[i] = new bool[MATRIX_MLINE];
-	}
+	//signFlagSpecial = new bool *[MATRIX_ROW];
+	//for (int i = 0; i < MATRIX_ROW; i++)
+	//{
+	//	signFlagSpecial[i] = new bool[MATRIX_MLINE];
+	//}
 
 	//·ÖÅä¸ñ×ÓÖĞĞÄ¿Õ¼ä
-	blocksCenter = new Point*[MATRIX_ROW];
-	for (int i = 0; i < MATRIX_ROW; i++)
-	{
-		blocksCenter[i] = new Point[MATRIX_MLINE];
-	}
+	//blocksCenter = new Point*[MATRIX_ROW];
+	//for (int i = 0; i < MATRIX_ROW; i++)
+	//{
+	//	blocksCenter[i] = new Point[MATRIX_MLINE];
+	//}
 
 
-	signBeRemove = new bool *[MATRIX_ROW];
-	for (int i = 0; i < MATRIX_ROW; i++)
-	{
-		signBeRemove[i] = new bool[MATRIX_MLINE];
-	}
+	//signBeRemove = new bool *[MATRIX_ROW];
+	//for (int i = 0; i < MATRIX_ROW; i++)
+	//{
+	//	signBeRemove[i] = new bool[MATRIX_MLINE];
+	//}
 
 	////·ÖÅä¸÷ÔªËØÊıÁ¿¿Õ¼ä
 	//--elementCount = new int[40]; //×¢ÒâÍòÄÜÔªËØ¿Õ¼ä
@@ -66,28 +66,28 @@ isBoom(false), isCount(false), specialScore(0), containsDis(0.0), isTargetElemen
 MapLayer::~MapLayer()
 {
 	_eventDispatcher->removeCustomEventListeners(FINISHTARGETELEMENT);
-	CC_SAFE_DELETE_ARRAY(elements);
+	//CC_SAFE_DELETE_ARRAY(elements);
 	//»ØÊÕ¸ñ×ÓÔªËØ¿Õ¼ä
 	//for (int i = 0; i < MATRIX_ROW; i++)
 	//	delete[] elements[i];
 	//delete[] elements;
 	//»ØÊÕ±ê¼Ç¿Õ¼ä
-	CC_SAFE_DELETE_ARRAY(signFlag);
-	//for (int i = 0; i < MATRIX_ROW; i++)
-	//	delete[] signFlag[i];
-	//delete[] signFlag;
+	//CC_SAFE_DELETE_ARRAY(signFlag);
+	////for (int i = 0; i < MATRIX_ROW; i++)
+	////	delete[] signFlag[i];
+	////delete[] signFlag;
 
-	CC_SAFE_DELETE_ARRAY(signFlagSpecial);
+	//CC_SAFE_DELETE_ARRAY(signFlagSpecial);
 	//for (int i = 0; i < MATRIX_ROW; i++)
 	//	delete[] signFlagSpecial[i];
 	//delete[] signFlagSpecial;
 	//»ØÊÕ¸ñ×ÓÖĞĞÄ¿Õ¼ä
-	CC_SAFE_DELETE_ARRAY(blocksCenter);
+	//CC_SAFE_DELETE_ARRAY(blocksCenter);
 	//for (int i = 0; i < MATRIX_ROW; i++)
 	//	delete[] blocksCenter[i];
 	//delete[] blocksCenter;
 
-	CC_SAFE_DELETE_ARRAY(signBeRemove);
+	//CC_SAFE_DELETE_ARRAY(signBeRemove);
 	//»ØÊÕ¸÷ÔªËØÊıÁ¿¿Õ¼ä
 
 	//--CC_SAFE_DELETE_ARRAY(elementCount);
@@ -125,9 +125,12 @@ bool MapLayer::init()
 	Size visibleSize = Director::getInstance()->getVisibleSize();
 	mapPoint = { visibleSize.width / 2, visibleSize.height/2 - 65 };
 
+	
+	initArray();
+
 	initBlocks();//³õÊ¼»¯¸ñ×Ó£¬È·¶¨¸ñ×ÓÇøÓò£¬³õÊ¼×´Ì¬¾ØÕóÎª¿Õ
-	initSign(); //³õÊ¼»¯±ê¼Ç
-	initSignBeRemove(); //³õÊ¼±»Ïû±ê¼Ç
+	//initSign(); //³õÊ¼»¯±ê¼Ç
+	//initSignBeRemove(); //³õÊ¼±»Ïû±ê¼Ç
 
 	forbiddenResponse(); //ÔİÊ±½ûÖ¹´¥Ãş£¬ÔÚ½øÈëµÈ´ıÁ¬½Ó×´Ì¬ºóÍ¨¹ıallowResponseº¯ÊıÔÊĞí´¥Ãş£¨¼Ì³Ğ×ÔTouchableLayer£©
 	touchedFlag = false; //Ã»ÓĞÓĞĞ§µÄ´¥Ãş
@@ -135,6 +138,128 @@ bool MapLayer::init()
 
 	return true;
 }
+
+void MapLayer::initArray()
+{
+	ERGODIC_MBLOCK(row, line)
+	{
+		signBeRemove[row][line] = false; //³õÊ¼»¯Ò»ÏÂ
+		signFlag[row][line] = false;
+		signFlagSpecial[row][line] = false;
+		elements[row][line] = nullptr;
+		blocksCenter[row][line] = {0,0};
+	}
+}
+
+
+//³õÊ¼»¯¸ñ×Ó£¬È·¶¨¸ñ×ÓÇøÓò£¬³õÊ¼×´Ì¬¾ØÕóÎª¿Õ
+void  MapLayer::initBlocks()
+{
+	//#if(CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
+	//	LOGD(" MapLayer::initBlocks()");
+	//#endif
+	string str = StringUtils::format("tiledmap/map_%d.tmx", GAMEDATA->getCurLevel());
+	_tileMap = TMXTiledMap::create(str);//("TileMaps/hexa-test.tmx");
+	//_tileMap = TMXTiledMap::create("tiledmap/map_25.tmx");//("TileMaps/hexa-test.tmx");
+	if (_tileMap)
+	{
+		_tileMap->setAnchorPoint(Vec2(0.5, 0.5));
+		_tileMap->setPosition(mapPoint);
+		_tileMap->setScale(RATIO);
+		addChild(_tileMap, -1);
+
+		mapLayer = _tileMap->getLayer("map");
+		typeLayer = _tileMap->getLayer("type");
+		typeLayer->setVisible(false);
+
+		//line = _tileMap->getMapSize().height; // 
+		//row = _tileMap->getMapSize().width; // 
+		//log("%d,%d", row,line);
+		////mei shi xian
+		containsDis = (typeLayer->getMapTileSize().width*RATIO) / 2 - 5;
+
+	}
+	//³õÊ¼»¯ÊıÁ¿
+	//for (int i = 0; i < 40; ++i) //0-5
+	//{
+	//	//--elementCount[i] = 0;
+	//	//--removeCount[i] = 0;
+	//}
+
+	ERGODIC_MBLOCK(row, line)
+	{
+		//log("ERGODIC_MBLOCK :row:%d,line:%d",row,line);
+		blocksCenter[row][line] = getMCenterByCoord(row, line); //È·¶¨¸ñ×ÓÖĞĞÄÎ»ÖÃ
+		/*	int  num = (uint32_t)typeLayer->getTileGIDAt(Vec2(i, j));*/
+		//getType = _tileMap->getPropertiesForGID(num);
+		//int _type = getType.asValueMap()["type"].asInt();
+		if (checkIsnullptr(row, line))
+		{
+			unsigned int num;
+			num = typeLayer->getTileGIDAt(Vec2(row, line));
+			int _type = _tileMap->getPropertiesForGID(num).asValueMap()["type"].asInt();
+			//Õâ¿éÍßÆ¬ÊÇ²»ÏÔÊ¾ 
+			auto s = ElementUnit::create();
+			if (s)
+			{
+				//s->setElementType(ElementType::cannotEliminate); // ²»¿ÉÒ»Ïû³ıµÄÔªËØ
+				s->createElement(_type, getMCenterByCoord(row, line));
+				elements[row][line] = s;
+				//--elementCount[_type]++;
+				addChild(elements[row][line], 1);
+				//elements[row][line]->setVisible(false);
+				if (_type == 8)
+				{//°®ĞÄ
+					if (REWARDDATA->getIsFristPlay(GAMEDATA->getCurLevel()) == 1)
+					{ //Èç¹ûÊÇµÚÒ»´Î£¬´´½¨°®ĞÄ£¬Èç¹û²»ÊÇ¾Í´´½¨ÎªËæ»úÔªËØ
+						elements[row][line]->setScale(0.7);
+						auto seq = Sequence::create(ScaleTo::create(0.5, 1.2), ScaleTo::create(0.6, 0.9), nullptr);
+						elements[row][line]->runAction(RepeatForever::create(seq));
+					}
+					else
+					{
+						elements[row][line]->removeFromParent();
+						auto s = ElementUnit::create();
+						if (s)
+						{
+							int color = abs(rand() % 5);
+							s->createElement(color, getMCenterByCoord(row, line));
+							elements[row][line] = s;
+							addChild(elements[row][line], 1);
+						}
+						changeTiledType(row, line);
+					}
+				}
+				if (_type == 6)
+				{
+					jitterEffect(elements[row][line], 2.0);
+
+				}
+			}
+		}
+		else
+		{
+			auto s = ElementUnit::create();
+			if (s)
+			{
+				//s->setElementType(ElementType::basisEliminate); // »ù´¡Ïû³ıÔªËØ
+				int color = abs(rand() % 5);
+				s->createElement(color, getMCenterByCoord(row, line));
+				elements[row][line] = s;
+				//--elementCount[color]++;
+				addChild(elements[row][line], 1);
+			}
+		}
+	}
+	removeAllCount = 0;
+
+	while (checkIsNeedRefresh())
+	{
+		//log("refresh!"); //±£Ö¤´´½¨µÄµÚÒ»¸öµØÍ¼ÊÇÓĞ¿ÉÒÔÁ¬ÏßµÄµØÍ¼
+		refreshAllElement();
+	}
+}
+
 
 //¼ì²âÊÇ·ñĞèÒª½øĞĞË¢ĞÂÎ»ÖÃ
 bool  MapLayer::checkIsNeedRefresh()
@@ -214,8 +339,8 @@ void MapLayer::removeLink()
 		}
 		signClear();  
 		linkFinishFlag = true; //Íê³ÉÒ»´ÎÏû³ı
-		//if (UserDefault::getInstance()->getBoolForKey("IS_VIBRATE",true))
-		//	Vibrator::vibrate(REMOVE_VIBRATOR_TIME); //Õğ¶¯ 
+		if (UserDefault::getInstance()->getBoolForKey("IS_VIBRATE",true))
+			Vibrator::vibrate(REMOVE_VIBRATOR_TIME); //Õğ¶¯ 
 
 		//³É¹¦Ïû³ıÒ»´Î£¬²½Êı¼õÉÙÒ»´Î
 		//removeMyCount(); 
@@ -230,8 +355,8 @@ void MapLayer::removeLink()
 		removeAllLine(); //É¾³ıÁ¬½ÓÏß
 		if (UserDefault::getInstance()->getBoolForKey("IS_EFFECT", true))
 			AudioData::getInstance()->addOtherEffect(3);
-		//if (UserDefault::getInstance()->getBoolForKey("IS_VIBRATE",true))
-		//	Vibrator::vibrate(WRONG_REMOVE_VIBRATOR_TIME); //Õğ¶¯
+		if (UserDefault::getInstance()->getBoolForKey("IS_VIBRATE",true))
+			Vibrator::vibrate(REMOVE_VIBRATOR_TIME); //Õğ¶¯
 	}
 
 	isRemoveFinish = true;
@@ -492,7 +617,7 @@ void	MapLayer::changeTiledType(int r, int l)
 	unsigned int num = typeLayer->getTileGIDAt(Vec2(r, l));
 	Value typevalue = _tileMap->getPropertiesForGID(num);
 	int type = typevalue.asValueMap()["type"].asInt();
-	if (type == 6 || type == 5)
+	if (type >= 5 && type < 10)
 	{
 		typeLayer->setTileGID(gidnum, Vec2(r, l));
 	}
@@ -518,9 +643,7 @@ int MapLayer::removeElement(int row,int line)
 	showRemoveEffect(blocksCenter[row][line]);
 
 	//showRemoveEleEffect(blocksCenter[row][line]);
-
 	temp->disappear(FALL_TIME);//ÔªËØËõĞ¡ÖÁÏûÊ§FALL_TIME
-
 	temp = nullptr; 
 	elements[row][line] = nullptr;
 	signFlag[row][line] = false;
@@ -545,7 +668,7 @@ int MapLayer::removeMyCount()
 			if (m_count == GAMEDATA->getCount(GAMEDATA->getCurLevel())-1)
 			{
 				//Èç¹û¹ı¹ØÁË¾Í²»µ¯³öÕâ¸ö´°¿Ú£¬¿ÉÒÔ·¢ÏûÏ¢µ½gamescene
-				auto time = DelayTime::create(1.0);
+				auto time = DelayTime::create(2.0);
 				auto callFun = CallFunc::create([=]{
 					if (!isTargetElementFinish)
 					{
@@ -607,165 +730,175 @@ bool MapLayer::elementsFall()
 bool	MapLayer::checkIsDrop(int r, int l) // ¼ì²âµÄ¿Õ¸ñ×Ó
 {
 	//¼ì²âËüµÄÉÏÒ»¸ö£¬ÉÏ×ó£¬ÉÏÓÒÊÇ·ñ¿ÉÒÔÓĞ¾«ÁéÂäÏÂÀ´
-	if (elements[r][l-1]) //ÉÏyou 
+	log("checkIsDrop:%d,l-1:%d",l,l-1);
+	if (l-1 < 0)
 	{
-		if (checkIsnullptr(r,max(l-1,0))) //ÉÏÒ»¸öÊÇÊ¯Í·
-		{ //¿´×óÓÒ
-			if (elements[max(r - 1, 0)][max(l - 1, 0)]) //×ó±ßÓĞ
-			{
-				if (checkIsnullptr(max(r - 1, 0), max(l - 1, 0))) //shitou //×ó±ßÊÇ·ñÓĞÊ¯Í· ¡¢
-				{
-					if (elements[min(r + 1, 5)][max(l - 1, 0)]) //ÓÒ±ßÓĞ
-					{
-						if (checkIsnullptr(min(r + 1, 5), max(l - 1, 0))) //×ó±ßÊÇÊ¯Í·£¬ÅĞ¶ÏÓÒ±ß
-						{
-							//ÉÏ×óÓÒ¶¼ÊÇÊ¯Í·
-							return false;
-						}
-						else //ÓÒ±ßÓĞÇÒ²»ÊÇÊ¯Í·
-						{
-							//ÉÏ×óÊ¯Í·ÓÒÓĞÇÒ²»ÊÇ
-							return true; //±íÊ¾ÊÇÆÕÍ¨ÔªËØ
-						}
-					}
-					else //ÓÒ±ßÊÇ¿Õ£¬ÅĞ¶ÏÓÒ±ßÊÇ·ñÊÇÒ»¸ö¿ÉÒÔÏÂÂäµÃµ½ÔªËØµÄ¸ñ×Ó
-					{
-						if (checkIsDrop(min(r + 1, 5), max(l - 1, 0))) //¿ÉÒÔÏÂÂä
-						{
-							return true;
-						}
-						else
-						{
-							return false;
-						}
-					}
-				}
-				else //×óÓĞ ÇÒ²»ÊÇÊ¯Í·
-				{
-					return true;
-				}
-			}
-			else //ÉÏ×óÎª¿Õ
-			{
-				//ÅĞ¶ÏÊÇ²»ÊÇÒ»¸ö¿ÉÒÔÍ¨¹ıÏÂÂäµÃµ½ÔªËØµÄ¸ñ×Ó
-				if (checkIsDrop(max(r - 1, 0), max(l - 1, 0))) //µ÷ÓÃ×ÔÉíÀ´ÅĞ¶Ï
-				{
-					return true;//¿ÉÒÔÏÂÂäµÄ¸ñ×Ó
-				}
-				else //ĞèÒªÅĞ¶ÏÓÒ±ßÊÇ²»ÊÇ¿ÉÒÔÏÂÂä 
-				{
-					if (elements[min(r + 1, 5)][max(l - 1, 0)]) //ÓÒ±ßÓĞ
-					{
-						if (checkIsnullptr(min(r + 1, 5), max(l - 1, 0))) //×ó±ßÊÇÊ¯Í·£¬ÅĞ¶ÏÓÒ±ß
-						{
-							//ÉÏ×óÓÒ¶¼ÊÇÊ¯Í·
-							return false;
-						}
-						else //ÓÒ±ßÓĞÇÒ²»ÊÇÊ¯Í·
-						{
-							//ÉÏ×óÊ¯Í·ÓÒÓĞÇÒ²»ÊÇ
-							return true; //±íÊ¾ÊÇÆÕÍ¨ÔªËØ
-						}
-					}
-					else //ÓÒ±ßÊÇ¿Õ£¬ÅĞ¶ÏÓÒ±ßÊÇ·ñÊÇÒ»¸ö¿ÉÒÔÏÂÂäµÃµ½ÔªËØµÄ¸ñ×Ó
-					{
-						if (checkIsDrop(min(r + 1, 5), max(l - 1, 0))) //¿ÉÒÔÏÂÂä
-						{
-							return true;
-						}
-						else
-						{//×ó¿Õ²»¿ÉÒÔ£¬ÉÏÊ¯Í·£¬ÓÒ¿Õ²»¿ÉÒÔ
-							return false;
-						}
-					}
-				}
-			}
-		}
-		else //ÉÏÒ»¸öÓĞÇÒ²»ÊÇÊ¯Í·
-		{
-			return true;
-		}
+		//±íÊ¾ÊÇĞĞ¸ñ×Ó£¬
+		return true;
 	}
-	else //ÉÏÒ»¸ö¸ñ×ÓÊÇ¿Õ
+	else
 	{
-		//ÅĞ¶ÏÊÇ²»ÊÇÒ»¸ö¿ÉÒÔÍ¨¹ıÏÂÂäµÃµ½ÔªËØµÄ¸ñ×Óµ÷ÓÃ×ÔÉí
-		if (checkIsDrop(r,max(l-1,0)))
+		if (elements[r][l - 1]) //ÉÏyou 
 		{
-			return true;
-		}
-		else  //±íÊ¾ÉÏ¿Õ£¬µ«ÊÇÊôÓÚ²»¿ÉÒÔÏÂÂäµÄ¸ñ×Ó£¬ÕâÑù»°ÒªÅĞ¶Ï×óÓÒ
-		{
-			if (elements[max(r - 1, 0)][max(l - 1, 0)]) //×ó±ßÓĞ
-			{
-				if (checkIsnullptr(max(r - 1, 0), max(l - 1, 0))) //shitou //×ó±ßÊÇ·ñÓĞÊ¯Í· ¡¢
+			if (checkIsnullptr(r, max(l - 1, 0))) //ÉÏÒ»¸öÊÇÊ¯Í·
+			{ //¿´×óÓÒ
+				if (elements[max(r - 1, 0)][max(l - 1, 0)]) //×ó±ßÓĞ
 				{
-					if (elements[min(r + 1, 5)][max(l - 1, 0)]) //ÓÒ±ßÓĞ
+					if (checkIsnullptr(max(r - 1, 0), max(l - 1, 0))) //shitou //×ó±ßÊÇ·ñÓĞÊ¯Í· ¡¢
 					{
-						if (checkIsnullptr(min(r + 1, 5), max(l - 1, 0))) //×ó±ßÊÇÊ¯Í·£¬ÅĞ¶ÏÓÒ±ß
+						if (elements[min(r + 1, 5)][max(l - 1, 0)]) //ÓÒ±ßÓĞ
 						{
-							//ÉÏ×óÓÒ¶¼ÊÇÊ¯Í·
-							return false;
+							if (checkIsnullptr(min(r + 1, 5), max(l - 1, 0))) //×ó±ßÊÇÊ¯Í·£¬ÅĞ¶ÏÓÒ±ß
+							{
+								//ÉÏ×óÓÒ¶¼ÊÇÊ¯Í·
+								return false;
+							}
+							else //ÓÒ±ßÓĞÇÒ²»ÊÇÊ¯Í·
+							{
+								//ÉÏ×óÊ¯Í·ÓÒÓĞÇÒ²»ÊÇ
+								return true; //±íÊ¾ÊÇÆÕÍ¨ÔªËØ
+							}
 						}
-						else //ÓÒ±ßÓĞÇÒ²»ÊÇÊ¯Í·
+						else //ÓÒ±ßÊÇ¿Õ£¬ÅĞ¶ÏÓÒ±ßÊÇ·ñÊÇÒ»¸ö¿ÉÒÔÏÂÂäµÃµ½ÔªËØµÄ¸ñ×Ó
 						{
-							//ÉÏ×óÊ¯Í·ÓÒÓĞÇÒ²»ÊÇ
-							return true; //±íÊ¾ÊÇÆÕÍ¨ÔªËØ
+							if (checkIsDrop(min(r + 1, 5), max(l - 1, 0))) //¿ÉÒÔÏÂÂä
+							{
+								return true;
+							}
+							else
+							{
+								return false;
+							}
 						}
 					}
-					else //ÓÒ±ßÊÇ¿Õ£¬ÅĞ¶ÏÓÒ±ßÊÇ·ñÊÇÒ»¸ö¿ÉÒÔÏÂÂäµÃµ½ÔªËØµÄ¸ñ×Ó
+					else //×óÓĞ ÇÒ²»ÊÇÊ¯Í·
 					{
-						if (checkIsDrop(min(r + 1, 5), max(l - 1, 0))) //¿ÉÒÔÏÂÂä
-						{
-							return true;
-						}
-						else
-						{
-							return false;
-						}
+						return true;
 					}
 				}
-				else //×óÓĞ ÇÒ²»ÊÇÊ¯Í·
+				else //ÉÏ×óÎª¿Õ
 				{
-					return true;
-				}
-			}
-			else //ÉÏ×óÎª¿Õ
-			{
-				//ÅĞ¶ÏÊÇ²»ÊÇÒ»¸ö¿ÉÒÔÍ¨¹ıÏÂÂäµÃµ½ÔªËØµÄ¸ñ×Ó
-				if (checkIsDrop(max(r - 1, 0), max(l - 1, 0))) //µ÷ÓÃ×ÔÉíÀ´ÅĞ¶Ï
-				{
-					return true;//¿ÉÒÔÏÂÂäµÄ¸ñ×Ó
-				}
-				else //ĞèÒªÅĞ¶ÏÓÒ±ßÊÇ²»ÊÇ¿ÉÒÔÏÂÂä 
-				{
-					if (elements[min(r + 1, 5)][max(l - 1, 0)]) //ÓÒ±ßÓĞ
+					//ÅĞ¶ÏÊÇ²»ÊÇÒ»¸ö¿ÉÒÔÍ¨¹ıÏÂÂäµÃµ½ÔªËØµÄ¸ñ×Ó
+					if (checkIsDrop(max(r - 1, 0), max(l - 1, 0))) //µ÷ÓÃ×ÔÉíÀ´ÅĞ¶Ï
 					{
-						if (checkIsnullptr(min(r + 1, 5), max(l - 1, 0))) //×ó±ßÊÇÊ¯Í·£¬ÅĞ¶ÏÓÒ±ß
-						{
-							//ÉÏ×óÓÒ¶¼ÊÇÊ¯Í·
-							return false;
-						}
-						else //ÓÒ±ßÓĞÇÒ²»ÊÇÊ¯Í·
-						{
-							//ÉÏ×óÊ¯Í·ÓÒÓĞÇÒ²»ÊÇ
-							return true; //±íÊ¾ÊÇÆÕÍ¨ÔªËØ
-						}
+						return true;//¿ÉÒÔÏÂÂäµÄ¸ñ×Ó
 					}
-					else //ÓÒ±ßÊÇ¿Õ£¬ÅĞ¶ÏÓÒ±ßÊÇ·ñÊÇÒ»¸ö¿ÉÒÔÏÂÂäµÃµ½ÔªËØµÄ¸ñ×Ó
+					else //ĞèÒªÅĞ¶ÏÓÒ±ßÊÇ²»ÊÇ¿ÉÒÔÏÂÂä 
 					{
-						if (checkIsDrop(min(r + 1, 5), max(l - 1, 0))) //¿ÉÒÔÏÂÂä
+						if (elements[min(r + 1, 5)][max(l - 1, 0)]) //ÓÒ±ßÓĞ
 						{
-							return true;
+							if (checkIsnullptr(min(r + 1, 5), max(l - 1, 0))) //×ó±ßÊÇÊ¯Í·£¬ÅĞ¶ÏÓÒ±ß
+							{
+								//ÉÏ×óÓÒ¶¼ÊÇÊ¯Í·
+								return false;
+							}
+							else //ÓÒ±ßÓĞÇÒ²»ÊÇÊ¯Í·
+							{
+								//ÉÏ×óÊ¯Í·ÓÒÓĞÇÒ²»ÊÇ
+								return true; //±íÊ¾ÊÇÆÕÍ¨ÔªËØ
+							}
 						}
-						else
-						{//×ó¿Õ²»¿ÉÒÔ£¬ÉÏ¿Õ²»¿ÉÒÔ£¬ÓÒ¿Õ²»¿ÉÒÔ
-							return false;
+						else //ÓÒ±ßÊÇ¿Õ£¬ÅĞ¶ÏÓÒ±ßÊÇ·ñÊÇÒ»¸ö¿ÉÒÔÏÂÂäµÃµ½ÔªËØµÄ¸ñ×Ó
+						{
+							if (checkIsDrop(min(r + 1, 5), max(l - 1, 0))) //¿ÉÒÔÏÂÂä
+							{
+								return true;
+							}
+							else
+							{//×ó¿Õ²»¿ÉÒÔ£¬ÉÏÊ¯Í·£¬ÓÒ¿Õ²»¿ÉÒÔ
+								return false;
+							}
 						}
 					}
 				}
 			}
+			else //ÉÏÒ»¸öÓĞÇÒ²»ÊÇÊ¯Í·
+			{
+				return true;
+			}
 		}
-	}
+		else //ÉÏÒ»¸ö¸ñ×ÓÊÇ¿Õ
+		{
+			//ÅĞ¶ÏÊÇ²»ÊÇÒ»¸ö¿ÉÒÔÍ¨¹ıÏÂÂäµÃµ½ÔªËØµÄ¸ñ×Óµ÷ÓÃ×ÔÉí
+			if (checkIsDrop(r, max(l - 1, 0)))
+			{
+				return true;
+			}
+			else  //±íÊ¾ÉÏ¿Õ£¬µ«ÊÇÊôÓÚ²»¿ÉÒÔÏÂÂäµÄ¸ñ×Ó£¬ÕâÑù»°ÒªÅĞ¶Ï×óÓÒ
+			{
+				if (elements[max(r - 1, 0)][max(l - 1, 0)]) //×ó±ßÓĞ
+				{
+					if (checkIsnullptr(max(r - 1, 0), max(l - 1, 0))) //shitou //×ó±ßÊÇ·ñÓĞÊ¯Í· ¡¢
+					{
+						if (elements[min(r + 1, 5)][max(l - 1, 0)]) //ÓÒ±ßÓĞ
+						{
+							if (checkIsnullptr(min(r + 1, 5), max(l - 1, 0))) //×ó±ßÊÇÊ¯Í·£¬ÅĞ¶ÏÓÒ±ß
+							{
+								//ÉÏ×óÓÒ¶¼ÊÇÊ¯Í·
+								return false;
+							}
+							else //ÓÒ±ßÓĞÇÒ²»ÊÇÊ¯Í·
+							{
+								//ÉÏ×óÊ¯Í·ÓÒÓĞÇÒ²»ÊÇ
+								return true; //±íÊ¾ÊÇÆÕÍ¨ÔªËØ
+							}
+						}
+						else //ÓÒ±ßÊÇ¿Õ£¬ÅĞ¶ÏÓÒ±ßÊÇ·ñÊÇÒ»¸ö¿ÉÒÔÏÂÂäµÃµ½ÔªËØµÄ¸ñ×Ó
+						{
+							if (checkIsDrop(min(r + 1, 5), max(l - 1, 0))) //¿ÉÒÔÏÂÂä
+							{
+								return true;
+							}
+							else
+							{
+								return false;
+							}
+						}
+					}
+					else //×óÓĞ ÇÒ²»ÊÇÊ¯Í·
+					{
+						return true;
+					}
+				}
+				else //ÉÏ×óÎª¿Õ
+				{
+					//ÅĞ¶ÏÊÇ²»ÊÇÒ»¸ö¿ÉÒÔÍ¨¹ıÏÂÂäµÃµ½ÔªËØµÄ¸ñ×Ó
+					if (checkIsDrop(max(r - 1, 0), max(l - 1, 0))) //µ÷ÓÃ×ÔÉíÀ´ÅĞ¶Ï
+					{
+						return true;//¿ÉÒÔÏÂÂäµÄ¸ñ×Ó
+					}
+					else //ĞèÒªÅĞ¶ÏÓÒ±ßÊÇ²»ÊÇ¿ÉÒÔÏÂÂä 
+					{
+						if (elements[min(r + 1, 5)][max(l - 1, 0)]) //ÓÒ±ßÓĞ
+						{
+							if (checkIsnullptr(min(r + 1, 5), max(l - 1, 0))) //×ó±ßÊÇÊ¯Í·£¬ÅĞ¶ÏÓÒ±ß
+							{
+								//ÉÏ×óÓÒ¶¼ÊÇÊ¯Í·
+								return false;
+							}
+							else //ÓÒ±ßÓĞÇÒ²»ÊÇÊ¯Í·
+							{
+								//ÉÏ×óÊ¯Í·ÓÒÓĞÇÒ²»ÊÇ
+								return true; //±íÊ¾ÊÇÆÕÍ¨ÔªËØ
+							}
+						}
+						else //ÓÒ±ßÊÇ¿Õ£¬ÅĞ¶ÏÓÒ±ßÊÇ·ñÊÇÒ»¸ö¿ÉÒÔÏÂÂäµÃµ½ÔªËØµÄ¸ñ×Ó
+						{
+							if (checkIsDrop(min(r + 1, 5), max(l - 1, 0))) //¿ÉÒÔÏÂÂä
+							{
+								return true;
+							}
+							else
+							{//×ó¿Õ²»¿ÉÒÔ£¬ÉÏ¿Õ²»¿ÉÒÔ£¬ÓÒ¿Õ²»¿ÉÒÔ
+								return false;
+							}
+						}
+					}
+				}
+			}
+		}
+	}//
+	
 }
 
 bool MapLayer::checkIsnullptr(int _row, int _line)
@@ -798,7 +931,7 @@ void MapLayer::prepareLink()
 
 void	MapLayer::rowMyFall(int _row, int bottom) // 15 //Ç°Ìá¾ÍÅĞ¶ÏÁËÕâ¸ö¸ñ×ÓÊÇÂú×ãµôÂäÌõ¼şµÄ£¬ÄÇÃ´¾ÍÍ¨¹ıÑ­»·½«¸ñ×ÓÆÌÂú
 { //ÔÚÉÏ×óÓÒÑ°ÕÒ¿ÉÒÔµôÂäµÄ¸ñ×Ó£¬ÔÚlineÎª0µÄÊ±ºò´´½¨
-	int	j = bottom - 1;
+	int	j =  bottom - 1;
 	if (j>=0) //¿Õ¸ñ×ÓÊÇÔÚµÚ¶şÅÅÒÔÏÂ
 	{//ÓÅÏÈÆ¥ÅäÉÏ£¬ÔÙÊÇ×ó£¬ÓÒ
 		if (elements[_row][j]) //ÉÏÓĞ
@@ -844,7 +977,7 @@ void	MapLayer::rowMyFall(int _row, int bottom) // 15 //Ç°Ìá¾ÍÅĞ¶ÏÁËÕâ¸ö¸ñ×ÓÊÇÂú×
 
 void MapLayer::rightAndLeft(int _row, int bottom)
 {
-	int	j = bottom - 1;
+	int	j = max(bottom - 1,0);
 	if (elements[max(_row - 1, 0)][j]) //ÉÏ×óÓĞ
 	{
 		if (checkIsnullptr(max(_row - 1, 0), j)) //ÊÇÊ¯Í·
@@ -961,7 +1094,7 @@ void MapLayer::rowFall(int _row, int bottom)//0,5/1.2 5 5
 	int j;
 	for (int i = bottom; i > 0; )//7--i
 	{
-		 j = i - 1;//6
+		 j = max(i - 1,0);//6
 		if (elements[r][i] == nullptr)
 		{
 			if (checkIsnullptr(r, i))
@@ -1070,98 +1203,6 @@ void MapLayer::rowFall(int _row, int bottom)//0,5/1.2 5 5
 	}
 	//appear(r);
 } 
-
-//³õÊ¼»¯¸ñ×Ó£¬È·¶¨¸ñ×ÓÇøÓò£¬³õÊ¼×´Ì¬¾ØÕóÎª¿Õ
-void  MapLayer::initBlocks()
-{
-//#if(CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
-//	LOGD(" MapLayer::initBlocks()");
-//#endif
-	string str = StringUtils::format("tiledmap/map_%d.tmx", GAMEDATA->getCurLevel());
-	_tileMap = TMXTiledMap::create(str);//("TileMaps/hexa-test.tmx");
-	//_tileMap = TMXTiledMap::create("tiledmap/map_25.tmx");//("TileMaps/hexa-test.tmx");
-	if (_tileMap)
-	{
-		_tileMap->setAnchorPoint(Vec2(0.5, 0.5));
-		_tileMap->setPosition(mapPoint);
-		_tileMap->setScale(RATIO);
-		addChild(_tileMap, -1);
-
-		mapLayer = _tileMap->getLayer("map");
-		typeLayer = _tileMap->getLayer("type");
-		typeLayer->setVisible(false);
-
-		//line = _tileMap->getMapSize().height; // 
-		//row = _tileMap->getMapSize().width; // 
-		//log("%d,%d", row,line);
-		////mei shi xian
-		containsDis = (typeLayer->getMapTileSize().width*RATIO) / 2 - 5;
-		
-	}
-	//³õÊ¼»¯ÊıÁ¿
-	//for (int i = 0; i < 40; ++i) //0-5
-	//{
-	//	//--elementCount[i] = 0;
-	//	//--removeCount[i] = 0;
-	//}
-
-	ERGODIC_MBLOCK(row,line)
-	{
-		//log("ERGODIC_MBLOCK :row:%d,line:%d",row,line);
-		blocksCenter[row][line] = getMCenterByCoord(row, line); //È·¶¨¸ñ×ÓÖĞĞÄÎ»ÖÃ
-			/*	int  num = (uint32_t)typeLayer->getTileGIDAt(Vec2(i, j));*/
-				//getType = _tileMap->getPropertiesForGID(num);
-				//int _type = getType.asValueMap()["type"].asInt();
-		if (checkIsnullptr(row, line))
-		{
-			unsigned int num;
-			num = typeLayer->getTileGIDAt(Vec2(row, line));
-			int _type = _tileMap->getPropertiesForGID(num).asValueMap()["type"].asInt();
-			//Õâ¿éÍßÆ¬ÊÇ²»ÏÔÊ¾ 
-			auto s = ElementUnit::create();
-			if (s)
-			{
-				//s->setElementType(ElementType::cannotEliminate); // ²»¿ÉÒ»Ïû³ıµÄÔªËØ
-				s->createElement(_type, getMCenterByCoord(row, line));
-				elements[row][line] = s;
-				//--elementCount[_type]++;
-				addChild(elements[row][line], 1);
-				//elements[row][line]->setVisible(false);
-				if (_type == 8)
-				{//°®ĞÄ
-					elements[row][line]->setScale(0.7);
-					auto seq = Sequence::create(ScaleTo::create(0.5, 1.2), ScaleTo::create(0.6, 0.9),nullptr);
-					elements[row][line]->runAction(RepeatForever::create(seq));
-				}
-				if (_type == 6)
-				{
-					jitterEffect(elements[row][line],2.0);
-					
-				}
-			}
-		}
-		else
-		{
-			auto s = ElementUnit::create();
-			if (s)
-			{
-				//s->setElementType(ElementType::basisEliminate); // »ù´¡Ïû³ıÔªËØ
-				int color = abs(rand() % 5);
-				s->createElement(color, getMCenterByCoord(row, line));
-				elements[row][line] = s;
-				//--elementCount[color]++;
-				addChild(elements[row][line], 1);
-			}		
-		}
-	}
-	removeAllCount = 0;
-
-	while (checkIsNeedRefresh())
-	{
-		//log("refresh!"); //±£Ö¤´´½¨µÄµÚÒ»¸öµØÍ¼ÊÇÓĞ¿ÉÒÔÁ¬ÏßµÄµØÍ¼
-		refreshAllElement();
-	}
-}
 
 // tile×ø±ê×ª³ÉÍßÆ¬¸ñ×ÓÖĞĞÄµÄOpenGL×ø±ê  //»ñµÃÍßÆ¬ÃªµãµÄ×ø±ê
 Vec2 MapLayer::positionForTileCoord(const Vec2& tileCoord) //0,0
@@ -1418,8 +1459,8 @@ void MapLayer::onTouchEnded(Touch *touch, Event *unused_event) //´¥Ãş½áÊø
 #if(CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
 	LOGD("onTouchEnded");
 #endif
-	//if (UserDefault::getInstance()->getBoolForKey("IS_VIBRATE",true))
-	//	Custom::Vibrator::cancelVibrate();
+	if (UserDefault::getInstance()->getBoolForKey("IS_VIBRATE",true))
+		Custom::Vibrator::cancelVibrate();
 }
 
 //ĞŞ¸ÄÖÜÎ§Èı³ËÈıµÄÔªËØ
@@ -1547,26 +1588,27 @@ void MapLayer::showRemoveEffect(Point p)
 
 void MapLayer::showQQEffect(Node* node)
 {
-	auto s1 = ScaleTo::create(0.05,0.85,1.12);
-	auto s2 = ScaleTo::create(0.06, 0.89, 1.08);
-	auto s3 = ScaleTo::create(0.065,1.05,0.92);
-	auto s4 = ScaleTo::create(0.07, 1.03, 0.96);
-	auto s5 = ScaleTo::create(0.075, 1, 1);
+	if (node)
+	{
+		auto s1 = ScaleTo::create(0.05, 0.85, 1.12); 
+		auto s2 = ScaleTo::create(0.06, 0.89, 1.08);
+		auto s3 = ScaleTo::create(0.065, 1.05, 0.92);
+		auto s4 = ScaleTo::create(0.07, 1.03, 0.96);
+		auto s5 = ScaleTo::create(0.075, 1, 1);
+		auto s6 = ScaleTo::create(0.055, 0.88, 1.09);
+		auto s7 = ScaleTo::create(0.06, 0.9, 1.05);
+		auto s8 = ScaleTo::create(0.065, 1.02, 0.98);
+		auto s9 = ScaleTo::create(0.07, 1.01, 0.99);
+		auto s10 = ScaleTo::create(0.07, 1, 1);
+		auto s11 = ScaleTo::create(0.06, 0.9, 1.06);
+		auto s12 = ScaleTo::create(0.065, 0.95, 1.04);
+		auto s13 = ScaleTo::create(0.07, 0.97, 1.02);
+		//auto s14 = ScaleTo::create(0.075, 0.99, 1.0);
+		auto s15 = ScaleTo::create(0.08, 1, 1);
+		auto seq = Sequence::create(s1, s2, s3, s4, s5, s6, s7, s8, s9, s10, s11, s12, s13, s15, nullptr);// s6, s7, s8, s9, s10,s14,
 
-	auto s6 = ScaleTo::create(0.055, 0.88, 1.09);
-	auto s7 = ScaleTo::create(0.06, 0.9, 1.05);
-	auto s8 = ScaleTo::create(0.065, 1.02, 0.98);
-	auto s9 = ScaleTo::create(0.07, 1.01, 0.99);
-	auto s10 = ScaleTo::create(0.07, 1, 1);
-
-	auto s11 = ScaleTo::create(0.06, 0.9, 1.06);
-	auto s12 = ScaleTo::create(0.065, 0.95, 1.04);
-	auto s13 = ScaleTo::create(0.07, 0.97, 1.02);
-	//auto s14 = ScaleTo::create(0.075, 0.99, 1.0);
-	auto s15 = ScaleTo::create(0.08, 1, 1);
-	auto seq = Sequence::create(s1, s2, s3, s4, s5, s6, s7, s8, s9, s10, s11, s12, s13, s15, nullptr);// s6, s7, s8, s9, s10,s14,
-
-	node->runAction(Repeat::create(seq,1));
+		node->runAction(Repeat::create(seq, 1));
+	}
 }
 
 void MapLayer::showLineEffect(Point p)
@@ -1589,7 +1631,6 @@ void MapLayer::showLineEffect(Point p)
 			{
 				removeChild(s);
 			}
-
 		});
 		Sequence* action = Sequence::create(animate, call, nullptr);
 
@@ -1862,8 +1903,8 @@ void MapLayer::undoLink()
 		if (UserDefault::getInstance()->getBoolForKey("IS_EFFECT", true))
 			AudioData::getInstance()->addLinkEffect(number);
 	}
-	//if (UserDefault::getInstance()->getBoolForKey("IS_VIBRATE",true))
-	//	Custom::Vibrator::vibrate(UNDO_VIBRATOR_TIME); //Õğ¶¯
+	if (UserDefault::getInstance()->getBoolForKey("IS_VIBRATE",true))
+		Custom::Vibrator::vibrate(UNDO_VIBRATOR_TIME); //Õğ¶¯
 }
 
 //È¡Ïû³·Ïú¹ØÓÚÕâÌØÊâÔªËØÉæ¼°µÄËùÓĞ±êÊ¶
@@ -1940,6 +1981,7 @@ int		MapLayer::specialSttlement(int ele)//
 void MapLayer:: eventTargetElement(int ele, int count)
 {
 	int index = GAMEDATA->getCurLevel();
+	removeTargetECount = 0;
 	if (ele == 0)
 	{
 		if (REWARDDATA->getBlue(index) != 0)
@@ -2159,8 +2201,8 @@ void MapLayer::linkStart(int row, int line)
 	//ÒôĞ§£¬Õğ¶¯
 	if (UserDefault::getInstance()->getBoolForKey("IS_EFFECT", true))
 		AudioData::getInstance()->addLinkEffect(1);
-	//if (UserDefault::getInstance()->getBoolForKey("IS_VIBRATE",true))
-	//	Custom::Vibrator::vibrate(3); //Õğ¶¯
+	if (UserDefault::getInstance()->getBoolForKey("IS_VIBRATE",true))
+		Custom::Vibrator::vibrate(3); //Õğ¶¯
 }
 
 //Á¬½ÓÁ½¸öÔªËØ
@@ -2206,12 +2248,15 @@ void MapLayer::clearElement()
 int  MapLayer::createElement(int element, int row, int line) //22
 {
 		//ElementUnit* &temp = elements[row][line]; //¶¨ÒåÁÙÊ±±äÁ¿£¬¼ò»¯´úÂë
-		elements[row][line] = ElementUnit::create();
+		//elements[row][line] = ElementUnit::create();
+		auto s = ElementUnit::create();
+
 		//--elementCount[element]++; // ¶ÔÓ¦ÔªËØÀàĞÍ»ùÊı×ÔÔö
-		if (elements[row][line])
+		if (s)
 		{
 			//elements[row][line]->setElementType(ElementType::basisEliminate);//ÉèÖÃÎª»ù±¾Ïû³ıÊôĞÔ
-			elements[row][line]->createElement(element, getMCenterByCoord(row, line));//´´½¨Ò»¸öÔªËØ²¢Ìí¼Óµ½ÆÁÄ»ÉÏ
+			s->createElement(element, getMCenterByCoord(row, line));//´´½¨Ò»¸öÔªËØ²¢Ìí¼Óµ½ÆÁÄ»ÉÏ
+			elements[row][line] = s;
 		}
 		return element;
 }

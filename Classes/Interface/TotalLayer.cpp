@@ -59,22 +59,40 @@ void TotalLayer::addUI()
 	level->setPosition(CommonFunction::getVisibleAchor(Anchor::Center, levelnumbg, Vec2(0, 0)));
 	levelnumbg->addChild(level);
 
-	auto comonon = Sprite::create("popbox/gift.png");
-	comonon->setPosition(CommonFunction::getVisibleAchor(Anchor::Center, BG_kuang, Vec2(0, 100)));
-	BG_kuang->addChild(comonon);
-
 	nextLevel = Button::create("button/next_level0.png", "button/next_level1.png");
 	nextLevel->setPosition(CommonFunction::getVisibleAchor(Anchor::MidButtom,BG_kuang,Vec2(0,80)));
 	BG_kuang->addChild(nextLevel);
 	nextLevel->addClickEventListener(CC_CALLBACK_0(TotalLayer::GoOnCallBack, this));
 
+	log("*********:%d", REWARDDATA->getIsFristPlay(GAMEDATA->getCurLevel()));
+	if (REWARDDATA->getIsFristPlay(GAMEDATA->getCurLevel()) == 1)
+	{
+		auto comonon = Sprite::create("popbox/gift.png");
+		comonon->setPosition(CommonFunction::getVisibleAchor(Anchor::Center, BG_kuang, Vec2(0, 100)));
+		BG_kuang->addChild(comonon);
 
-	auto line = Sprite::create("popbox/line.png");
-	line->setPosition(CommonFunction::getVisibleAchor(Anchor::MidButtom,BG_kuang,Vec2(0,150)));
-	BG_kuang->addChild(line);
+		auto line = Sprite::create("popbox/line.png");
+		line->setPosition(CommonFunction::getVisibleAchor(Anchor::MidButtom, BG_kuang, Vec2(0, 150)));
+		BG_kuang->addChild(line);
 
-	addGift(line);
+		addGift(line);
+	}
+	else
+	{
+		auto comonon = Sprite::create("popbox/petSay.png");
+		comonon->setPosition(CommonFunction::getVisibleAchor(Anchor::Center, BG_kuang, Vec2(0, 100)));
+		BG_kuang->addChild(comonon);
+		auto petbg = Sprite::create("popbox/petSay_kuang.png");
+		petbg->setPosition(CommonFunction::getVisibleAchor(Anchor::MidButtom,comonon,Vec2(0,-110)));
+		comonon->addChild(petbg);
 
+		auto label = Sprite::create("popbox/petSayLabel.png");
+		label->setPosition(CommonFunction::getVisibleAchor(Anchor::Center,petbg,Vec2(0,0)));
+		petbg->addChild(label);
+
+		//奖励金币 , 爱心
+		GAMEDATA->setPowerNum(min(GAMEDATA->getPowerNum() + 1, MAXPOWER)); // 过关奖励
+	}
 	auto backButton = Button::create("popbox/cancel.png");
 	backButton->setPosition(CommonFunction::getVisibleAchor(Anchor::RightTop, BG_kuang, Vec2(-20, -20)));
 	BG_kuang->addChild(backButton);
@@ -239,7 +257,7 @@ void TotalLayer::GoOnCallBack()
 	{
 		AudioData::getInstance()->addButtonEffect(1);
 	}
-	log("GoOnCallBack");
+	REWARDDATA->setIsFristPlay(GAMEDATA->getCurLevel()); //修改是否是第一次玩这个关卡
 	int x = GAMEDATA->getCurLevel() + 1;
 	if ( x < GAMEDATA->m_lock.size())
 	{
@@ -309,15 +327,13 @@ void TotalLayer::backCallBack()
 	{
 		AudioData::getInstance()->addButtonEffect(1);
 	}
-
+	REWARDDATA->setIsFristPlay(GAMEDATA->getCurLevel()); //修改是否是第一次玩这个关卡
 	int x = GAMEDATA->getCurLevel() + 1;
 	if (x < GAMEDATA->m_lock.size())
 	{
 		GAMEDATA->setCurLevel(x);
 		GAMEDATA->setLock(GAMEDATA->getCurLevel());
 	}
-	log("backCallBack");
-	//this->removeFromParent();
 	LevelScene* levelScene = LevelScene::create();
 	Director::getInstance()->replaceScene(TransitionCrossFade::create(1,levelScene));
 }

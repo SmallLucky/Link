@@ -309,7 +309,7 @@ void	InformationLayer::addTargetElement()
 }
 void	InformationLayer::showTargetElementNum(int ele, int n)
 {
-	int index = GAMEDATA->getCurLevel();
+	/*int index = GAMEDATA->getCurLevel();*/
 	switch (ele)
 	{
 	case 0:
@@ -337,9 +337,7 @@ void	InformationLayer::showTargetElementNum(int ele, int n)
 		if (n > 0) // REWARDDATA->getPurple(index)
 		{
 			if (targetElementPNum)
-			{
 				targetElementPNum->setString(Value(n).asString());
-			}
 		}
 		else
 		{
@@ -354,7 +352,6 @@ void	InformationLayer::showTargetElementNum(int ele, int n)
 				finish->setScale(4.0);
 				finishEffect(finish);
 			}
-
 		}
 		break;
 	case 2:

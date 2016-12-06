@@ -85,6 +85,7 @@ public:
 	 //一次消除后剩余的所有步数
 	int getMyCount();
 	void showAllCount();
+	void show5CoutPet();
 
 	void showPower(int p); // 显示体力
 

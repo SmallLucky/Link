@@ -328,7 +328,7 @@ void StartScene::cloudMoveAction(Node* node, float delay, float d)
 
 void	StartScene::PlayStopBGM()
 {
-	UserDefault::getInstance()->getBoolForKey("IS_VIBRATE",true); // 
+	//UserDefault::getInstance()->setBoolForKey("IS_VIBRATE",true); // 
 	bool flag = UserDefault::getInstance()->getBoolForKey("IS_MUSIC",true);
 	if (flag)
 	{

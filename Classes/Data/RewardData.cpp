@@ -23,6 +23,8 @@ RewardData::~RewardData()
 	m_green.clear();
 	m_rad.clear();
 	m_yellor.clear();
+
+	m_isFristPlay.clear();
 }
 
 RewardData* RewardData:: getInstance()
@@ -124,6 +126,7 @@ void	RewardData::praseJsonData()
 	m_rad.clear();
 	m_yellor.clear();
 
+	m_isFristPlay.clear();
 	rapidjson::Value & json_array = doc["Tollgate"];
 
 	for (unsigned int i = 0; i < json_array.Size(); i++)
@@ -144,6 +147,7 @@ void	RewardData::praseJsonData()
 		rapidjson::Value & green = chapter["green"];
 		rapidjson::Value & rad = chapter["rad"];
 		rapidjson::Value & yellor = chapter["yellor"];
+		rapidjson::Value & isFristPlay = chapter["isFristPlay"];
 
 		for (unsigned int a = 0; a < blue.Size(); a++)
 		{
@@ -170,6 +174,12 @@ void	RewardData::praseJsonData()
 		{
 			rapidjson::Value & value = yellor[e];
 			m_yellor.push_back(value.GetInt());
+		}
+
+		for (unsigned int f = 0; f < isFristPlay.Size(); f++)
+		{
+			rapidjson::Value & value = isFristPlay[f];
+			m_isFristPlay.push_back(value.GetInt());
 		}
 
 		for (unsigned int l = 0; l < power.Size(); l++)
@@ -207,6 +217,30 @@ void	RewardData::praseJsonData()
 			rapidjson::Value & value = boom[m];
 			m_boom.push_back(value.GetInt());
 		}
+	}
+	praseFinish(doc);
+}
+
+int		RewardData::getIsFristPlay(int index)
+{
+	if (index < 0)
+	{
+		return 0;
+	}
+	return m_isFristPlay[index];
+}
+void	RewardData::setIsFristPlay(int level)
+{
+	auto doc = preparePrase();
+
+	rapidjson::Value & json_array = doc["Tollgate"];
+
+	for (unsigned int i = 0; i < json_array.Size(); i++)
+	{
+		rapidjson::Value & frist = json_array[i];
+		rapidjson::Value & chapter = frist["chapter"];
+		rapidjson::Value & isFristPlay = chapter["isFristPlay"];
+		isFristPlay[level] = 2;
 	}
 	praseFinish(doc);
 }
