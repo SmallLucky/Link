@@ -17,14 +17,18 @@ bool RemoveState::checkStateChange() //状态改变返回true，状态未改变返回false，
 	{
 		if (score < GAMEDATA->getTargetScore(GAMEDATA->getCurLevel()) || !scene->enoughTargetElement())
 		{
-			log("score3:%d", score);
+			//log("score3:%d", score);
+			if (count <= 0)
+			{
+				scene->addCountLayer();
+			}
 			CHANGE_TO_STATE(LinkState); //若元素已下落完成，则进入等待连线状态
 		}
 		else
 		{
 			cout << "特殊元素都滿足" << endl;
-			EventCustom _event(FINISHTARGETELEMENT);
-			_eventDispatcher->dispatchEvent(&_event);
+			//EventCustom _event(FINISHTARGETELEMENT);
+			//_eventDispatcher->dispatchEvent(&_event);
 		}
 	}
 	if (gameStartFlag)
@@ -42,7 +46,7 @@ bool RemoveState::entryState()
 #endif
 	score = scene->showScoreUp(); //显示分数增加
 	log("score:%d",score);
-	scene->showAllCount(); //显示步数的更改
+	count = scene->showAllCount(); //显示步数的更改
 	matrixFinishFlag = false;
 	matrixTime = FALL_TIME;
 
@@ -69,7 +73,7 @@ void RemoveState::onUpdate(float dt)
 		gameOverFlag = true; //若步数用尽，则游戏结束
 	}
 	matrixTime += dt;
-	if (matrixTime > 0.2 )//FALL_TIME
+	if (matrixTime > 0.1 )//FALL_TIME
 	{
 		//log("(matrixTime > FALL_TIME)");
 		matrixTime = 0;

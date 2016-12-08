@@ -11,9 +11,7 @@
 #include "Interface/AddCount.h"
 
 int  GameScene::_power = 0;
-GameScene::GameScene() : m_blue(REWARDDATA->getBlue(GAMEDATA->getCurLevel())), m_purple(REWARDDATA->getPurple(GAMEDATA->getCurLevel())),
-m_green(REWARDDATA->getGreen(GAMEDATA->getCurLevel())), m_rad(REWARDDATA->getRad(GAMEDATA->getCurLevel())), 
-m_yellor(REWARDDATA->getYellor(GAMEDATA->getCurLevel()))
+GameScene::GameScene()
 {
 	auto _listenerReresh = EventListenerCustom::create(REFRESHPROPS, [=](EventCustom*event){
 		refreshProps();
@@ -30,56 +28,9 @@ m_yellor(REWARDDATA->getYellor(GAMEDATA->getCurLevel()))
 	_eventDispatcher->addEventListenerWithFixedPriority(_listenerIsGameOverTrue, 1);
 	_eventDispatcher->addEventListenerWithFixedPriority(_listenerIsGameOverFaLse, 1);
 
-	auto _listenerBlue = EventListenerCustom::create(BLUE, [=](EventCustom*event){
-		m_blue -= matrix->removeTargetECount;
-		if (m_blue <= 0)
-		{
-			m_blue = 0;
-		}
-		showTargetElementNum(0, m_blue);
-	});
-	auto _listenerPurple = EventListenerCustom::create(PURPLE, [=](EventCustom*event){
-		m_purple -= matrix->removeTargetECount;
-		if (m_purple <= 0)
-		{
-			m_purple = 0;
-		}
-		showTargetElementNum(1, m_purple);
-	});
-	auto _listenerGreen = EventListenerCustom::create(GREEN, [=](EventCustom*event){
-		m_green -= matrix->removeTargetECount;
-		if (m_green <= 0)
-		{
-			m_green = 0;
-		}
-		showTargetElementNum(2, m_green);
-	});
-	auto _listenerRad = EventListenerCustom::create(RAD, [=](EventCustom*event){
-		m_rad -= matrix->removeTargetECount;
-		if (m_rad <= 0)
-		{
-			m_rad = 0;
-		}
-		showTargetElementNum(3, m_rad);
-	});
-	auto _listenerYellor = EventListenerCustom::create(YELLOR, [=](EventCustom*event){
-		m_yellor -= matrix->removeTargetECount;
-		if (m_yellor <= 0)
-		{
-			m_yellor = 0;
-		}
-		showTargetElementNum(4, m_yellor);
-	});
-
-	_eventDispatcher->addEventListenerWithFixedPriority(_listenerBlue, 1);
-	_eventDispatcher->addEventListenerWithFixedPriority(_listenerPurple, 1);
-	_eventDispatcher->addEventListenerWithFixedPriority(_listenerGreen, 1);
-	_eventDispatcher->addEventListenerWithFixedPriority(_listenerRad, 1);
-	_eventDispatcher->addEventListenerWithFixedPriority(_listenerYellor, 1);
 	auto _listenerPower = EventListenerCustom::create(ADDPOWER, [=](EventCustom*event){
 		auto layer = PowerLayer::create();
 		addChild(layer,25);
-		log("ADDPOWER");
 	});
 	_eventDispatcher->addEventListenerWithFixedPriority(_listenerPower, 1);
 }
@@ -89,12 +40,6 @@ GameScene::~GameScene()
 	_eventDispatcher->removeCustomEventListeners(REFRESHPROPS);
 	_eventDispatcher->removeCustomEventListeners(ISGAMEOVERTRUE);
 	_eventDispatcher->removeCustomEventListeners(ISGAMEOVERFALSE);
-	_eventDispatcher->removeCustomEventListeners(BLUE);
-	_eventDispatcher->removeCustomEventListeners(PURPLE);
-	_eventDispatcher->removeCustomEventListeners(GREEN);
-	_eventDispatcher->removeCustomEventListeners(RAD);
-	_eventDispatcher->removeCustomEventListeners(YELLOR);
-	_eventDispatcher->removeCustomEventListeners(ADDPOWER);
 }
 bool GameScene::init()
 {
@@ -105,9 +50,9 @@ bool GameScene::init()
 	{
 		return false;
 	}
-
 	isGameOver = false;
 	addUI();
+	//addTargetElement();
 	stateMachine = StateMachine::createWithGameScene(this); //创建状态机
 	stateMachine->changeState(StartState::create(this)); //进入准备开始游戏状态
 	this->scheduleUpdate();
@@ -399,20 +344,23 @@ void GameScene::initMaster()
 /************************************/
 void GameScene::addCountLayer()
 {
+	forbiddenLink();
 	if (curScore >= GAMEDATA->getTargetScore(GAMEDATA->getCurLevel()) && enoughTargetElement())
 	{ 
 		cout << "过关了！！！" << endl;
 	}
 	else
 	{
-		auto time = DelayTime::create(2.0);
-		auto callFun = CallFunc::create([=]{
-			auto addcountLayer = AddCount::create();
-			addChild(addcountLayer);
-		});
-		auto seq = Sequence::create(time, callFun, nullptr);
-		this->runAction(seq);
-
+		//if (!elementsFall())
+		//{
+			auto time = DelayTime::create(0.2);
+			auto callFun = CallFunc::create([=]{
+				auto addcountLayer = AddCount::create();
+				addChild(addcountLayer);
+			});
+			auto seq = Sequence::create(time, callFun, nullptr);
+			this->runAction(seq);
+		//}
 	}
 }
 
@@ -422,10 +370,6 @@ void GameScene::showCount(int c)
 	information->showCount(c);
 }
 
-void  GameScene::showTargetElementNum(int ele, int n)
-{
-	information->showTargetElementNum(ele,n);
-}
 // 显示体力
 void GameScene::showPower(int p)
 {
@@ -435,7 +379,7 @@ void GameScene::showPower(int p)
 
 //一次消除后剩余的所有步数
 
-void GameScene::showAllCount()
+int GameScene::showAllCount()
 {
 	//if (!enoughTargetElement || GAMEDATA->getCurSocre() < GAMEDATA->getTargetScore(GAMEDATA->getCurLevel()))
 	//{
@@ -445,6 +389,7 @@ void GameScene::showAllCount()
 	if (m_count <= 0 )
 	{
 		m_count = 0;
+		forbiddenLink();
 	}
 #if(CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
 	LOGD(" GameScene::showAllCount():%d",m_count);
@@ -455,6 +400,7 @@ void GameScene::showAllCount()
 	{
 		show5CoutPet();
 	}
+	return m_count;
 }
 
 void	GameScene::show5CoutPet()
@@ -479,6 +425,8 @@ int GameScene::getMyCount()
 {
 	return m_count;
 }
+
+
 
 //一次消除后分数提高并显示，返回提高后的分数
 int GameScene::showScoreUp()
@@ -567,7 +515,6 @@ void GameScene::gameOver()
 void  GameScene::gameNextLevel()
 {
 	this->unscheduleUpdate();
-
 	auto time = DelayTime::create(1.0);
 
 	auto callFun = CallFunc::create([=]{
@@ -582,69 +529,7 @@ void  GameScene::gameNextLevel()
 
 bool  GameScene::enoughTargetElement()
 {
-	int index = GAMEDATA->getCurLevel();
-	bool finish = true;
-	if (REWARDDATA->getBlue(index) != 0)
-	{
-		if (m_blue <= 0)//REWARDDATA->getBlue(index)
-		{
-			finish = true;
-		}
-		else
-		{
-			finish = false;
-			return finish;
-		}
-	}
-	if (REWARDDATA->getPurple(index) != 0)
-	{
-		if (m_purple <= 0)//REWARDDATA->getPurple(index
-		{
-			finish = true;
-		}
-		else
-		{
-			finish = false;
-			return finish;
-		}
-	}
-	if (REWARDDATA->getGreen(index) != 0)
-	{
-		if (m_green <= 0) //REWARDDATA->getGreen(index)
-		{
-			finish = true;
-		}
-		else
-		{
-			finish = false;
-			return finish;
-		}
-	}
-	if (REWARDDATA->getRad(index) != 0)
-	{
-		if (m_rad <= 0) //REWARDDATA->getRad(index)
-		{
-			finish = true;
-		}
-		else
-		{
-			finish = false;
-			return finish;
-		}
-	}
-	if (REWARDDATA->getYellor(index) != 0)
-	{
-		if (m_yellor <= 0) //REWARDDATA->getYellor(index)
-		{
-			finish = true;
-		}
-		else
-		{
-			finish = false;
-			return finish;
-		}
-	}
-	return finish;
+	return matrix->enoughTargetElement();
 }
 
 //开始新游戏

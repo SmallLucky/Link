@@ -54,8 +54,6 @@ bool LevelLayer::init()
 	{
 		return false;
 	}
-	GameData::getInstance()->praseJsonData();
-	RewardData::getInstance()->praseJsonData();
 
 	bool flag = UserDefault::getInstance()->getBoolForKey("IS_MUSIC", true);
 	if (flag)
@@ -347,14 +345,10 @@ void	LevelLayer::addScrollView()
 				break;
 			}
 		}
-		float p = (float)((200 + 10375 - GAMEDATA->getOffsetY(index)) * 100 / (10375));
+		float p = (float)((300 + (18 * 1136) - GAMEDATA->getOffsetY(index)) * 100 / (18 * 1136));//10375
 		//scrollview->jumpToPercentVertical(p);
 		scrollview->scrollToPercentVertical(p, 2.0, true);
 		addChild(scrollview);
-		for (int j = 0; j < 18; j++)
-		{
-			cout << "¹ö¶¯±³¾°ÇóÓà**" << ":%d" << j % 9 << endl;
-		}
 		for (int i = 0; i < 18; i++)
 		{
 			string str = StringUtils::format("bg/levelbg/bg_00%d.png", i%9);

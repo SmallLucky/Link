@@ -12,22 +12,13 @@ protected:
 	LabelAtlas* scoreLabel; //分数标签
 	LabelAtlas* countLabel; //步数标签
 	LabelAtlas* targatLabel; //体力标签
-	LabelAtlas* targetElementBNum; //目标数标签
-	LabelAtlas* targetElementPNum; //目标数标签
-	LabelAtlas* targetElementGNum; //目标数标签
-	LabelAtlas* targetElementRNum; //目标数标签
-	LabelAtlas* targetElementYNum; //目标数标签
+
 
 	Sprite* info_bg;
 	Sprite* count_bg;
 	Sprite* score_bg;
 	Sprite* targetScore_bg;
 
-	Sprite* Btaskbg;
-	Sprite* Ptaskbg;
-	Sprite* Gtaskbg;
-	Sprite* Rtaskbg;
-	Sprite* Ytaskbg;
 
 public:
 	InformationLayer();
@@ -39,9 +30,6 @@ public:
 
 	//void initTimeLabel(); //初始化时间标签
 	//void showTime(float t); //显示时间
-
-	void effectAction(Node* node, float delay); //		
-	void finishEffect(Node* node);
 	void scalecEffect(Node* node);
 
 	void initScoreLabel(); //初始化得分标签
@@ -57,7 +45,6 @@ public:
 
 	void initTargetScore();
 	void	addUI();
-	void	addTargetElement();
-	void	showTargetElementNum(int ele ,int n);
+
 	LabelAtlas* clone(int c);
 };

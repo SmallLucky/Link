@@ -23,7 +23,7 @@ bool LoserLayer:: init()
 	}
 	//auto tuchSwall = TouchSwallowLayer::create();
 	//addChild(tuchSwall);
-
+	isButFinish = true;
 	GAMEDATA->praseJsonData();
 
 	addUI();
@@ -83,56 +83,58 @@ void LoserLayer::quitCallBack()
 
 void LoserLayer::againCallBack()
 {
-	log("again game");
-	//再玩一次减少体力
-	if (UserDefault::getInstance()->getBoolForKey("IS_EFFECT", true))
-		AudioData::getInstance()->addButtonEffect(1);
-	if (GAMEDATA->getPowerNum()>= 2)
+	if (isButFinish)
 	{
-		GAMEDATA->setPowerNum(GAMEDATA->getPowerNum() - 2);
-		Point powerPoint = CommonFunction::getVisibleAchor(Anchor::Center, againButton, Vec2(-60, 10));
-		auto power = Sprite::create("popbox/power.png");
-		power->setPosition(powerPoint);//CommonFunction::getVisibleAchor(Anchor::MidTop, starGame, Vec2(-200, 600))
-		power->setScale(4.0);
-		power->setOpacity(0);
-		againButton->addChild(power);
+		isButFinish = false;
+		//再玩一次减少体力
+		if (UserDefault::getInstance()->getBoolForKey("IS_EFFECT", true))
+			AudioData::getInstance()->addButtonEffect(1);
+		if (GAMEDATA->getPowerNum() >= 2)
+		{
+			GAMEDATA->setPowerNum(GAMEDATA->getPowerNum() - 2);
+			Point powerPoint = CommonFunction::getVisibleAchor(Anchor::Center, againButton, Vec2(-60, 10));
+			auto power = Sprite::create("popbox/power.png");
+			power->setPosition(powerPoint);//CommonFunction::getVisibleAchor(Anchor::MidTop, starGame, Vec2(-200, 600))
+			power->setScale(4.0);
+			power->setOpacity(0);
+			againButton->addChild(power);
 
-		auto x2 = Sprite::create("popbox/X2.png");
-		x2->setPosition(CommonFunction::getVisibleAchor(Anchor::RightTop, power, Vec2(0, 0)));
-		power->addChild(x2);
+			auto x2 = Sprite::create("popbox/X2.png");
+			x2->setPosition(CommonFunction::getVisibleAchor(Anchor::RightTop, power, Vec2(0, 0)));
+			power->addChild(x2);
 
-		ScaleTo* scaleTo = ScaleTo::create(0.5, 0.8);
-		auto fin = FadeTo::create(0.5, 250);
-		//FadeTo
-		auto time = DelayTime::create(0.5f);
-		Spawn* spawn = Spawn::create(fin, scaleTo, nullptr);
-		auto call = CallFunc::create([=]{
+			ScaleTo* scaleTo = ScaleTo::create(0.5, 0.8);
+			auto fin = FadeTo::create(0.5, 250);
+			//FadeTo
+			auto time = DelayTime::create(0.5f);
+			Spawn* spawn = Spawn::create(fin, scaleTo, nullptr);
+			auto call = CallFunc::create([=]{
 
-			auto light1 = Sprite::create("infor/guang.png");
-			light1->setPosition(CommonFunction::getVisibleAchor(Anchor::Center, power, Vec2(-10, -5)));
-			power->addChild(light1, -1);
-			auto rotate_ac = RotateBy::create(20.0f, 360.0);
-			if (light1)
-				light1->runAction(RepeatForever::create(rotate_ac));
-		});
-		auto action = Sequence::create(spawn, call, time, CallFunc::create([&]{
-			if (UserDefault::getInstance()->getBoolForKey("IS_EFFECT", true))
-				AudioData::getInstance()->addOtherEffect(1);
-			//this->removeFromParent();
-			auto gameScene = GameScene::create();
-			Director::getInstance()->replaceScene(TransitionFade::create(0.7, gameScene)); //跳转TransitionSlideInT::create(2, scene)
-		}), nullptr);
+				auto light1 = Sprite::create("infor/guang.png");
+				light1->setPosition(CommonFunction::getVisibleAchor(Anchor::Center, power, Vec2(-10, -5)));
+				power->addChild(light1, -1);
+				auto rotate_ac = RotateBy::create(20.0f, 360.0);
+				if (light1)
+					light1->runAction(RepeatForever::create(rotate_ac));
+			});
+			auto action = Sequence::create(spawn, call, time, CallFunc::create([&]{
+				if (UserDefault::getInstance()->getBoolForKey("IS_EFFECT", true))
+					AudioData::getInstance()->addOtherEffect(1);
+				//this->removeFromParent();
+				auto gameScene = GameScene::create();
+				Director::getInstance()->replaceScene(TransitionFade::create(0.7, gameScene)); //跳转TransitionSlideInT::create(2, scene)
+			}), nullptr);
 
-		power->runAction(action);
+			power->runAction(action);
 
 
+		}
+		else
+		{
+			//提示体力不足，去购买！~！！缺界面
+			auto layer = PowerLayer::create();
+			layer->setPosition(CommonFunction::getVisibleAchor(Anchor::Center, this, Vec2(0, 0)));
+			addChild(layer, 10);
+		}
 	}
-	else
-	{
-		//提示体力不足，去购买！~！！缺界面
-		auto layer = PowerLayer::create();
-		layer->setPosition(CommonFunction::getVisibleAchor(Anchor::Center,this,Vec2(0,0)));
-		addChild(layer, 10);
-	}
-
 }

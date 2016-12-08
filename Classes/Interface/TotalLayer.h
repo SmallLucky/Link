@@ -18,4 +18,5 @@ public:
 
 private:
 	Button* nextLevel;
+	bool isButFinish;
 };

@@ -17,7 +17,8 @@ bool StartScene::init()
 		{
 			return false;
 		}
-
+		GameData::getInstance()->praseJsonData();
+		RewardData::getInstance()->praseJsonData();
 		PreloadUtils::getInstance()->preloadBg();
 		PreloadUtils::getInstance()->preloadKuang();
 

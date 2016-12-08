@@ -14,4 +14,5 @@ public:
 	void againCallBack();
 private:
 	Button* againButton;
+	bool isButFinish;
 };

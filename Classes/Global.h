@@ -58,6 +58,7 @@ void addSprite(Sprite* & s, string img, Point pos, float size, Node* n, int zOrd
 #define BYLOVES	"byLoves"
 
 #define FINISHTARGETELEMENT "isFinishTargetElement"
+//#define ISCANADDCOUNTLAYER  "isCanAddCountLayer" //是否可以添加加购买步数
 
 #define BLUE "blue"
 #define PURPLE "purple"

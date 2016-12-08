@@ -143,16 +143,16 @@ void	PowerShop::addUI()
 
 	nowNum = LabelAtlas::create(Value(GAMEDATA->getPowerNum()).asString(),"fonts/power_shopnum.png",28,32,'0');
 	nowNum->setAnchorPoint(Vec2(1,0.5));
-	nowNum->setPosition(CommonFunction::getVisibleAchor(Anchor::Center,timer_zhao,Vec2(0,0)));
+	nowNum->setPosition(CommonFunction::getVisibleAchor(Anchor::Center,timer_zhao,Vec2(-10,0)));
 	timer_zhao->addChild(nowNum);
 
 	auto xie = Sprite::create("popbox/timerxie.png");
-	xie->setPosition(CommonFunction::getVisibleAchor(Anchor::RightMid,nowNum,Vec2(10,0)));
+	xie->setPosition(CommonFunction::getVisibleAchor(Anchor::RightMid,nowNum,Vec2(20,0)));
 	xie->setAnchorPoint(Vec2(0, 0.5));
 	nowNum->addChild(xie);
 
 	auto num = LabelAtlas::create(Value(MAXPOWER).asString(), "fonts/power_shopnum.png", 28, 32, '0');
-	num->setPosition(CommonFunction::getVisibleAchor(Anchor::RightMid,xie,Vec2(10,0)));
+	num->setPosition(CommonFunction::getVisibleAchor(Anchor::RightMid,xie,Vec2(20,0)));
 	xie->addChild(num);
 	num->setAnchorPoint(Vec2(0,0.5));
 

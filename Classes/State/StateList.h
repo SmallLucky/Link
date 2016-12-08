@@ -25,6 +25,7 @@ bool gameOverFlag;
 bool gameStartFlag;
 bool IsLineBoom;
 int  score;
+int  count;
 END_DEFINE_STATE
 
 DEFINE_STATE(LineBoomState) //¿ªÊ¼×´Ì¬

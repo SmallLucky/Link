@@ -15,7 +15,7 @@ using namespace std;
 #define RATIO   1.0
 
 MapLayer::MapLayer() :isLine(false), green(0), red(0), yellor(0), blue(0), purple(0), elementType(5),lastPoint({0,0}),
-isBoom(false), isCount(false), specialScore(0), containsDis(0.0), isTargetElementFinish(false), isRemoveFinish(false)
+isBoom(false), isCount(false), specialScore(0), containsDis(0.0), isTargetElementFinish(false)
 {
 	//分配格子元素空间
 	//elements = new ElementUnit* *[MATRIX_ROW];
@@ -56,16 +56,23 @@ isBoom(false), isCount(false), specialScore(0), containsDis(0.0), isTargetElemen
 
 	////分配消除个元素的数量空间
 	//--removeCount = new int[40]; //注意万能元素空间
-	auto _listenerElement = EventListenerCustom::create(FINISHTARGETELEMENT, [=](EventCustom*event){
-		isTargetElementFinish = true;
+	//auto _listenerElement = EventListenerCustom::create(FINISHTARGETELEMENT, [=](EventCustom*event){
+	//	isTargetElementFinish = true;
+	//});
+	//_eventDispatcher->addEventListenerWithFixedPriority(_listenerElement, 1);
+
+	auto _listenerIsGameOverFaLse = EventListenerCustom::create(ISGAMEOVERFALSE, [=](EventCustom*event){
+		m_count -= 4;
 	});
-	_eventDispatcher->addEventListenerWithFixedPriority(_listenerElement, 1);
+	_eventDispatcher->addEventListenerWithFixedPriority(_listenerIsGameOverFaLse, 1);
+
 	linkBrush.clear();
 	m_effects.clear();
 }
 MapLayer::~MapLayer()
 {
-	_eventDispatcher->removeCustomEventListeners(FINISHTARGETELEMENT);
+	//_eventDispatcher->removeCustomEventListeners(FINISHTARGETELEMENT);
+	_eventDispatcher->removeCustomEventListeners(ISGAMEOVERFALSE);
 	//CC_SAFE_DELETE_ARRAY(elements);
 	//回收格子元素空间
 	//for (int i = 0; i < MATRIX_ROW; i++)
@@ -102,7 +109,8 @@ MapLayer::~MapLayer()
 	//linkFinishFlag = false;
 	linkBrush.clear();
 	m_effects.clear();
-
+	if (UserDefault::getInstance()->getBoolForKey("IS_VIBRATE", true))
+		Custom::Vibrator::cancelVibrate();
 }
 
 bool MapLayer::init()
@@ -131,7 +139,7 @@ bool MapLayer::init()
 	initBlocks();//初始化格子，确定格子区域，初始状态矩阵为空
 	//initSign(); //初始化标记
 	//initSignBeRemove(); //初始被消标记
-
+	addTargetElement();
 	forbiddenResponse(); //暂时禁止触摸，在进入等待连接状态后通过allowResponse函数允许触摸（继承自TouchableLayer）
 	touchedFlag = false; //没有有效的触摸
 	linkFinishFlag = false; //没有连接结束
@@ -324,7 +332,6 @@ void MapLayer::removeLink()
 {
 	if (linkIndex.size() >= MIN_ROMOVE_COUNT) //如果连接的元素个数达到要求
 	{
-		removeTargetECount = 0;
 		removeSignedElement(); //消除被连接的元素
 		removeAllLine(); //删除连接线	
 		if (getIsLine())
@@ -358,8 +365,6 @@ void MapLayer::removeLink()
 		if (UserDefault::getInstance()->getBoolForKey("IS_VIBRATE",true))
 			Vibrator::vibrate(REMOVE_VIBRATOR_TIME); //震动
 	}
-
-	isRemoveFinish = true;
 
 	linkIndex.clear(); //清空连线序列
 	m_effects.clear();
@@ -417,6 +422,7 @@ int		MapLayer::removeSignedElement()
 	if (getElementType() % 10 == 1)
 	{
 		purple += removeAllCount;
+		log("purple remobeallcount:%d", removeAllCount);
 		eventTargetElement(1, removeAllCount);
 	}
 	if (getElementType() % 10 == 3)
@@ -655,6 +661,7 @@ int MapLayer::getElementType()
 	return elementType;
 }
 
+
 int MapLayer::removeMyCount()
 {
 	if (isCount)
@@ -665,22 +672,9 @@ int MapLayer::removeMyCount()
 	}
 	else
 	{
-			if (m_count == GAMEDATA->getCount(GAMEDATA->getCurLevel())-1)
+		if (m_count == GAMEDATA->getCount(GAMEDATA->getCurLevel()) - 1)
 			{
-				//如果过关了就不弹出这个窗口，可以发消息到gamescene
-				auto time = DelayTime::create(2.0);
-				auto callFun = CallFunc::create([=]{
-					if (!isTargetElementFinish)
-					{
-						auto layer = AddCount::create();
-						addChild(layer, 1);
-						m_count -= 4;
-					}
-				});
-				auto seq = Sequence::create(time, callFun, nullptr);
-				this->runAction(seq);
-		
-				return GAMEDATA->getCount(GAMEDATA->getCurLevel());
+					return GAMEDATA->getCount(GAMEDATA->getCurLevel());
 			}
 			else
 			{
@@ -704,9 +698,8 @@ bool MapLayer::elementsFall()
 	LOGD("MapLayer::elementsFall()");
 #endif
 	//log("elementsFall()");
-	bool flag = false; //是否填补了空位
-	if (isRemoveFinish)
-	{
+	bool isflag = false; //是否填补了空位
+
 		for (int j = MATRIX_LINE; j >= 0; --j)//5
 		{
 			for (int i = 0; i < MATRIX_ROW; ++i)//对每hang单独处理 0
@@ -716,21 +709,19 @@ bool MapLayer::elementsFall()
 					if (checkIsDrop(i, j))
 					{
 						rowMyFall(i, j);
-						flag = true;
+						isflag = true;
 						break;
 					}
 				}
 			}
 		}
-	}
-	return flag;
+	return isflag;
 }
 
 //检测是否可以下落
 bool	MapLayer::checkIsDrop(int r, int l) // 检测的空格子
 {
 	//检测它的上一个，上左，上右是否可以有精灵落下来
-	log("checkIsDrop:%d,l-1:%d",l,l-1);
 	if (l-1 < 0)
 	{
 		//表示是行格子，
@@ -1981,23 +1972,22 @@ int		MapLayer::specialSttlement(int ele)//
 void MapLayer:: eventTargetElement(int ele, int count)
 {
 	int index = GAMEDATA->getCurLevel();
-	removeTargetECount = 0;
 	if (ele == 0)
 	{
 		if (REWARDDATA->getBlue(index) != 0)
 		{
-			removeTargetECount = count;
-			EventCustom _event(BLUE);
-			_eventDispatcher->dispatchEvent(&_event);
+			m_blue += count;
+			showTargetElementNum(ele, m_blue);
+			
 		}
 	}
 	if (ele == 1)
 	{
 		if (REWARDDATA->getPurple(index) != 0)
 		{
-			removeTargetECount = count;
-			EventCustom _event(PURPLE);
-			_eventDispatcher->dispatchEvent(&_event);
+			m_purple += count;
+			showTargetElementNum(ele, m_purple);
+			
 		}
 
 	}
@@ -2005,9 +1995,9 @@ void MapLayer:: eventTargetElement(int ele, int count)
 	{
 		if (REWARDDATA->getGreen(index) != 0)
 		{
-			removeTargetECount = count;
-			EventCustom _event(GREEN);
-			_eventDispatcher->dispatchEvent(&_event);
+			m_green += count;
+			showTargetElementNum(ele, m_green);
+			
 		}
 
 	}
@@ -2015,9 +2005,9 @@ void MapLayer:: eventTargetElement(int ele, int count)
 	{
 		if (REWARDDATA->getRad(index) != 0)
 		{
-			removeTargetECount = count;
-			EventCustom _event(RAD);
-			_eventDispatcher->dispatchEvent(&_event);
+			m_rad += count;
+			showTargetElementNum(ele, m_rad);
+			
 		}
 
 	}
@@ -2025,29 +2015,332 @@ void MapLayer:: eventTargetElement(int ele, int count)
 	{
 		if (REWARDDATA->getYellor(index) != 0)
 		{
-			removeTargetECount = count;
-			EventCustom _event(YELLOR);
-			_eventDispatcher->dispatchEvent(&_event);
+			m_yellor += count;
+			showTargetElementNum(ele, m_yellor);
+			
 		}
 
 	}
 
 }
 
-////绘制矩形辅助线
-//void MapLayer::drawGuideLine(Point leftBottom, Point rightTop)
-//{
-//	DrawNode* b = DrawNode::create(); //创建画刷
-//	addChild(b);
-//
-//	//通过四角绘制矩形辅助线
-//	Point leftTop = Point(leftBottom.x, rightTop.y);
-//	Point rightBottom = Point(rightTop.x, leftBottom.y);
-//	b->drawSegment(leftBottom, leftTop, GUIDELINE_WIDTH, GUIDELINE_COLOR);
-//	b->drawSegment(rightBottom, rightTop, GUIDELINE_WIDTH, GUIDELINE_COLOR);
-//	b->drawSegment(leftBottom, rightBottom, GUIDELINE_WIDTH, GUIDELINE_COLOR);
-//	b->drawSegment(leftTop, rightTop, GUIDELINE_WIDTH, GUIDELINE_COLOR);
-//}
+void	MapLayer::initTargetEleNum()
+{
+	int index = GAMEDATA->getCurLevel();
+	m_blue = 0;
+	m_purple = 0; //REWARDDATA->getPurple(index)
+	m_green = 0; // REWARDDATA->getGreen(index)
+	m_rad = 0;// REWARDDATA->getRad(index)
+	m_yellor = 0; // REWARDDATA->getYellor(index)
+
+	log("GameScene::initTargetEleNum():level:%d,b:%d,p:%d,g:%d,r:%d,y:%d", index, m_blue, m_purple, m_green, m_rad, m_yellor);
+}
+void	MapLayer::addTargetElement()
+{
+	initTargetEleNum();
+	int index = GAMEDATA->getCurLevel();
+	int offY = 0;
+	if (REWARDDATA->getBlue(index) != 0)
+	{
+		Btaskbg = Sprite::create("infor/task_bg.png");
+		Btaskbg->setPosition(CommonFunction::getVisibleAchor(Anchor::LeftMid, Vec2(150 + (offY * 100), 330)));
+		addChild(Btaskbg, 2);
+
+		auto Bele = Sprite::create("infor/task_ele_0.png");
+		Bele->setPosition(CommonFunction::getVisibleAchor(Anchor::Center, Btaskbg, Vec2(0, 0)));
+		Btaskbg->addChild(Bele);
+		effectAction(Bele, 2.5);
+		offY++;
+
+		targetElementBNum = LabelAtlas::create(Value(REWARDDATA->getBlue(index)).asString(), "fonts/task_number.png", 22, 26, '0');
+		targetElementBNum->setPosition(CommonFunction::getVisibleAchor(Anchor::MidButtom, Btaskbg, Vec2(0, 0)));
+		targetElementBNum->setAnchorPoint(Vec2(0.5, 0.5));
+		Btaskbg->addChild(targetElementBNum);
+	}
+	if (REWARDDATA->getPurple(index) != 0)
+	{
+		Ptaskbg = Sprite::create("infor/task_bg.png");
+		Ptaskbg->setPosition(CommonFunction::getVisibleAchor(Anchor::LeftMid, Vec2(150 + (offY * 100), 330)));
+		addChild(Ptaskbg, 2);
+
+		auto Pele = Sprite::create("infor/task_ele_1.png");
+		Pele->setPosition(CommonFunction::getVisibleAchor(Anchor::Center, Ptaskbg, Vec2(0, 0)));
+		Ptaskbg->addChild(Pele);
+		effectAction(Pele, 2.5);
+		offY++;
+
+		targetElementPNum = LabelAtlas::create(Value(REWARDDATA->getPurple(index)).asString(), "fonts/task_number.png", 22, 26, '0');
+		targetElementPNum->setPosition(CommonFunction::getVisibleAchor(Anchor::MidButtom, Ptaskbg, Vec2(0, 0)));
+		targetElementPNum->setAnchorPoint(Vec2(0.5, 0.5));
+		Ptaskbg->addChild(targetElementPNum);
+	}
+	if (REWARDDATA->getGreen(index) != 0)
+	{
+		Gtaskbg = Sprite::create("infor/task_bg.png");
+		Gtaskbg->setPosition(CommonFunction::getVisibleAchor(Anchor::LeftMid, Vec2(150 + (offY * 100), 330)));
+		addChild(Gtaskbg, 2);
+
+		auto Gele = Sprite::create("infor/task_ele_2.png");
+		Gele->setPosition(CommonFunction::getVisibleAchor(Anchor::Center, Gtaskbg, Vec2(0, 0)));
+		Gtaskbg->addChild(Gele);
+		effectAction(Gele, 2.5);
+		offY++;
+
+		targetElementGNum = LabelAtlas::create(Value(REWARDDATA->getGreen(index)).asString(), "fonts/task_number.png", 22, 26, '0');
+		targetElementGNum->setPosition(CommonFunction::getVisibleAchor(Anchor::MidButtom, Gtaskbg, Vec2(0, 0)));
+		targetElementGNum->setAnchorPoint(Vec2(0.5, 0.5));
+		Gtaskbg->addChild(targetElementGNum);
+	}
+	if (REWARDDATA->getRad(index) != 0)
+	{
+		Rtaskbg = Sprite::create("infor/task_bg.png");
+		Rtaskbg->setPosition(CommonFunction::getVisibleAchor(Anchor::LeftMid, Vec2(150 + (offY * 100), 330)));
+		addChild(Rtaskbg, 2);
+
+		auto Rele = Sprite::create("infor/task_ele_3.png");
+		Rele->setPosition(CommonFunction::getVisibleAchor(Anchor::Center, Rtaskbg, Vec2(0, 0)));
+		Rtaskbg->addChild(Rele);
+		effectAction(Rele, 2.5);
+		offY++;
+
+		targetElementRNum = LabelAtlas::create(Value(REWARDDATA->getRad(index)).asString(), "fonts/task_number.png", 22, 26, '0');
+		targetElementRNum->setPosition(CommonFunction::getVisibleAchor(Anchor::MidButtom, Rtaskbg, Vec2(0, 0)));
+		targetElementRNum->setAnchorPoint(Vec2(0.5, 0.5));
+		Rtaskbg->addChild(targetElementRNum);
+	}
+	if (REWARDDATA->getYellor(index) != 0)
+	{
+		Ytaskbg = Sprite::create("infor/task_bg.png");
+		Ytaskbg->setPosition(CommonFunction::getVisibleAchor(Anchor::LeftMid, Vec2(150 + (offY * 100), 330)));
+		addChild(Ytaskbg, 2);
+
+		auto Yele = Sprite::create("infor/task_ele_4.png");
+		Yele->setPosition(CommonFunction::getVisibleAchor(Anchor::Center, Ytaskbg, Vec2(0, 0)));
+		Ytaskbg->addChild(Yele);
+		effectAction(Yele, 2.5);
+		offY++;
+
+		targetElementYNum = LabelAtlas::create(Value(REWARDDATA->getYellor(index)).asString(), "fonts/task_number.png", 22, 26, '0');
+		targetElementYNum->setPosition(CommonFunction::getVisibleAchor(Anchor::MidButtom, Ytaskbg, Vec2(0, 0)));
+		targetElementYNum->setAnchorPoint(Vec2(0.5, 0.5));
+		Ytaskbg->addChild(targetElementYNum);
+	}
+}
+void	MapLayer::showTargetElementNum(int ele, int n)
+{
+	int index = GAMEDATA->getCurLevel();
+
+	log("InformationLayer::showTargetElementNum(:%d,%d", ele, n);
+	switch (ele)
+	{
+	case 0:
+		if ((REWARDDATA->getBlue(index) - n) > 0)// REWARDDATA->getBlue(index)
+		{
+			if (targetElementBNum)
+			{
+				targetElementBNum->setString(Value((REWARDDATA->getBlue(index) - n)).asString());
+			}
+		}
+		else
+		{
+			if (targetElementBNum)
+			{
+				targetElementBNum->removeFromParent();
+				targetElementBNum = nullptr;
+				//targetElementBNum->setString(Value(0).asString());
+				auto finish = Sprite::create("infor/task_finish.png");
+				finish->setPosition(CommonFunction::getVisibleAchor(Anchor::MidButtom, Btaskbg, Vec2(0, 0)));
+				Btaskbg->addChild(finish, 1);
+				finish->setScale(4.0);
+				finishEffect(finish);
+			}
+		}
+		break;
+	case 1:
+		if ((REWARDDATA->getPurple(index) - n) > 0) // REWARDDATA->getPurple(index)
+		{
+			if (targetElementPNum)
+				targetElementPNum->setString(Value((REWARDDATA->getPurple(index) - n)).asString());
+		}
+		else
+		{
+			if (targetElementPNum)
+			{
+				targetElementPNum->removeFromParent();
+				log("wocalei:%d", n);
+				targetElementPNum = nullptr;
+				//targetElementBNum->setString(Value(0).asString());
+				auto finish = Sprite::create("infor/task_finish.png");
+				finish->setPosition(CommonFunction::getVisibleAchor(Anchor::MidButtom, Ptaskbg, Vec2(0, 0)));
+				Ptaskbg->addChild(finish, 1);
+				finish->setScale(4.0);
+				finishEffect(finish);
+			}
+		}
+		break;
+	case 2:
+		if ((REWARDDATA->getGreen(index) - n) > 0) //REWARDDATA->getGreen(index)
+		{
+			if (targetElementGNum)
+				targetElementGNum->setString(Value((REWARDDATA->getGreen(index) - n)).asString());
+		}
+		else
+		{
+			if (targetElementGNum)
+			{
+				targetElementGNum->removeFromParent();
+				//targetElementBNum->setString(Value(0).asString());
+				targetElementGNum = nullptr;
+				auto finish = Sprite::create("infor/task_finish.png");
+				finish->setPosition(CommonFunction::getVisibleAchor(Anchor::MidButtom, Gtaskbg, Vec2(0, 0)));
+				Gtaskbg->addChild(finish, 1);
+				finish->setScale(4.0);
+				finishEffect(finish);
+			}
+
+		}
+		break;
+	case 3:
+		if ((REWARDDATA->getRad(index) - n) > 0) //REWARDDATA->getRad(index)
+		{
+			if (targetElementRNum)
+				targetElementRNum->setString(Value((REWARDDATA->getRad(index) - n)).asString());
+		}
+		else
+		{
+			if (targetElementRNum)
+			{
+				targetElementRNum->removeFromParent();
+				targetElementRNum = nullptr;
+				//targetElementBNum->setString(Value(0).asString());
+				auto finish = Sprite::create("infor/task_finish.png");
+				finish->setPosition(CommonFunction::getVisibleAchor(Anchor::MidButtom, Rtaskbg, Vec2(0, 0)));
+				Rtaskbg->addChild(finish, 1);
+				finish->setScale(4.0);
+				finishEffect(finish);
+			}
+		}
+		break;
+	case 4:
+		if ((REWARDDATA->getYellor(index) - n) > 0) //REWARDDATA->getYellor(index)
+		{
+			if (targetElementYNum)
+				targetElementYNum->setString(Value((REWARDDATA->getYellor(index) - n)).asString());
+		}
+		else
+		{
+			if (targetElementYNum)
+			{
+				targetElementYNum->removeFromParent();
+				targetElementYNum = nullptr;
+				//targetElementBNum->setString(Value(0).asString());
+				auto finish = Sprite::create("infor/task_finish.png");
+				finish->setPosition(CommonFunction::getVisibleAchor(Anchor::MidButtom, Ytaskbg, Vec2(0, 0)));
+				Ytaskbg->addChild(finish, 1);
+				finish->setScale(4.0);
+				finishEffect(finish);
+			}
+		}
+		break;
+	default:
+		break;
+	}
+}
+
+void MapLayer::finishEffect(Node* node)
+{
+	auto f_node = dynamic_cast<Sprite*>(node);
+	if (!f_node){
+		return;
+	}
+	ScaleTo* scaleTo = ScaleTo::create(0.5, 1);
+	auto fin = FadeTo::create(0.5, 250);
+	Spawn* spawn = Spawn::create(fin, scaleTo, nullptr);
+	f_node->runAction(spawn);
+}
+
+void MapLayer::effectAction(Node* node, float delay)
+{
+	auto f_node = dynamic_cast<Sprite*>(node);
+	if (!f_node){
+		return;
+	}
+
+	auto delayTime = DelayTime::create(delay);
+	auto rotate_1 = RotateTo::create(0.10f, -15);
+	auto rotate_2 = RotateTo::create(0.10f, 15);
+	auto rotate_3 = RotateTo::create(0.10f, 0);
+	auto seq = Sequence::create(delayTime, rotate_1, rotate_2, rotate_3, nullptr);
+	auto repeat = RepeatForever::create(seq);
+	f_node->runAction(repeat);
+}
+
+bool  MapLayer::enoughTargetElement()
+{
+	int index = GAMEDATA->getCurLevel();
+	bool finish = true;
+	if (REWARDDATA->getBlue(index) != 0)
+	{
+		if (m_blue >= REWARDDATA->getBlue(index))//REWARDDATA->getBlue(index)
+		{
+			finish = true;
+		}
+		else
+		{
+			finish = false;
+			return finish;
+		}
+	}
+	if (REWARDDATA->getPurple(index) != 0)
+	{
+		if (m_purple >= REWARDDATA->getPurple(index))//REWARDDATA->getPurple(index
+		{
+			finish = true;
+		}
+		else
+		{
+			finish = false;
+			return finish;
+		}
+	}
+	if (REWARDDATA->getGreen(index) != 0)
+	{
+		if (m_green >= REWARDDATA->getGreen(index)) //REWARDDATA->getGreen(index)
+		{
+			finish = true;
+		}
+		else
+		{
+			finish = false;
+			return finish;
+		}
+	}
+	if (REWARDDATA->getRad(index) != 0)
+	{
+		if (m_rad >= REWARDDATA->getRad(index)) //REWARDDATA->getRad(index)
+		{
+			finish = true;
+		}
+		else
+		{
+			finish = false;
+			return finish;
+		}
+	}
+	if (REWARDDATA->getYellor(index) != 0)
+	{
+		if (m_yellor >= REWARDDATA->getYellor(index)) //REWARDDATA->getYellor(index)
+		{
+			finish = true;
+		}
+		else
+		{
+			finish = false;
+			return finish;
+		}
+	}
+	return finish;
+}
 
 //绘制连接两个元素的线
 void MapLayer::drawLine(Coord from, Coord to)

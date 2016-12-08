@@ -37,7 +37,7 @@ public:
 	bool isLine;
 	bool getIsLine(){ return isLine; };
 
-	
+	//bool isCanAddCountLayer;
 	//vector<int> special_row;
 	//vector<Coord> special_round;
 
@@ -101,7 +101,6 @@ private:
 	//int line; //行
 	//int row; //列
 
-	bool isRemoveFinish;
 	
 	/*vector<Coord> spritenullptr;*/
 	
@@ -133,6 +132,19 @@ private:
 	
 	bool touchedFlag;	//是否已经有效的触摸
 	bool linkFinishFlag;	//是否有有效的连接结束
+
+	Sprite* Btaskbg;
+	Sprite* Ptaskbg;
+	Sprite* Gtaskbg;
+	Sprite* Rtaskbg;
+	Sprite* Ytaskbg;
+	int m_blue, m_purple, m_green, m_rad, m_yellor;
+	LabelAtlas* targetElementBNum; //目标数标签
+	LabelAtlas* targetElementPNum; //目标数标签
+	LabelAtlas* targetElementGNum; //目标数标签
+	LabelAtlas* targetElementRNum; //目标数标签
+	LabelAtlas* targetElementYNum; //目标数标签
+
 public:
 	void removeLink();	//符合条件则消除被连接的元素，否则连接失败
 
@@ -149,10 +161,17 @@ public:
 public:
 	int m_count = 0;
 	int removeMyCount();
-	int removeTargetECount;
+
 
 	//特效
 	void  jitterEffect(Node* node, float delay);
+
+	void	addTargetElement();
+	void	showTargetElementNum(int ele, int n);
+	void	initTargetEleNum();
+	bool	enoughTargetElement();
+	void    finishEffect(Node* node);
+	void	effectAction(Node* node, float delay);
 public:
 	//void drawGuideLine(Point leftBottom, Point rightTop);		//绘制矩形辅助线
 	void drawLine(Coord from, Coord to);			//绘制连接两个元素的线

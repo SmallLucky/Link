@@ -27,8 +27,6 @@ protected:
 	void showCount(int c); //显示游戏剩余步数
 	int curScore;
 
-	int m_blue, m_purple,m_green,m_rad,m_yellor;
-	void showTargetElementNum(int ele,int n); //显示游戏剩余步数
 	//体力
 	 static int _power;
 
@@ -84,7 +82,7 @@ public:
 
 	 //一次消除后剩余的所有步数
 	int getMyCount();
-	void showAllCount();
+	int showAllCount();
 	void show5CoutPet();
 
 	void showPower(int p); // 显示体力

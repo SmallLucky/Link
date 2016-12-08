@@ -30,7 +30,7 @@ bool TotalLayer:: init()
 	GAMEDATA->praseJsonData();
 	//auto touchSwall = TouchSwallowLayer::create();
 	//addChild(touchSwall);
-
+	isButFinish = true;
 	addUI();
 
 	return true;
@@ -64,7 +64,7 @@ void TotalLayer::addUI()
 	BG_kuang->addChild(nextLevel);
 	nextLevel->addClickEventListener(CC_CALLBACK_0(TotalLayer::GoOnCallBack, this));
 
-	log("*********:%d", REWARDDATA->getIsFristPlay(GAMEDATA->getCurLevel()));
+	//log("*********:%d", REWARDDATA->getIsFristPlay(GAMEDATA->getCurLevel()));
 	if (REWARDDATA->getIsFristPlay(GAMEDATA->getCurLevel()) == 1)
 	{
 		auto comonon = Sprite::create("popbox/gift.png");
@@ -108,7 +108,7 @@ void TotalLayer::addGift(Sprite* s)
 	int num = (GAMEDATA->getCurLevel() + 1) % 10;
 	if (num == 0)
 	{
-		log("////%d",num);
+		//log("////%d",num);
 		for (int i = 0; i < 4; i++)
 		{
 			auto giftBg = Sprite::create("popbox/success_propsbg.png");
@@ -253,72 +253,75 @@ void TotalLayer::addGift(Sprite* s)
 
 void TotalLayer::GoOnCallBack()
 {
-	if (UserDefault::getInstance()->getBoolForKey("IS_EFFECT", true))
+	if (isButFinish)
 	{
-		AudioData::getInstance()->addButtonEffect(1);
-	}
-	REWARDDATA->setIsFristPlay(GAMEDATA->getCurLevel()); //修改是否是第一次玩这个关卡
-	int x = GAMEDATA->getCurLevel() + 1;
-	if ( x < GAMEDATA->m_lock.size())
-	{
-		GAMEDATA->setCurLevel(x);
-		GAMEDATA->setLock(GAMEDATA->getCurLevel());
-		if (GAMEDATA->getPowerNum()>= 2)
+		isButFinish = false;
+		if (UserDefault::getInstance()->getBoolForKey("IS_EFFECT", true))
 		{
-			GAMEDATA->setPowerNum(GAMEDATA->getPowerNum() -2);  //扣两点体力开始新游戏
-			Point powerPoint = CommonFunction::getVisibleAchor(Anchor::Center, nextLevel, Vec2(-45, 10));
-			auto power = Sprite::create("popbox/power.png");
-			power->setPosition(powerPoint);//CommonFunction::getVisibleAchor(Anchor::MidTop, starGame, Vec2(-200, 600))
-			power->setScale(4.0);
-			power->setOpacity(0);
-			nextLevel->addChild(power);
-
-			auto x2 = Sprite::create("popbox/X2.png");
-			x2->setPosition(CommonFunction::getVisibleAchor(Anchor::RightTop, power, Vec2(0, 0)));
-			power->addChild(x2);
-
-			ScaleTo* scaleTo = ScaleTo::create(0.5, 0.8);
-			auto fin = FadeTo::create(0.5, 250);
-			//FadeTo
-			auto time = DelayTime::create(0.5f);
-			Spawn* spawn = Spawn::create(fin, scaleTo, nullptr);
-			auto call = CallFunc::create([=]{
-
-				auto light1 = Sprite::create("infor/guang.png");
-				light1->setPosition(CommonFunction::getVisibleAchor(Anchor::Center, power, Vec2(-10, -5)));
-				power->addChild(light1, -1);
-				auto rotate_ac = RotateBy::create(20.0f, 360.0);
-				if (light1)
-					light1->runAction(RepeatForever::create(rotate_ac));
-			});
-			auto action = Sequence::create(spawn, call, time, CallFunc::create([&]{
-				if (UserDefault::getInstance()->getBoolForKey("IS_EFFECT", true))
-					AudioData::getInstance()->addOtherEffect(1);
-				//this->removeFromParent();
-				GameScene* gameScene = GameScene::create();
-				Director::getInstance()->replaceScene(TransitionFade::create(1, gameScene));  //跳转TransitionSlideInT::create(2, scene)
-			}), nullptr);
-
-			power->runAction(action);
+			AudioData::getInstance()->addButtonEffect(1);
 		}
-		else
+		REWARDDATA->setIsFristPlay(GAMEDATA->getCurLevel()); //修改是否是第一次玩这个关卡
+		int x = GAMEDATA->getCurLevel() + 1;
+		if (x < GAMEDATA->m_lock.size())
 		{
-			cout << "体力不够了！" << endl;
-			auto layer = PowerLayer::create();
-			layer->setPosition(CommonFunction::getVisibleAchor(Anchor::Center, this, Vec2(0, 0)));
-			addChild(layer, 10);
-			//LevelScene* levelScene = LevelScene::create();
-			//Director::getInstance()->replaceScene(TransitionCrossFade::create(1, levelScene));
+			GAMEDATA->setCurLevel(x);
+			GAMEDATA->setLock(GAMEDATA->getCurLevel());
+			if (GAMEDATA->getPowerNum() >= 2)
+			{
+				GAMEDATA->setPowerNum(GAMEDATA->getPowerNum() - 2);  //扣两点体力开始新游戏
+				Point powerPoint = CommonFunction::getVisibleAchor(Anchor::Center, nextLevel, Vec2(-45, 10));
+				auto power = Sprite::create("popbox/power.png");
+				power->setPosition(powerPoint);//CommonFunction::getVisibleAchor(Anchor::MidTop, starGame, Vec2(-200, 600))
+				power->setScale(4.0);
+				power->setOpacity(0);
+				nextLevel->addChild(power);
+
+				auto x2 = Sprite::create("popbox/X2.png");
+				x2->setPosition(CommonFunction::getVisibleAchor(Anchor::RightTop, power, Vec2(0, 0)));
+				power->addChild(x2);
+
+				ScaleTo* scaleTo = ScaleTo::create(0.5, 0.8);
+				auto fin = FadeTo::create(0.5, 250);
+				//FadeTo
+				auto time = DelayTime::create(0.5f);
+				Spawn* spawn = Spawn::create(fin, scaleTo, nullptr);
+				auto call = CallFunc::create([=]{
+
+					auto light1 = Sprite::create("infor/guang.png");
+					light1->setPosition(CommonFunction::getVisibleAchor(Anchor::Center, power, Vec2(-10, -5)));
+					power->addChild(light1, -1);
+					auto rotate_ac = RotateBy::create(20.0f, 360.0);
+					if (light1)
+						light1->runAction(RepeatForever::create(rotate_ac));
+				});
+				auto action = Sequence::create(spawn, call, time, CallFunc::create([&]{
+					if (UserDefault::getInstance()->getBoolForKey("IS_EFFECT", true))
+						AudioData::getInstance()->addOtherEffect(1);
+					//this->removeFromParent();
+					GameScene* gameScene = GameScene::create();
+					Director::getInstance()->replaceScene(TransitionFade::create(1, gameScene)); //跳转TransitionSlideInT::create(2, scene)
+				}), nullptr);
+
+				power->runAction(action);
+			}
+			else
+			{
+				cout << "体力不够了！" << endl;
+				auto layer = PowerLayer::create();
+				layer->setPosition(CommonFunction::getVisibleAchor(Anchor::Center, this, Vec2(0, 0)));
+				addChild(layer, 10);
+				//LevelScene* levelScene = LevelScene::create();
+				//Director::getInstance()->replaceScene(TransitionCrossFade::create(1, levelScene));
+			}
+
+
 		}
-
-
+		else{
+			log("no level");
+			StartScene* scene = StartScene::create();
+			Director::getInstance()->replaceScene(TransitionTurnOffTiles::create(0.8, scene));
+		}
 	}
-	else{
-		log("no level");
-		StartScene* scene = StartScene::create();
-		Director::getInstance()->replaceScene(TransitionTurnOffTiles::create(0.8,scene));
-	}
-
 }
 
 void TotalLayer::backCallBack()
