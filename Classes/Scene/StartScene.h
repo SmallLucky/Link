@@ -22,6 +22,7 @@ public:
 	bool init();
 	void PlayStopBGM();
 
+
 private:
 	void initUI();
 	void rotateAction(Node* node);

@@ -113,20 +113,37 @@ int  ObjectiveLayer::getTargetElementCount(int level)
 	return count;
 }
 
-void ObjectiveLayer::addTargetElement(Node* node)
+void ObjectiveLayer::addTargetElement(Node* node)     
 {
 	int level = GAMEDATA->getCurLevel();
 	int offY = 0;
-	int num = getTargetElementCount(GAMEDATA->getCurLevel());
-	Node * nbg = Node::create();
-	nbg->setPosition(CommonFunction::getVisibleAchor(Anchor::Center, node, Vec2(-(num/2)*90, 0)));
-	nbg->setAnchorPoint(Vec2(0.5, 0.5));
-	node->addChild(nbg);
+	int num = getTargetElementCount(level);
+	int offYY = 0;
+	switch (num)
+	{
+		case 1:
+			offYY = 2 * 70;
+			break;
+		case 2:
+			offYY = 1.5 *70;
+			break;
+		case 3:
+			offYY = 1 * 70;
+			break;
+		case 4:
+			offYY = 0.5 *70;
+			break;
+		case 5:
+			offYY = 0 * 70;
+			break;
+		default:
+			break;
+	}
 		if (REWARDDATA->getBlue(level) != 0)
 		{
 			auto ele = Sprite::create("infor/task_ele_0.png");
-			ele->setPosition(CommonFunction::getVisibleAchor(Anchor::LeftMid, nbg, Vec2(offY * 70 + 70, 0)));
-			nbg->addChild(ele, 1);
+			ele->setPosition(CommonFunction::getVisibleAchor(Anchor::LeftMid, node, Vec2(offY * 70 + (70 + offYY), 0)));
+			node->addChild(ele, 1);
 			offY++;
 			auto targetNum = LabelAtlas::create(Value(REWARDDATA->getBlue(level)).asString(), "fonts/targetNumber.png", 30, 40, '0');
 			targetNum->setPosition(CommonFunction::getVisibleAchor(Anchor::RightButtom, ele, Vec2(-20, 20)));
@@ -137,8 +154,8 @@ void ObjectiveLayer::addTargetElement(Node* node)
 		if (REWARDDATA->getPurple(level) != 0)
 		{
 			auto ele = Sprite::create("infor/task_ele_1.png");
-			ele->setPosition(CommonFunction::getVisibleAchor(Anchor::LeftMid, nbg, Vec2(offY * 70 + 70, 0)));
-			nbg->addChild(ele, 1);
+			ele->setPosition(CommonFunction::getVisibleAchor(Anchor::LeftMid, node, Vec2(offY * 70 + (70 + offYY), 0)));
+			node->addChild(ele, 1);
 			offY++;
 			auto targetNum = LabelAtlas::create(Value(REWARDDATA->getPurple(level)).asString(), "fonts/targetNumber.png", 30, 40, '0');
 			targetNum->setPosition(CommonFunction::getVisibleAchor(Anchor::RightButtom, ele, Vec2(-20, 20)));
@@ -149,8 +166,8 @@ void ObjectiveLayer::addTargetElement(Node* node)
 		if (REWARDDATA->getGreen(level) != 0)
 		{
 			auto ele = Sprite::create("infor/task_ele_2.png");
-			ele->setPosition(CommonFunction::getVisibleAchor(Anchor::LeftMid, nbg, Vec2(offY * 70 + 70, 0)));
-			nbg->addChild(ele, 1);
+			ele->setPosition(CommonFunction::getVisibleAchor(Anchor::LeftMid, node, Vec2(offY * 70 + (70 + offYY), 0)));
+			node->addChild(ele, 1);
 			offY++;
 			auto targetNum = LabelAtlas::create(Value(REWARDDATA->getGreen(level)).asString(), "fonts/targetNumber.png", 30, 40, '0');
 			targetNum->setPosition(CommonFunction::getVisibleAchor(Anchor::RightButtom, ele, Vec2(-20, 20)));
@@ -161,8 +178,8 @@ void ObjectiveLayer::addTargetElement(Node* node)
 		if (REWARDDATA->getRad(level) != 0)
 		{
 			auto ele = Sprite::create("infor/task_ele_3.png");
-			ele->setPosition(CommonFunction::getVisibleAchor(Anchor::LeftMid, nbg, Vec2(offY * 70 + 70, 0)));
-			nbg->addChild(ele, 1);
+			ele->setPosition(CommonFunction::getVisibleAchor(Anchor::LeftMid, node, Vec2(offY * 70 + (70 + offYY), 0)));
+			node->addChild(ele, 1);
 			offY++;
 			auto targetNum = LabelAtlas::create(Value(REWARDDATA->getRad(level)).asString(), "fonts/targetNumber.png", 30, 40, '0');
 			targetNum->setPosition(CommonFunction::getVisibleAchor(Anchor::RightButtom, ele, Vec2(-20, 20)));
@@ -173,8 +190,8 @@ void ObjectiveLayer::addTargetElement(Node* node)
 		if (REWARDDATA->getYellor(level) != 0)
 		{
 			auto ele = Sprite::create("infor/task_ele_4.png");
-			ele->setPosition(CommonFunction::getVisibleAchor(Anchor::LeftMid, nbg, Vec2(offY * 70 + 70, 0)));
-			nbg->addChild(ele, 1);
+			ele->setPosition(CommonFunction::getVisibleAchor(Anchor::LeftMid, node, Vec2(offY * 70 + (70 + offYY), 0)));
+			node->addChild(ele, 1);
 			offY++;
 			auto targetNum = LabelAtlas::create(Value(REWARDDATA->getYellor(level)).asString(), "fonts/targetNumber.png", 30, 40, '0');
 			targetNum->setPosition(CommonFunction::getVisibleAchor(Anchor::RightButtom, ele, Vec2(-20, 20)));
@@ -182,6 +199,8 @@ void ObjectiveLayer::addTargetElement(Node* node)
 			ele->addChild(targetNum, 1);
 			targetNum->setScale(0.5);
 		}
+
+		log("node size :%d",node->getContentSize().width);
 }
 
 void ObjectiveLayer::startGame()

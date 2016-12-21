@@ -2035,15 +2035,62 @@ void	MapLayer::initTargetEleNum()
 
 	log("GameScene::initTargetEleNum():level:%d,b:%d,p:%d,g:%d,r:%d,y:%d", index, m_blue, m_purple, m_green, m_rad, m_yellor);
 }
+int  MapLayer::getTargetElementCount(int level)
+{
+	int count = 0;
+	if (REWARDDATA->getBlue(level) != 0)
+	{
+		count++;
+	}
+	if (REWARDDATA->getPurple(level) != 0)
+	{
+		count++;
+	}
+	if (REWARDDATA->getGreen(level) != 0)
+	{
+		count++;
+	}
+	if (REWARDDATA->getRad(level) != 0)
+	{
+		count++;
+	}
+	if (REWARDDATA->getYellor(level) != 0)
+	{
+		count++;
+	}
+	return count;
+}
 void	MapLayer::addTargetElement()
 {
 	initTargetEleNum();
 	int index = GAMEDATA->getCurLevel();
+	int num = getTargetElementCount(index);
 	int offY = 0;
+	int offYY = 0;
+	switch (num)
+	{
+		case 1:
+			offYY = 2 * 75;
+			break;
+		case 2:
+			offYY = 1.5 * 75;
+			break;
+		case 3:
+			offYY = 1 * 75;
+			break;
+		case 4:
+			offYY = 0.5 * 75;
+			break;
+		case 5:
+			offYY = 0 * 75;
+			break;
+		default:
+			break;
+	}
 	if (REWARDDATA->getBlue(index) != 0)
 	{
 		Btaskbg = Sprite::create("infor/task_bg.png");
-		Btaskbg->setPosition(CommonFunction::getVisibleAchor(Anchor::LeftMid, Vec2(150 + (offY * 100), 330)));
+		Btaskbg->setPosition(CommonFunction::getVisibleAchor(Anchor::LeftMid, Vec2((140 + offYY ) + (offY * 100), 330)));
 		addChild(Btaskbg, 2);
 
 		auto Bele = Sprite::create("infor/task_ele_0.png");
@@ -2060,7 +2107,7 @@ void	MapLayer::addTargetElement()
 	if (REWARDDATA->getPurple(index) != 0)
 	{
 		Ptaskbg = Sprite::create("infor/task_bg.png");
-		Ptaskbg->setPosition(CommonFunction::getVisibleAchor(Anchor::LeftMid, Vec2(150 + (offY * 100), 330)));
+		Ptaskbg->setPosition(CommonFunction::getVisibleAchor(Anchor::LeftMid, Vec2((140 + offYY) + (offY * 100), 330)));
 		addChild(Ptaskbg, 2);
 
 		auto Pele = Sprite::create("infor/task_ele_1.png");
@@ -2077,7 +2124,7 @@ void	MapLayer::addTargetElement()
 	if (REWARDDATA->getGreen(index) != 0)
 	{
 		Gtaskbg = Sprite::create("infor/task_bg.png");
-		Gtaskbg->setPosition(CommonFunction::getVisibleAchor(Anchor::LeftMid, Vec2(150 + (offY * 100), 330)));
+		Gtaskbg->setPosition(CommonFunction::getVisibleAchor(Anchor::LeftMid, Vec2((140 + offYY) + (offY * 100), 330)));
 		addChild(Gtaskbg, 2);
 
 		auto Gele = Sprite::create("infor/task_ele_2.png");
@@ -2094,7 +2141,7 @@ void	MapLayer::addTargetElement()
 	if (REWARDDATA->getRad(index) != 0)
 	{
 		Rtaskbg = Sprite::create("infor/task_bg.png");
-		Rtaskbg->setPosition(CommonFunction::getVisibleAchor(Anchor::LeftMid, Vec2(150 + (offY * 100), 330)));
+		Rtaskbg->setPosition(CommonFunction::getVisibleAchor(Anchor::LeftMid, Vec2((140 + offYY) + (offY * 100), 330)));
 		addChild(Rtaskbg, 2);
 
 		auto Rele = Sprite::create("infor/task_ele_3.png");
@@ -2111,7 +2158,7 @@ void	MapLayer::addTargetElement()
 	if (REWARDDATA->getYellor(index) != 0)
 	{
 		Ytaskbg = Sprite::create("infor/task_bg.png");
-		Ytaskbg->setPosition(CommonFunction::getVisibleAchor(Anchor::LeftMid, Vec2(150 + (offY * 100), 330)));
+		Ytaskbg->setPosition(CommonFunction::getVisibleAchor(Anchor::LeftMid, Vec2((140 + offYY) + (offY * 100), 330)));
 		addChild(Ytaskbg, 2);
 
 		auto Yele = Sprite::create("infor/task_ele_4.png");

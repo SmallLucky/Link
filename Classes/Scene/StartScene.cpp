@@ -30,6 +30,7 @@ bool StartScene::init()
 		listenerkeyPad->onKeyReleased = CC_CALLBACK_2(StartScene::onKeyReleased, this);
 		_eventDispatcher->addEventListenerWithSceneGraphPriority(listenerkeyPad, this); 
 
+
 		return true;
 }
 

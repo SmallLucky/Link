@@ -165,7 +165,7 @@ public:
 
 	//ÌØÐ§
 	void  jitterEffect(Node* node, float delay);
-
+	int		getTargetElementCount(int level);
 	void	addTargetElement();
 	void	showTargetElementNum(int ele, int n);
 	void	initTargetEleNum();
